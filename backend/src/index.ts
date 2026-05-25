@@ -1,22 +1,30 @@
 import { Hono } from "hono";
-import { userRouter } from "./routes/user";
-import { gamesRouter } from "./routes/games"; 
 import { cors } from "hono/cors";
-import { wsRouter } from "./routes/ws"; 
+
+import { authRoutes } from "./routes/auth.routes";
+import { gamesRoutes } from "./routes/games.routes";
+import { roomsRoutes } from "./routes/rooms.routes";
+import { leaderboardRoutes } from "./routes/leaderboard.routes";
+
+import type { Env } from "./types";
+
+const app = new Hono<{ Bindings: Env }>();
+
+app.use("*", cors());
 
 
-const app = new Hono<{
-  Bindings: {
-    DATABASE_URL: string;
-    JWT_SECRET: string;
-  };
-}>();
+// Health check route
+app.get("/", (c) => {
+  return c.json({
+    success: true,
+    message: "PixelPlayground API running",
+  });
+});
 
-app.use("/*", cors());
 
-app.route("/api/v1/user", userRouter);
-app.route("/api/v1/games", gamesRouter); 
-app.route("/api/v1/ws", wsRouter); 
-
+app.route("/api/v1/auth", authRoutes);
+app.route("/api/v1/games", gamesRoutes);
+app.route("/api/v1/rooms", roomsRoutes);
+app.route("/api/v1/leaderboard", leaderboardRoutes);
 
 export default app;
