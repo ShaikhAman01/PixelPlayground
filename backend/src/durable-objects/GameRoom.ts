@@ -343,6 +343,11 @@ export class GameRoom {
         },
       };
 
+      console.log(
+  "[BROADCASTING_STATE]",
+  this.gameState
+);
+
     const serialized =
       JSON.stringify(
         response
