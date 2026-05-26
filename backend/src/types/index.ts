@@ -1,4 +1,8 @@
 export interface Env {
-  DATABASE_URL: string;
   JWT_SECRET: string;
+}
+
+export interface JWTPayload {
+  userId: string;
+  exp: number;
 }

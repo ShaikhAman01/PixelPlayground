@@ -7,7 +7,9 @@ export const generateToken = async (
   return await sign(
     {
       userId,
-      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7,
+      exp:
+        Math.floor(Date.now() / 1000) +
+        60 * 60 * 24 * 7,
     },
     secret
   );

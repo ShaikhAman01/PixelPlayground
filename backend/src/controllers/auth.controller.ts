@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-
 import { Context } from "hono";
 
 import {
@@ -8,6 +7,19 @@ import {
 } from "../lib/validators";
 
 import { generateToken } from "../lib/jwt";
+
+import {
+  successResponse,
+  errorResponse,
+} from "../utils/helpers";
+
+
+// TEMP in-memory DB
+const users: {
+  id: string;
+  username: string;
+  password: string;
+}[] = [];
 
 
 export const signup = async (c: Context) => {
@@ -19,11 +31,26 @@ export const signup = async (c: Context) => {
 
     if (!parsed.success) {
       return c.json(
-        {
-          success: false,
-          errors: parsed.error.flatten(),
-        },
+        errorResponse(
+          "Invalid inputs",
+          parsed.error.flatten()
+        ),
         400
+      );
+    }
+
+    const existingUser = users.find(
+      (u) =>
+        u.username ===
+        parsed.data.username
+    );
+
+    if (existingUser) {
+      return c.json(
+        errorResponse(
+          "Username already exists"
+        ),
+        409
       );
     }
 
@@ -33,21 +60,29 @@ export const signup = async (c: Context) => {
         10
       );
 
-    // TODO:
-    // Save user in DB
+    const newUser = {
+      id: crypto.randomUUID(),
+      username: parsed.data.username,
+      password: hashedPassword,
+    };
 
-    return c.json({
-      success: true,
-      message:
-        "User created successfully",
-      hashedPassword,
-    });
-  } catch (error) {
+    users.push(newUser);
+
     return c.json(
-      {
-        success: false,
-        message: "Signup failed",
-      },
+      successResponse(
+        {
+          id: newUser.id,
+          username: newUser.username,
+        },
+        "User created successfully"
+      ),
+      201
+    );
+  } catch (error) {
+    console.error(error);
+
+    return c.json(
+      errorResponse("Signup failed"),
       500
     );
   }
@@ -63,32 +98,63 @@ export const login = async (c: Context) => {
 
     if (!parsed.success) {
       return c.json(
-        {
-          success: false,
-          errors: parsed.error.flatten(),
-        },
+        errorResponse(
+          "Invalid inputs",
+          parsed.error.flatten()
+        ),
         400
       );
     }
 
-    // TODO:
-    // fetch user from DB
+    const user = users.find(
+      (u) =>
+        u.username ===
+        parsed.data.username
+    );
 
-const token = await generateToken(
-  "example-user-id",
-  c.env.JWT_SECRET
-);
+    if (!user) {
+      return c.json(
+        errorResponse(
+          "Invalid credentials"
+        ),
+        401
+      );
+    }
 
-    return c.json({
-      success: true,
-      token,
-    });
-  } catch (error) {
+    const isPasswordCorrect =
+      await bcrypt.compare(
+        parsed.data.password,
+        user.password
+      );
+
+    if (!isPasswordCorrect) {
+      return c.json(
+        errorResponse(
+          "Invalid credentials"
+        ),
+        401
+      );
+    }
+console.log(c.env.JWT_SECRET);
+    const token =
+      await generateToken(
+        user.id,
+        c.env.JWT_SECRET
+      );
+
     return c.json(
-      {
-        success: false,
-        message: "Login failed",
-      },
+      successResponse(
+        {
+          token,
+        },
+        "Login successful"
+      )
+    );
+  } catch (error) {
+    console.error(error);
+
+    return c.json(
+      errorResponse("Login failed"),
       500
     );
   }
