@@ -5,6 +5,9 @@ import { authRoutes } from "./routes/auth.routes";
 import { gamesRoutes } from "./routes/games.routes";
 import { roomsRoutes } from "./routes/rooms.routes";
 import { leaderboardRoutes } from "./routes/leaderboard.routes";
+import { wsRoutes } from "./routes/ws.routes";
+
+import { GameRoom } from "./durable-objects/GameRoom";
 
 import {
   errorMiddleware,
@@ -34,7 +37,6 @@ app.use("*", loggerMiddleware);
 
 app.use("*", requestIdMiddleware);
 
-
 app.get("/", (c) => {
   return c.json({
     success: true,
@@ -42,7 +44,6 @@ app.get("/", (c) => {
       "PixelPlayground API running",
   });
 });
-
 
 app.route(
   "/api/v1/auth",
@@ -64,5 +65,7 @@ app.route(
   leaderboardRoutes
 );
 
+app.route("/ws", wsRoutes);
 
 export default app;
+export { GameRoom };

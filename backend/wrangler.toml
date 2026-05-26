@@ -6,3 +6,11 @@ compatibility_date = "2025-05-25"
 
 [vars]
 JWT_SECRET = "super_secret_key"
+
+[[durable_objects.bindings]]
+name = "GAME_ROOM"
+class_name = "GameRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["GameRoom"]

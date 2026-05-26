@@ -1,10 +1,12 @@
 import { Hono } from "hono";
 
-export const roomsRoutes = new Hono();
+export const roomsRoutes =
+  new Hono();
 
 roomsRoutes.get("/", (c) => {
   return c.json({
     success: true,
-    rooms: [],
+    message:
+      "Rooms endpoint working",
   });
 });
