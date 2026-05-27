@@ -14,8 +14,7 @@ export const AmbientBackground =
               {/* <FloatingMascot /> */}
               
         {/* SKY */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#efe8ff] via-[#fdf7f4] to-[#f5f2ff]" />
-
+<div className="absolute inset-0 bg-gradient-to-b from-[#f7f1ff] via-[#fdf9f7] to-[#f8f5ff]" />
 
         {/* SUNSET GLOW */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,220,180,0.35),transparent_40%)]" />
@@ -28,9 +27,6 @@ export const AmbientBackground =
 
         {/* CLOUDS */}
         <FloatingClouds />
-
-        {/* SPARKLES */}
-        <Sparkles />
 
         {/* FOOTER */}
         <CozyFooter />
