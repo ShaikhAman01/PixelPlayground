@@ -14,6 +14,8 @@ interface Player {
   username: string;
 
   symbol: "X" | "O";
+
+  connected: boolean;
 }
 
 
@@ -22,6 +24,22 @@ export class GameRoom {
     new Map<string, WebSocket>();
 
   private players: Player[] = [];
+
+  private resetGame() {
+  this.players = [];
+
+  this.gameState = {
+    board: Array(9).fill(
+      null
+    ),
+
+    currentTurn: "X",
+
+    winner: null,
+
+    status: "WAITING",
+  };
+}
 
   private gameState: TicTacToeState =
     {
@@ -130,6 +148,8 @@ export class GameRoom {
                   .username,
 
               symbol,
+
+              connected: true,
             });
 
             if (
@@ -154,6 +174,28 @@ export class GameRoom {
               data.payload.index
             );
           }
+
+          if (
+  data.type ===
+  "REMATCH"
+) {
+  this.gameState = {
+    board: Array(9).fill(
+      null
+    ),
+
+    currentTurn: "X",
+
+    winner: null,
+
+    status:
+      this.players.length === 2
+        ? "PLAYING"
+        : "WAITING",
+  };
+
+  this.broadcastState();
+}
 
 
           // HEARTBEAT
@@ -183,25 +225,50 @@ export class GameRoom {
     );
 
 
-    server.addEventListener(
-      "close",
-      () => {
-        console.log(
-          `[PLAYER_DISCONNECTED] ${connectionId}`
-        );
-
-        this.sessions.delete(
-          connectionId
-        );
-
-        this.players =
-          this.players.filter(
-            (p) =>
-              p.id !==
-              connectionId
-          );
-      }
+server.addEventListener(
+  "close",
+  () => {
+    console.log(
+      `[PLAYER_DISCONNECTED] ${connectionId}`
     );
+
+    this.sessions.delete(
+      connectionId
+    );
+
+    const player =
+      this.players.find(
+        (p) =>
+          p.id ===
+          connectionId
+      );
+
+    if (player) {
+      player.connected =
+        false;
+    }
+
+    this.broadcastState();
+
+    // Cleanup room if empty
+    const connectedPlayers =
+      this.players.filter(
+        (p) =>
+          p.connected
+      );
+
+    if (
+      connectedPlayers.length ===
+      0
+    ) {
+      console.log(
+        "[ROOM_EMPTY]"
+      );
+
+      this.resetGame();
+    }
+  }
+);
 
     return new Response(null, {
       status: 101,

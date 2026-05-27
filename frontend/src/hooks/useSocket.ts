@@ -22,7 +22,16 @@ export const useSocket = (
         s.setGameState
     );
 
+  const rematch = () => {
+  socketRef.current?.send(
+    JSON.stringify({
+      type: "REMATCH",
+    })
+  );
+};
+
   useEffect(() => {
+      if (!username) return;
     const socket =
       new WebSocket(
         `ws://localhost:8787/ws/${roomId}`
@@ -108,5 +117,6 @@ export const useSocket = (
 
   return {
     makeMove,
+    rematch,
   };
 };

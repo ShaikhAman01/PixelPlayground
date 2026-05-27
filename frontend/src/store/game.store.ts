@@ -30,6 +30,14 @@ interface GameState {
   ) => void;
 }
 
+interface Player {
+  id: string;
+
+  username: string;
+
+  symbol: "X" | "O";
+}
+
 export const useGameStore =
   create<GameState>(
     (set) => ({

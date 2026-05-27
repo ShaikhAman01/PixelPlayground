@@ -17,11 +17,15 @@ export interface MakeMoveEvent {
 export interface PingEvent {
   type: "PING";
 }
+export interface RematchEvent {
+type: "REMATCH";
+}
 
 export type ClientEvent =
   | JoinRoomEvent
   | MakeMoveEvent
-  | PingEvent;
+  | PingEvent
+  | RematchEvent
 
 
 export interface GameStateEvent {
