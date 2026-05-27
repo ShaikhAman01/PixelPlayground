@@ -10,6 +10,8 @@ import { FloatingBlobs } from "@/components/layout/FloatingBlobs";
 
 import { PixelDecoration } from "@/components/layout/PixelDecoration";
 
+import { PageTransition } from "@/components/layout/PageTransition";
+
 export default function Home() {
   const router =
     useRouter();
@@ -57,6 +59,7 @@ export default function Home() {
   };
 
   return (
+    <PageTransition>
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-12">
       <FloatingBlobs />
 
@@ -169,5 +172,6 @@ export default function Home() {
         </div>
       </motion.div>
     </main>
+    </PageTransition>
   );
 }

@@ -4,175 +4,137 @@ import { motion } from "framer-motion";
 
 import { useGameStore } from "@/store/game.store";
 
-interface Player {
-  id: string;
-  username: string;
-  symbol: string;
-}
+import { TurnIndicator } from "./TurnIndicator";
 
 interface Props {
   onMove: (
     index: number
   ) => void;
+
   onRematch: () => void;
 }
 
 export const TicTacToeBoard =
   ({
     onMove,
-    onRematch
+    onRematch,
   }: Props) => {
     const {
       board,
       currentTurn,
       winner,
       status,
-      players,
     } = useGameStore();
 
     return (
-      <div className="flex w-full max-w-xl flex-col items-center gap-8">
-        {/* HEADER */}
-        <div className="space-y-2 text-center">
-          <h1 className="text-5xl font-black tracking-tight">
-            PixelPlayground
-          </h1>
+      <div className="flex flex-col items-center">
+        {/* TURN */}
+        {!winner && (
+          <TurnIndicator
+            currentTurn={
+              currentTurn
+            }
+          />
+        )}
 
-          <p className="text-muted-foreground">
-            Multiplayer Tic Tac Toe
-          </p>
-        </div>
-
-
-        {/* PLAYERS */}
-        <div className="grid w-full grid-cols-2 gap-4">
-          {players.map(
-            (player: Player) => (
-              <div
-                key={player.id}
-                className={`rounded-2xl border p-4 transition ${
-                  currentTurn ===
-                  player.symbol
-                    ? "border-green-500 bg-green-500/10"
-                    : ""
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold">
-                      {
-                        player.username
-                      }
-                    </p>
-
-                    <p className="text-sm text-muted-foreground">
-                      Player
-                    </p>
+        {/* BOARD WRAPPER */}
+        <div className="rounded-[42px] border border-white/70 bg-white/50 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.08)] backdrop-blur-2xl">
+          {/* BOARD */}
+          <div className="grid grid-cols-3 gap-4">
+            {board.map(
+              (
+                cell,
+                index
+              ) => (
+                <motion.button
+                  key={index}
+                  whileHover={{
+                    scale: 1.03,
+                  }}
+                  whileTap={{
+                    scale: 0.96,
+                  }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                  }}
+                  onClick={() =>
+                    onMove(
+                      index
+                    )
+                  }
+                  disabled={
+                    !!cell ||
+                    status !==
+                      "PLAYING"
+                  }
+                  className="group relative flex h-40 w-40 items-center justify-center overflow-hidden rounded-[28px] border border-white/60 bg-white/80 shadow-inner transition disabled:cursor-not-allowed"
+                >
+                  {/* Hover Glow */}
+                  <div className="absolute inset-0 opacity-0 transition group-hover:opacity-100">
+                    <div className="absolute inset-0 bg-gradient-to-br from-violet-100/40 to-sky-100/40" />
                   </div>
 
-                  <div className="text-3xl font-black">
-                    {
-                      player.symbol
-                    }
-                  </div>
-                </div>
-              </div>
-            )
-          )}
+                  {/* Symbol */}
+                  <motion.span
+                    initial={{
+                      scale: 0,
+                      rotate: -10,
+                    }}
+                    animate={{
+                      scale: 1,
+                      rotate: 0,
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 250,
+                    }}
+                    className={`relative z-10 font-[family:var(--font-pixel)] text-7xl ${
+                      cell === "X"
+                        ? "text-pink-400"
+                        : "text-sky-400"
+                    }`}
+                  >
+                    {cell}
+                  </motion.span>
+                </motion.button>
+              )
+            )}
+          </div>
         </div>
 
-
-        {/* STATUS */}
-        <div className="text-center">
-          {status ===
-            "WAITING" && (
-            <p className="text-lg text-muted-foreground">
-              Waiting for
-              opponent...
-            </p>
-          )}
-
-          {status ===
-            "PLAYING" && (
-            <p className="text-lg font-medium">
-              Turn:{" "}
-              {currentTurn}
-            </p>
-          )}
-
-          {winner && (
-            <motion.div
-              initial={{
-                scale: 0.8,
-                opacity: 0,
-              }}
-              animate={{
-                scale: 1,
-                opacity: 1,
-              }}
-              className="space-y-1"
-            >
-              <p className="text-3xl font-black text-green-500">
+        {/* WINNER */}
+        {winner && (
+          <motion.div
+            initial={{
+              opacity: 0,
+              y: 10,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            className="mt-8 flex flex-col items-center gap-5"
+          >
+            <div className="rounded-full border border-white/60 bg-white/70 px-8 py-4 shadow-lg backdrop-blur-xl">
+              <p className="font-[family:var(--font-pixel)] text-3xl text-violet-500">
                 {winner ===
                 "DRAW"
-                  ? "Draw!"
-                  : `${winner} Wins!`}
+                  ? "DRAW!"
+                  : `${winner} WINS`}
               </p>
-            </motion.div>
-          )}
+            </div>
 
-          <button
-  onClick={
-    onRematch
-  }
-  className="mt-4 rounded-xl bg-black px-6 py-3 text-white"
->
-  Play Again
-</button>
-        </div>
-
-
-        {/* BOARD */}
-        <div className="grid grid-cols-3 gap-3">
-          {board.map(
-            (
-              cell,
-              index
-            ) => (
-              <motion.button
-                whileHover={{
-                  scale: 1.03,
-                }}
-                whileTap={{
-                  scale: 0.95,
-                }}
-                key={index}
-                onClick={() =>
-                  onMove(
-                    index
-                  )
-                }
-                disabled={
-                  !!cell ||
-                  status !==
-                    "PLAYING"
-                }
-                className="flex h-28 w-28 items-center justify-center rounded-2xl border bg-card text-5xl font-black shadow transition hover:bg-accent disabled:cursor-not-allowed"
-              >
-                <motion.span
-                  initial={{
-                    scale: 0,
-                  }}
-                  animate={{
-                    scale: 1,
-                  }}
-                >
-                  {cell}
-                </motion.span>
-              </motion.button>
-            )
-          )}
-        </div>
+            <button
+              onClick={
+                onRematch
+              }
+              className="rounded-full bg-violet-400 px-8 py-4 font-medium text-white shadow-lg shadow-violet-200 transition hover:scale-[1.03] hover:bg-violet-500"
+            >
+              Play Again
+            </button>
+          </motion.div>
+        )}
       </div>
     );
   };

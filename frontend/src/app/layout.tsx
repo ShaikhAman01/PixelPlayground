@@ -2,6 +2,8 @@ import type {
   Metadata,
 } from "next";
 
+import { Toaster } from "sonner";
+
 import {
   Inter,
   Pixelify_Sans,
@@ -44,6 +46,10 @@ export default function RootLayout({
         className={`${inter.variable} ${pixelFont.variable}`}
       >
         {children}
+        <Toaster
+  richColors
+  position="top-center"
+/>
       </body>
     </html>
   );
