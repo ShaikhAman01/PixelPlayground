@@ -22,16 +22,18 @@ export const useSocket = (
         s.setGameState
     );
 
+  // REMATCH
   const rematch = () => {
-  socketRef.current?.send(
-    JSON.stringify({
-      type: "REMATCH",
-    })
-  );
-};
+    socketRef.current?.send(
+      JSON.stringify({
+        type: "REMATCH",
+      })
+    );
+  };
 
   useEffect(() => {
-      if (!username) return;
+    if (!username) return;
+
     const socket =
       new WebSocket(
         `ws://localhost:8787/ws/${roomId}`
@@ -40,6 +42,7 @@ export const useSocket = (
     socketRef.current =
       socket;
 
+    // CONNECTED
     socket.onopen = () => {
       console.log(
         "Connected"
@@ -57,6 +60,7 @@ export const useSocket = (
       );
     };
 
+    // RECEIVE MESSAGE
     socket.onmessage = (
       event
     ) => {
@@ -70,21 +74,56 @@ export const useSocket = (
         data
       );
 
-      if (
-        data.type ===
-        "GAME_STATE"
+      switch (
+        data.type
       ) {
-        setGameState({
-          ...data.payload
-            .gameState,
+        // GAME STATE
+        case "GAME_STATE": {
+          setGameState({
+            board:
+              data.payload
+                .board,
 
-          players:
+            currentTurn:
+              data.payload
+                .currentTurn,
+
+            winner:
+              data.payload
+                .winner,
+
+            status:
+              data.payload
+                .status,
+
+            players:
+              data.payload
+                .players,
+
+            moveHistory:
+              data.payload
+                .moveHistory,
+          });
+
+          break;
+        }
+
+        // ERROR
+        case "ERROR": {
+          console.error(
             data.payload
-              .players,
-        });
+              ?.message
+          );
+
+          break;
+        }
+
+        default:
+          break;
       }
     };
 
+    // DISCONNECTED
     socket.onclose = () => {
       console.log(
         "Disconnected"
@@ -100,6 +139,7 @@ export const useSocket = (
     setGameState,
   ]);
 
+  // MAKE MOVE
   const makeMove = (
     index: number
   ) => {
@@ -117,6 +157,7 @@ export const useSocket = (
 
   return {
     makeMove,
+
     rematch,
   };
 };

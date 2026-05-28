@@ -3,63 +3,30 @@ import type {
   ServerEvent,
 } from "../types/ws.types";
 
-import type {
-  TicTacToeState,
-} from "../types/game.types";
+import {
+  TicTacToeEngine,
+} from "../games/engine/ticTacToe.engine";
 
+interface PlayerSession {
+  socket: WebSocket;
 
-interface Player {
-  id: string;
-
-  username: string;
-
-  symbol: "X" | "O";
-
-  connected: boolean;
+  playerId: string;
 }
-
 
 export class GameRoom {
   private sessions =
-    new Map<string, WebSocket>();
+    new Map<
+      string,
+      PlayerSession
+    >();
 
-  private players: Player[] = [];
-
-  private resetGame() {
-  this.players = [];
-
-  this.gameState = {
-    board: Array(9).fill(
-      null
-    ),
-
-    currentTurn: "X",
-
-    winner: null,
-
-    status: "WAITING",
-  };
-}
-
-  private gameState: TicTacToeState =
-    {
-      board: Array(9).fill(
-        null
-      ),
-
-      currentTurn: "X",
-
-      winner: null,
-
-      status: "WAITING",
-    };
-
+  private engine =
+    new TicTacToeEngine();
 
   constructor(
     private state: DurableObjectState,
     private env: Env
   ) {}
-
 
   async fetch(
     request: Request
@@ -98,13 +65,19 @@ export class GameRoom {
 
     this.sessions.set(
       connectionId,
-      server
-    );
+      {
+        socket: server,
 
+        playerId:
+          connectionId,
+      }
+    );
 
     server.addEventListener(
       "message",
-      (event) => {
+      async (
+        event
+      ) => {
         try {
           const data =
             JSON.parse(
@@ -116,105 +89,109 @@ export class GameRoom {
             data
           );
 
-
-          // JOIN ROOM
-          if (
-            data.type ===
-            "JOIN_ROOM"
+          switch (
+            data.type
           ) {
-            if (
-              this.players
-                .length >= 2
-            ) {
-              this.sendError(
-                server,
-                "Room full"
+            // JOIN ROOM
+            case "JOIN_ROOM": {
+              const currentPlayers =
+                this.engine.getState()
+                  .players;
+
+              if (
+                currentPlayers.length >=
+                2
+              ) {
+                this.sendError(
+                  server,
+                  "Room full"
+                );
+
+                return;
+              }
+
+              const symbol =
+                currentPlayers.length ===
+                0
+                  ? "X"
+                  : "O";
+
+              this.engine.addPlayer(
+                {
+                  id: connectionId,
+
+                  username:
+                    data.payload
+                      .username,
+
+                  symbol,
+                }
               );
 
-              return;
+              this.broadcastState();
+
+              break;
             }
 
-            const symbol =
-              this.players
-                .length === 0
-                ? "X"
-                : "O";
+            // MAKE MOVE
+            case "MAKE_MOVE": {
+              const symbol =
+                this.engine.getPlayerSymbol(
+                  connectionId
+                );
 
-            this.players.push({
-              id: connectionId,
+              if (
+                !symbol
+              ) {
+                return;
+              }
 
-              username:
+              this.engine.makeMove(
+                symbol,
                 data.payload
-                  .username,
+                  .index
+              );
 
-              symbol,
+              this.broadcastState();
 
-              connected: true,
-            });
-
-            if (
-              this.players
-                .length === 2
-            ) {
-              this.gameState.status =
-                "PLAYING";
+              break;
             }
 
-            this.broadcastState();
-          }
+            // REMATCH
+            case "REMATCH": {
+              this.engine.reset();
 
+              this.broadcastState();
 
-          // MAKE MOVE
-          if (
-            data.type ===
-            "MAKE_MOVE"
-          ) {
-            this.handleMove(
-              connectionId,
-              data.payload.index
-            );
-          }
+              break;
+            }
 
-          if (
-  data.type ===
-  "REMATCH"
-) {
-  this.gameState = {
-    board: Array(9).fill(
-      null
-    ),
+            // HEARTBEAT
+            case "PING": {
+              const response: ServerEvent =
+                {
+                  type: "PONG",
+                };
 
-    currentTurn: "X",
+              server.send(
+                JSON.stringify(
+                  response
+                )
+              );
 
-    winner: null,
+              break;
+            }
 
-    status:
-      this.players.length === 2
-        ? "PLAYING"
-        : "WAITING",
-  };
-
-  this.broadcastState();
-}
-
-
-          // HEARTBEAT
-          if (
-            data.type === "PING"
-          ) {
-            const response: ServerEvent =
-              {
-                type: "PONG",
-              };
-
-            server.send(
-              JSON.stringify(
-                response
-              )
-            );
+            default:
+              this.sendError(
+                server,
+                "Unknown event"
+              );
           }
         } catch (error) {
-          console.error(error);
+          console.error(
+            error
+          );
 
           this.sendError(
             server,
@@ -224,196 +201,55 @@ export class GameRoom {
       }
     );
 
+    server.addEventListener(
+      "close",
+      () => {
+        console.log(
+          `[PLAYER_DISCONNECTED] ${connectionId}`
+        );
 
-server.addEventListener(
-  "close",
-  () => {
-    console.log(
-      `[PLAYER_DISCONNECTED] ${connectionId}`
-    );
-
-    this.sessions.delete(
-      connectionId
-    );
-
-    const player =
-      this.players.find(
-        (p) =>
-          p.id ===
+        this.sessions.delete(
           connectionId
-      );
+        );
 
-    if (player) {
-      player.connected =
-        false;
-    }
+        this.broadcastState();
 
-    this.broadcastState();
-
-    // Cleanup room if empty
-    const connectedPlayers =
-      this.players.filter(
-        (p) =>
-          p.connected
-      );
-
-    if (
-      connectedPlayers.length ===
-      0
-    ) {
-      console.log(
-        "[ROOM_EMPTY]"
-      );
-
-      this.resetGame();
-    }
-  }
-);
-
-    return new Response(null, {
-      status: 101,
-      webSocket: client,
-    });
-  }
-
-
-  private handleMove(
-    playerId: string,
-    index: number
-  ) {
-    if (
-      this.gameState.status !==
-      "PLAYING"
-    ) {
-      return;
-    }
-
-    const player =
-      this.players.find(
-        (p) =>
-          p.id === playerId
-      );
-
-    if (!player) return;
-
-    // Turn validation
-    if (
-      player.symbol !==
-      this.gameState
-        .currentTurn
-    ) {
-      return;
-    }
-
-    // Cell already occupied
-    if (
-      this.gameState.board[
-        index
-      ] !== null
-    ) {
-      return;
-    }
-
-    this.gameState.board[
-      index
-    ] = player.symbol;
-
-    // Check winner
-    const winner =
-      this.checkWinner();
-
-    if (winner) {
-      this.gameState.winner =
-        winner;
-
-      this.gameState.status =
-        "FINISHED";
-    } else if (
-      this.gameState.board.every(
-        (cell) =>
-          cell !== null
-      )
-    ) {
-      this.gameState.winner =
-        "DRAW";
-
-      this.gameState.status =
-        "FINISHED";
-    } else {
-      this.gameState.currentTurn =
-        this.gameState
-          .currentTurn === "X"
-          ? "O"
-          : "X";
-    }
-
-    this.broadcastState();
-  }
-
-
-  private checkWinner():
-    | "X"
-    | "O"
-    | null {
-    const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
-
-    for (const line of lines) {
-      const [a, b, c] =
-        line;
-
-      if (
-        this.gameState.board[
-          a
-        ] &&
-        this.gameState.board[
-          a
-        ] ===
-          this.gameState
-            .board[b] &&
-        this.gameState.board[
-          a
-        ] ===
-          this.gameState
-            .board[c]
-      ) {
-        return this.gameState
-          .board[a];
+        // Cleanup if empty
+        if (
+          this.sessions.size ===
+          0
+        ) {
+          console.log(
+            "[ROOM_EMPTY]"
+          );
+        }
       }
-    }
+    );
 
-    return null;
+    return new Response(
+      null,
+      {
+        status: 101,
+
+        webSocket:
+          client,
+      }
+    );
   }
-
 
   private broadcastState() {
     const response: ServerEvent =
       {
         type: "GAME_STATE",
 
-        payload: {
-          players:
-            this.players,
-
-          gameState:
-            this.gameState,
-        },
+        payload:
+          this.engine.getSnapshot(),
       };
 
-      console.log(
-  "[BROADCASTING_STATE]",
-  this.gameState
-);
+    console.log(
+      "[BROADCASTING_STATE]",
+      this.engine.getSnapshot()
+    );
 
     const serialized =
       JSON.stringify(
@@ -421,14 +257,15 @@ server.addEventListener(
       );
 
     this.sessions.forEach(
-      (socket) => {
+      ({
+        socket,
+      }) => {
         socket.send(
           serialized
         );
       }
     );
   }
-
 
   private sendError(
     socket: WebSocket,
