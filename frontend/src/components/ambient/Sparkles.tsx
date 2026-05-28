@@ -6,46 +6,77 @@ export const Sparkles =
   () => {
     return (
       <>
-        {Array.from({
-          length: 18,
-        }).map((_, i) => (
-          <motion.div
-            key={i}
-            animate={{
-              opacity: [
-                0.2,
-                1,
-                0.2,
-              ],
+        {[
+  {
+    bottom: "70px",
+    left: "12%",
+  },
 
-              scale: [
-                0.8,
-                1.2,
-                0.8,
-              ],
-            }}
-            transition={{
-              duration:
-                2 +
-                Math.random() *
-                  4,
+  {
+    bottom: "120px",
+    left: "24%",
+  },
 
-              repeat:
-                Infinity,
+  {
+    bottom: "90px",
+    left: "36%",
+  },
 
-              delay:
-                Math.random() *
-                5,
-            }}
-            className="absolute text-white/80"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-            }}
-          >
-            ✦
-          </motion.div>
-        ))}
+  {
+    bottom: "150px",
+    left: "48%",
+  },
+
+  {
+    bottom: "80px",
+    left: "60%",
+  },
+
+  {
+    bottom: "130px",
+    left: "72%",
+  },
+
+  {
+    bottom: "100px",
+    left: "84%",
+  },
+].map(
+  (
+    sparkle,
+    i
+  ) => (
+    <motion.div
+      key={i}
+      animate={{
+        opacity: [
+          0.2,
+          1,
+          0.2,
+        ],
+
+        y: [0, -6, 0],
+      }}
+      transition={{
+        duration:
+          3 + i,
+
+        repeat:
+          Infinity,
+      }}
+      className="absolute text-white/80"
+      style={{
+        bottom:
+          sparkle.bottom,
+
+        left:
+          sparkle.left,
+      }}
+    >
+      ✦
+    </motion.div>
+  )
+)}
       </>
     );
   };

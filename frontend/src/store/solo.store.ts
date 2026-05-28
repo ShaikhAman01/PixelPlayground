@@ -3,28 +3,41 @@ import { create } from "zustand";
 import { Cell } from "@/games/tictactoe.engine";
 
 interface SoloState {
+  // BOARD
   board: Cell[];
 
+  // TURN
   currentTurn:
     | "X"
     | "O";
 
+  // ROUND WINNER
   winner:
     | "X"
     | "O"
     | "DRAW"
     | null;
 
+  // MATCH WINNER
+  matchWinner:
+    | "PLAYER"
+    | "CPU"
+    | null;
+
+  // GAME STATUS
   status:
     | "PLAYING"
     | "FINISHED";
 
+  // SCORES
   playerScore: number;
 
   cpuScore: number;
 
+  // ROUND
   round: number;
 
+  // ACTIONS
   setState: (
     state: Partial<SoloState>
   ) => void;
@@ -35,31 +48,43 @@ interface SoloState {
 export const useSoloStore =
   create<SoloState>(
     (set) => ({
+      // BOARD
       board:
         Array(9).fill(
           null
         ),
 
+      // TURN
       currentTurn: "X",
 
+      // ROUND WINNER
       winner: null,
 
+      // MATCH WINNER
+      matchWinner: null,
+
+      // STATUS
       status: "PLAYING",
 
+      // SCORES
       playerScore: 0,
 
       cpuScore: 0,
 
+      // ROUND
       round: 1,
 
+      // UPDATE STATE
       setState: (
         state
       ) =>
         set((prev) => ({
           ...prev,
+
           ...state,
         })),
 
+      // RESET MATCH
       resetScores: () =>
         set({
           playerScore: 0,
@@ -67,6 +92,9 @@ export const useSoloStore =
           cpuScore: 0,
 
           round: 1,
+
+          matchWinner:
+            null,
         }),
     })
   );

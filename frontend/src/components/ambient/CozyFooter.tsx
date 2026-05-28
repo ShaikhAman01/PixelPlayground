@@ -20,36 +20,78 @@ export const CozyFooter =
         {/* Mountain Layer 2 */}
         <div className="absolute bottom-8 left-[20%] h-32 w-[35%] rounded-[100%] bg-sky-100/20 blur-2xl" />
 
-        {/* Floating Sparkles */}
-        {Array.from({
-          length: 10,
-        }).map((_, i) => (
-          <motion.div
-            key={i}
-            animate={{
-              opacity: [
-                0.2,
-                1,
-                0.2,
-              ],
+       {/* Floating Sparkles */}
+{[
+  {
+    bottom: "70px",
+    left: "12%",
+  },
 
-              y: [0, -6, 0],
-            }}
-            transition={{
-              duration:
-                3 + i,
-              repeat:
-                Infinity,
-            }}
-            className="absolute text-white/80"
-            style={{
-              bottom: `${40 + Math.random() * 120}px`,
-              left: `${Math.random() * 100}%`,
-            }}
-          >
-            ✦
-          </motion.div>
-        ))}
+  {
+    bottom: "120px",
+    left: "24%",
+  },
+
+  {
+    bottom: "90px",
+    left: "36%",
+  },
+
+  {
+    bottom: "150px",
+    left: "48%",
+  },
+
+  {
+    bottom: "80px",
+    left: "60%",
+  },
+
+  {
+    bottom: "130px",
+    left: "72%",
+  },
+
+  {
+    bottom: "100px",
+    left: "84%",
+  },
+].map(
+  (
+    sparkle,
+    i
+  ) => (
+    <motion.div
+      key={i}
+      animate={{
+        opacity: [
+          0.2,
+          1,
+          0.2,
+        ],
+
+        y: [0, -6, 0],
+      }}
+      transition={{
+        duration:
+          3 + i,
+
+        repeat:
+          Infinity,
+      }}
+      className="absolute text-white/80"
+      style={{
+        bottom:
+          sparkle.bottom,
+
+        left:
+          sparkle.left,
+      }}
+    >
+      ✦
+    </motion.div>
+  )
+)}
 
         {/* Tiny Cat Silhouette */}
         <motion.div
