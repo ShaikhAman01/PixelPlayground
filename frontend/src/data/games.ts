@@ -56,7 +56,7 @@ export const games = [
   },
 
   {
-    id: "slide-puzzle",
+    id: "slidepuzzle",
 
     title: "Slide Puzzle",
 

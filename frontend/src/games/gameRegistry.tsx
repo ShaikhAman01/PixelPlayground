@@ -2,6 +2,8 @@ import { SoloTicTacToe } from "@/components/game/SoloTicTacToe";
 
 import { SoloConnect4 } from "@/components/game/SoloConnect4";
 import { ColorMemory } from "@/components/game/ColorMemory";
+import { SlidePuzzle } from "@/components/game/SlidePuzzle";
+import { WordleGame } from "@/components/game/WordleGame";
 
 export const gameRegistry = {
   tictactoe: {
@@ -18,15 +20,12 @@ export const gameRegistry = {
     SoloConnect4,
 },
 
-  wordle: {
-    title: "Wordle",
+wordle: {
+  title: "Wordle",
 
-    component: () => (
-      <div className="text-4xl text-slate-500">
-        Wordle Coming Soon
-      </div>
-    ),
-  },
+  component:
+    WordleGame,
+},
 
 colormemory: {
   title: "Color Memory",
@@ -35,16 +34,13 @@ colormemory: {
     ColorMemory,
 },
 
-  "slide-puzzle": {
-    title:
-      "Slide Puzzle",
+slidepuzzle: {
+  title:
+    "Slide Puzzle",
 
-    component: () => (
-      <div className="text-4xl text-slate-500">
-        Slide Puzzle Coming Soon
-      </div>
-    ),
-  },
+  component:
+    SlidePuzzle,
+},
 
   sudoku: {
     title: "Sudoku",
