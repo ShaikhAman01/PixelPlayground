@@ -1,5 +1,7 @@
 import { SoloTicTacToe } from "@/components/game/SoloTicTacToe";
 
+import { SoloConnect4 } from "@/components/game/SoloConnect4";
+
 export const gameRegistry = {
   tictactoe: {
     title: "Tic Tac Toe",
@@ -9,14 +11,11 @@ export const gameRegistry = {
   },
 
   connect4: {
-    title: "Connect 4",
+  title: "Connect 4",
 
-    component: () => (
-      <div className="text-4xl text-slate-500">
-        Connect 4 Coming Soon
-      </div>
-    ),
-  },
+  component:
+    SoloConnect4,
+},
 
   wordle: {
     title: "Wordle",
