@@ -1,6 +1,7 @@
 import { SoloTicTacToe } from "@/components/game/SoloTicTacToe";
 
 import { SoloConnect4 } from "@/components/game/SoloConnect4";
+import { ColorMemory } from "@/components/game/ColorMemory";
 
 export const gameRegistry = {
   tictactoe: {
@@ -27,16 +28,12 @@ export const gameRegistry = {
     ),
   },
 
-  "color-memory": {
-    title:
-      "Color Memory",
+colormemory: {
+  title: "Color Memory",
 
-    component: () => (
-      <div className="text-4xl text-slate-500">
-        Color Memory Coming Soon
-      </div>
-    ),
-  },
+  component:
+    ColorMemory,
+},
 
   "slide-puzzle": {
     title:

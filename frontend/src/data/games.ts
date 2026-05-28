@@ -42,7 +42,7 @@ export const games = [
   },
 
   {
-    id: "color-memory",
+    id: "colormemory",
 
     title: "Color Memory",
 
