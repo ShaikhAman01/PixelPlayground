@@ -4,6 +4,7 @@ import { SoloConnect4 } from "@/components/game/SoloConnect4";
 import { ColorMemory } from "@/components/game/ColorMemory";
 import { SlidePuzzle } from "@/components/game/SlidePuzzle";
 import { WordleGame } from "@/components/game/WordleGame";
+import { SudokuGame } from "@/components/game/SudokuGame";
 
 export const gameRegistry = {
   tictactoe: {
@@ -42,13 +43,10 @@ slidepuzzle: {
     SlidePuzzle,
 },
 
-  sudoku: {
-    title: "Sudoku",
+sudoku: {
+  title: "Sudoku",
 
-    component: () => (
-      <div className="text-4xl text-slate-500">
-        Sudoku Coming Soon
-      </div>
-    ),
-  },
+  component:
+    SudokuGame,
+},
 };
