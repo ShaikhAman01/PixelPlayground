@@ -7,18 +7,18 @@ export const CozyFooter =
     return (
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[260px] overflow-hidden">
         {/* Horizon Glow */}
-        <div className="absolute bottom-0 h-40 w-full bg-gradient-to-t from-[#f6d7d9]/60 via-[#eadcff]/30 to-transparent" />
+        <div className="footer-horizon absolute bottom-0 h-40 w-full bg-gradient-to-t from-[#f6d7d9]/60 via-[#eadcff]/30 to-transparent dark:from-[#3b0764]/20 dark:via-[#1e1b4b]/20" />
 
         {/* Water Reflection */}
-        <div className="absolute bottom-0 h-28 w-full bg-gradient-to-t from-sky-100/40 to-transparent backdrop-blur-sm" />
+        <div className="footer-water absolute bottom-0 h-28 w-full bg-gradient-to-t from-sky-100/40 to-transparent backdrop-blur-sm dark:from-sky-950/20" />
 
         {/* Mountain Layer 1 */}
-        <div className="absolute bottom-20 left-[-10%] h-40 w-[45%] rounded-[100%] bg-violet-200/30 blur-2xl" />
+        <div className="mountain-blur-1-l absolute bottom-20 left-[-10%] h-40 w-[45%] rounded-[100%] bg-violet-200/30 blur-2xl dark:bg-violet-950/30" />
 
-        <div className="absolute bottom-16 right-[-5%] h-44 w-[40%] rounded-[100%] bg-pink-200/30 blur-2xl" />
+        <div className="mountain-blur-1-r absolute bottom-16 right-[-5%] h-44 w-[40%] rounded-[100%] bg-pink-200/30 blur-2xl dark:bg-pink-950/20" />
 
         {/* Mountain Layer 2 */}
-        <div className="absolute bottom-8 left-[20%] h-32 w-[35%] rounded-[100%] bg-sky-100/20 blur-2xl" />
+        <div className="mountain-blur-2 absolute bottom-8 left-[20%] h-32 w-[35%] rounded-[100%] bg-sky-100/20 blur-2xl dark:bg-sky-950/10" />
 
        {/* Floating Sparkles */}
 {[

@@ -196,8 +196,8 @@ export const ColorMemory =
       >
         <div className="flex flex-col items-center">
           {/* LEVEL */}
-          <div className="mb-8 rounded-full border border-white/60 bg-white/70 px-8 py-4 shadow-lg">
-            <p className="font-[family:var(--font-pixel)] text-2xl text-slate-700">
+          <div className="shell-title-panel mb-8 rounded-full border border-white/60 bg-white/70 px-8 py-4 shadow-lg transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60">
+            <p className="text-title font-[family:var(--font-pixel)] text-2xl text-slate-700 transition-colors duration-300 dark:text-slate-200">
               Level {level}
             </p>
           </div>
@@ -235,7 +235,7 @@ export const ColorMemory =
                       index
                     )
                   }
-                  className={`h-40 w-40 rounded-[32px] ${color} shadow-xl`}
+                  className={`h-40 w-40 rounded-[32px] ${color} shadow-xl dark:shadow-[0_10px_30px_rgba(0,0,0,0.3)]`}
                 />
               )
             )}
@@ -248,15 +248,15 @@ export const ColorMemory =
                 onClick={
                   startGame
                 }
-                className="rounded-full bg-violet-400 px-8 py-4 text-white shadow-lg"
+                className="player-btn rounded-full bg-violet-400 px-8 py-4 text-white shadow-lg transition-all duration-300 dark:bg-violet-500 dark:shadow-violet-950/30"
               >
                 Start Game
               </button>
             ) : status ===
               "FAILED" ? (
               <div className="flex flex-col items-center gap-4">
-                <div className="rounded-full bg-white/70 px-6 py-4 shadow-lg">
-                  <p className="text-xl text-rose-400">
+                <div className="shell-title-panel rounded-full border border-white/60 bg-white/70 px-6 py-4 shadow-lg transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60">
+                  <p className="text-xl text-rose-450 dark:text-rose-400 font-semibold">
                     Game Over
                   </p>
                 </div>
@@ -265,14 +265,14 @@ export const ColorMemory =
                   onClick={
                     startGame
                   }
-                  className="rounded-full bg-violet-400 px-8 py-4 text-white shadow-lg"
+                  className="player-btn rounded-full bg-violet-400 px-8 py-4 text-white shadow-lg transition-all duration-300 dark:bg-violet-500 dark:shadow-violet-950/30"
                 >
                   Retry
                 </button>
               </div>
             ) : (
-              <div className="rounded-full bg-white/70 px-6 py-4 shadow-lg">
-                <p className="text-slate-600">
+              <div className="shell-title-panel rounded-full border border-white/60 bg-white/70 px-6 py-4 shadow-lg transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60">
+                <p className="text-title text-slate-600 transition-colors duration-300 dark:text-slate-350">
                   {status ===
                   "WATCHING"
                     ? "watch carefully..."

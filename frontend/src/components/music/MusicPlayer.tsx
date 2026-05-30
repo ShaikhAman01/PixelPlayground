@@ -85,26 +85,26 @@ export const MusicPlayer =
                 Infinity,
               ease: "linear",
             }}
-            className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-200 via-pink-200 to-sky-200 shadow-inner"
+            className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-200 via-pink-200 to-sky-200 shadow-inner dark:from-violet-400 dark:via-pink-400 dark:to-sky-400"
           >
             {/* Vinyl */}
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-700">
-              <div className="h-3 w-3 rounded-full bg-white" />
+            <div className="player-vinyl flex h-10 w-10 items-center justify-center rounded-full bg-slate-700 dark:bg-slate-900">
+              <div className="h-3 w-3 rounded-full bg-white dark:bg-slate-300" />
             </div>
           </motion.div>
 
           {/* Song Info */}
           <div className="min-w-[180px]">
-            <p className="font-medium text-slate-700">
+            <p className="text-title font-medium text-slate-700 transition-colors duration-300 dark:text-slate-200">
               cozy evening
             </p>
 
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="text-body mt-1 text-sm text-slate-400 dark:text-slate-400">
               lofi ambience
             </p>
 
             {/* Fake waveform */}
-            <div className="mt-3 flex items-end gap-1">
+            <div className="mt-3 flex h-5 items-end gap-1">
               {Array.from({
                 length: 18,
               }).map((_, i) => (
@@ -129,7 +129,7 @@ export const MusicPlayer =
                     repeat:
                       Infinity,
                   }}
-                  className="w-1 rounded-full bg-violet-300"
+                  className="w-1 rounded-full bg-violet-300 dark:bg-violet-450"
                 />
               ))}
             </div>
@@ -148,7 +148,7 @@ export const MusicPlayer =
               onClick={
                 toggleMusic
               }
-              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-400 text-white shadow-lg shadow-violet-200"
+              className="player-btn flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-400 text-white shadow-lg shadow-violet-200 transition-colors duration-300 dark:bg-violet-500 dark:shadow-violet-950/30"
             >
               {playing ? (
                 <Pause className="h-5 w-5" />
@@ -159,7 +159,7 @@ export const MusicPlayer =
 
             {/* Volume */}
             <div className="flex items-center gap-2">
-              <Volume2 className="h-4 w-4 text-slate-400" />
+              <Volume2 className="player-vol-icon h-4 w-4 text-slate-400 dark:text-slate-400" />
 
               <input
                 type="range"
@@ -176,7 +176,7 @@ export const MusicPlayer =
                     )
                   )
                 }
-                className="h-1 w-24 cursor-pointer accent-violet-400"
+                className="player-slider h-1 w-24 cursor-pointer accent-violet-400 dark:accent-violet-500"
               />
             </div>
           </div>

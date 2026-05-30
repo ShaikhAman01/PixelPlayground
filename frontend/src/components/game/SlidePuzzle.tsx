@@ -191,14 +191,14 @@ export const SlidePuzzle =
       >
         <div className="flex flex-col items-center">
           {/* MOVES */}
-          <div className="mb-6 rounded-full border border-white/60 bg-white/70 px-6 py-3 shadow-lg">
-            <p className="text-slate-600">
+          <div className="shell-title-panel mb-6 rounded-full border border-white/60 bg-white/70 px-6 py-3 shadow-lg transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60">
+            <p className="text-title text-slate-600 transition-colors duration-300 dark:text-slate-300">
               Moves: {moves}
             </p>
           </div>
 
           {/* BOARD */}
-          <div className="grid grid-cols-3 gap-4 rounded-[36px] border border-white/60 bg-white/70 p-5 shadow-xl backdrop-blur-xl">
+          <div className="shell-game-area grid grid-cols-3 gap-4 rounded-[36px] border border-white/60 bg-white/70 p-5 shadow-xl backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
             {board.map(
               (
                 tile,
@@ -214,10 +214,10 @@ export const SlidePuzzle =
                       index
                     )
                   }
-                  className={`flex h-28 w-28 items-center justify-center rounded-[24px] border text-3xl font-bold shadow-lg transition ${
+                  className={`flex h-28 w-28 items-center justify-center rounded-[24px] border text-3xl font-bold shadow-lg transition-all duration-300 ${
                     tile === 0
                       ? "border-transparent bg-transparent shadow-none"
-                      : "border-white/60 bg-white text-slate-700"
+                      : "border-white/60 bg-white text-slate-700 dark:border-white/10 dark:bg-slate-900/90 dark:text-slate-200"
                   }`}
                 >
                   {tile !== 0 &&
@@ -231,8 +231,8 @@ export const SlidePuzzle =
           <div className="mt-8">
             {won ? (
               <div className="flex flex-col items-center gap-4">
-                <div className="rounded-full border border-white/60 bg-white/80 px-8 py-4 shadow-lg">
-                  <p className="font-[family:var(--font-pixel)] text-3xl text-violet-500">
+                <div className="shell-title-panel rounded-full border border-white/60 bg-white/80 px-8 py-4 shadow-lg transition-all duration-300 dark:border-white/10 dark:bg-slate-900/80">
+                  <p className="font-[family:var(--font-pixel)] text-3xl text-violet-500 dark:text-violet-400">
                     Puzzle Solved ✨
                   </p>
                 </div>
@@ -241,14 +241,14 @@ export const SlidePuzzle =
                   onClick={
                     shuffleBoard
                   }
-                  className="rounded-full bg-violet-400 px-8 py-4 text-white shadow-lg"
+                  className="player-btn rounded-full bg-violet-400 px-8 py-4 text-white shadow-lg transition-all duration-300 dark:bg-violet-500 dark:shadow-violet-950/30"
                 >
                   Play Again
                 </button>
               </div>
             ) : (
-              <div className="rounded-full border border-white/60 bg-white/70 px-6 py-4 shadow-lg">
-                <p className="text-slate-600">
+              <div className="shell-title-panel rounded-full border border-white/60 bg-white/70 px-6 py-4 shadow-lg transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60">
+                <p className="text-title text-slate-600 transition-colors duration-300 dark:text-slate-350">
                   arrange the
                   tiles
                 </p>
