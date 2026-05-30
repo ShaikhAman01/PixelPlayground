@@ -37,8 +37,8 @@ export const GameShell =
           {/* Left */}
           <div className="flex items-center gap-4">
             {/* Title */}
-            <div className="rounded-full border border-white/60 bg-white/70 px-6 py-3 shadow-lg backdrop-blur-xl">
-              <h1 className="font-[family:var(--font-pixel)] text-2xl text-slate-700">
+            <div className="shell-title-panel rounded-full border border-white/60 bg-white/70 px-6 py-3 shadow-lg backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60 dark:shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
+              <h1 className="text-title font-[family:var(--font-pixel)] text-2xl text-slate-700 transition-colors duration-300 dark:text-slate-200">
                 {title}
               </h1>
             </div>
@@ -54,11 +54,11 @@ export const GameShell =
                   repeat:
                     Infinity,
                 }}
-                className="flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-5 py-3 shadow-lg backdrop-blur-xl"
+                className="shell-title-panel flex items-center gap-2 rounded-full border border-white/60 bg-white/70 px-5 py-3 shadow-lg backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60 dark:shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
               >
-                <Timer className="h-4 w-4 text-violet-400" />
+                <Timer className="h-4 w-4 text-violet-400 dark:text-violet-500" />
 
-                <span className="font-medium text-slate-600">
+                <span className="text-title font-medium text-slate-600 transition-colors duration-300 dark:text-slate-300">
                   {timer}
                 </span>
               </motion.div>
@@ -71,6 +71,7 @@ export const GameShell =
             {info && (
               <button
                 className="
+                  shell-btn
                   flex
                   h-12
                   w-12
@@ -82,12 +83,16 @@ export const GameShell =
                   bg-white/70
                   shadow-lg
                   backdrop-blur-xl
-                  transition
+                  transition-all
+                  duration-300
 
                   hover:scale-105
+                  dark:border-white/10
+                  dark:bg-slate-900/60
+                  dark:shadow-[0_10px_30px_rgba(0,0,0,0.3)]
                 "
               >
-                <Info className="h-5 w-5 text-slate-500" />
+                <Info className="shell-btn-icon h-5 w-5 text-slate-500 transition-colors duration-300 dark:text-slate-400" />
               </button>
             )}
 
@@ -98,6 +103,7 @@ export const GameShell =
                   onRestart
                 }
                 className="
+                  shell-btn
                   flex
                   h-12
                   w-12
@@ -109,12 +115,16 @@ export const GameShell =
                   bg-white/70
                   shadow-lg
                   backdrop-blur-xl
-                  transition
+                  transition-all
+                  duration-300
 
                   hover:scale-105
+                  dark:border-white/10
+                  dark:bg-slate-900/60
+                  dark:shadow-[0_10px_30px_rgba(0,0,0,0.3)]
                 "
               >
-                <RotateCcw className="h-5 w-5 text-slate-500" />
+                <RotateCcw className="shell-btn-icon h-5 w-5 text-slate-500 transition-colors duration-300 dark:text-slate-400" />
               </button>
             )}
           </div>
@@ -123,6 +133,7 @@ export const GameShell =
         {/* Game Area */}
         <div
           className="
+            shell-game-area
             rounded-[42px]
             border
             border-white/60
@@ -130,6 +141,11 @@ export const GameShell =
             p-10
             shadow-[0_20px_60px_rgba(0,0,0,0.05)]
             backdrop-blur-2xl
+            transition-all
+            duration-300
+            dark:border-white/5
+            dark:bg-slate-900/20
+            dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]
           "
         >
           {children}

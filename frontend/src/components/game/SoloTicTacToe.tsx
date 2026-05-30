@@ -198,33 +198,33 @@ export const SoloTicTacToe = () => {
       <div className="flex flex-col items-center">
         {/* SCORE */}
         {/* ROUND */}
-        <div className="mb-4 rounded-full border border-white/60 bg-white/70 px-5 py-2 shadow-lg">
-          <p className="text-sm text-slate-500">
+        <div className="shell-title-panel mb-4 rounded-full border border-white/60 bg-white/70 px-5 py-2 shadow-lg transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60">
+          <p className="text-body text-sm text-slate-500 transition-colors duration-300 dark:text-slate-400">
             Round {Math.min(round, 3)} / 3
           </p>
         </div>
-        <div className="mb-8 flex items-center gap-6 rounded-full border border-white/60 bg-white/70 px-8 py-4 shadow-lg backdrop-blur-xl">
+        <div className="shell-title-panel mb-8 flex items-center gap-6 rounded-full border border-white/60 bg-white/70 px-8 py-4 shadow-lg backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60">
           <div className="text-center">
-            <p className="text-sm text-slate-400">You</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500">You</p>
 
-            <p className="font-[family:var(--font-pixel)] text-3xl text-pink-400">
+            <p className="font-[family:var(--font-pixel)] text-3xl text-pink-400 dark:text-pink-500">
               {playerScore}
             </p>
           </div>
 
-          <div className="text-slate-300">vs</div>
+          <div className="text-slate-300 dark:text-slate-600">vs</div>
 
           <div className="text-center">
-            <p className="text-sm text-slate-400">CPU</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500">CPU</p>
 
-            <p className="font-[family:var(--font-pixel)] text-3xl text-sky-400">
+            <p className="font-[family:var(--font-pixel)] text-3xl text-sky-400 dark:text-sky-500">
               {cpuScore}
             </p>
           </div>
         </div>
 
         {/* BOARD */}
-        <div className="grid grid-cols-3 gap-4 rounded-[42px] border border-white/70 bg-white/60 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.08)] backdrop-blur-2xl">
+        <div className="shell-game-area grid grid-cols-3 gap-4 rounded-[42px] border border-white/70 bg-white/60 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.08)] backdrop-blur-2xl transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
           {board.map((cell, index) => (
             <motion.button
               key={index}
@@ -236,11 +236,11 @@ export const SoloTicTacToe = () => {
               }}
               onClick={() => makeMove(index)}
               disabled={!!cell || status !== "PLAYING"}
-              className="flex h-40 w-40 items-center justify-center rounded-[28px] border border-slate-200/80 bg-white/95 text-7xl shadow-sm transition hover:border-violet-200"
+              className="flex h-40 w-40 items-center justify-center rounded-[28px] border border-slate-200/80 bg-white/95 text-7xl shadow-sm transition hover:border-violet-200 dark:border-white/10 dark:bg-slate-900/90 dark:hover:border-violet-500/50"
             >
               <span
                 className={`font-[family:var(--font-pixel)] ${
-                  cell === "X" ? "text-pink-400" : "text-sky-400"
+                  cell === "X" ? "text-pink-400 dark:text-pink-500" : "text-sky-400 dark:text-sky-500"
                 }`}
               >
                 {cell}
@@ -250,18 +250,17 @@ export const SoloTicTacToe = () => {
         </div>
 
         {/* STATUS */}
-        {/* STATUS */}
         <div className="mt-8">
           {!winner ? (
-            <div className="rounded-full border border-white/60 bg-white/70 px-6 py-4 shadow-lg">
-              <p className="text-slate-600">
+            <div className="shell-title-panel rounded-full border border-white/60 bg-white/70 px-6 py-4 shadow-lg transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60">
+              <p className="text-title text-slate-600 transition-colors duration-300 dark:text-slate-300">
                 {currentTurn === "X" ? "your turn" : "cpu thinking..."}
               </p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-5">
-              <div className="rounded-full border border-white/60 bg-white/80 px-8 py-4 shadow-lg">
-                <p className="font-[family:var(--font-pixel)] text-3xl text-violet-500">
+              <div className="shell-title-panel rounded-full border border-white/60 bg-white/80 px-8 py-4 shadow-lg transition-all duration-300 dark:border-white/10 dark:bg-slate-900/80">
+                <p className="font-[family:var(--font-pixel)] text-3xl text-violet-500 dark:text-violet-400">
                   {matchWinner
                     ? matchWinner === "PLAYER"
                       ? "MATCH WON ✨"
@@ -276,7 +275,7 @@ export const SoloTicTacToe = () => {
 
               <button
                 onClick={nextRound}
-                className="rounded-full bg-violet-400 px-8 py-4 font-medium text-white shadow-lg shadow-violet-200 transition hover:scale-[1.03]"
+                className="player-btn rounded-full bg-violet-400 px-8 py-4 font-medium text-white shadow-lg shadow-violet-200 transition-all duration-300 hover:scale-[1.03] dark:bg-violet-500 dark:shadow-violet-950/30 dark:hover:bg-violet-600"
               >
                 {matchWinner ? "Play Again" : "Next Round"}
               </button>

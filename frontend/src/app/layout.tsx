@@ -9,6 +9,7 @@ import {
   Pixelify_Sans,
 } from "next/font/google";
 
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -45,11 +46,13 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${pixelFont.variable}`}
       >
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
         <Toaster
-  richColors
-  position="top-center"
-/>
+          richColors
+          position="top-center"
+        />
       </body>
     </html>
   );
