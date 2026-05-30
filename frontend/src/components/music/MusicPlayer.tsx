@@ -104,7 +104,7 @@ export const MusicPlayer =
             </p>
 
             {/* Fake waveform */}
-            <div className="mt-3 flex items-end gap-1">
+            <div className="mt-3 flex h-5 items-end gap-1">
               {Array.from({
                 length: 18,
               }).map((_, i) => (
