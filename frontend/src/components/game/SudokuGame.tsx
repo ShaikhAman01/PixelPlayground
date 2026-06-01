@@ -123,7 +123,7 @@ export const SudokuGame =
       >
         <div className="flex flex-col items-center">
           {/* GRID */}
-          <div className="grid grid-cols-9 gap-[2px] rounded-[28px] border border-white/60 bg-white/70 p-4 shadow-xl backdrop-blur-xl">
+          <div className="shell-game-area grid grid-cols-9 gap-[2px] rounded-[28px] border border-white/60 bg-white/70 p-4 shadow-xl backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
             {board.flatMap(
               (
                 row,
@@ -155,14 +155,14 @@ export const SudokuGame =
                       maxLength={
                         1
                       }
-                      className={`h-12 w-12 rounded-xl text-center text-lg font-bold outline-none ${
+                      className={`h-12 w-12 rounded-xl text-center text-lg font-bold outline-none transition-colors duration-300 ${
                         initialBoard[
                           rowIndex
                         ]?.[
                           colIndex
                         ] !== 0
-                          ? "bg-violet-200 text-slate-700"
-                          : "bg-white text-violet-500"
+                          ? "bg-violet-200 text-slate-700 dark:bg-violet-900/40 dark:text-slate-200"
+                          : "bg-white text-violet-500 dark:bg-slate-950 dark:text-violet-400"
                       }`}
                     />
                   )
@@ -173,14 +173,14 @@ export const SudokuGame =
           {/* STATUS */}
           <div className="mt-8">
             {won ? (
-              <div className="rounded-full bg-green-200 px-8 py-4 shadow-lg">
-                <p className="font-[family:var(--font-pixel)] text-2xl text-green-800">
+              <div className="shell-title-panel rounded-full bg-green-200 px-8 py-4 shadow-lg transition-all duration-300 dark:bg-emerald-950/60 dark:border dark:border-emerald-500/20">
+                <p className="font-[family:var(--font-pixel)] text-2xl text-green-800 dark:text-emerald-400">
                   Puzzle Solved ✨
                 </p>
               </div>
             ) : (
-              <div className="rounded-full border border-white/60 bg-white/70 px-6 py-4 shadow-lg">
-                <p className="text-slate-600">
+              <div className="shell-title-panel rounded-full border border-white/60 bg-white/70 px-6 py-4 shadow-lg transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60">
+                <p className="text-title text-slate-600 transition-colors duration-300 dark:text-slate-350">
                   complete the puzzle
                 </p>
               </div>

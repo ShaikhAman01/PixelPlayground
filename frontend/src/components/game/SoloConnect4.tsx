@@ -147,35 +147,35 @@ export const SoloConnect4 = () => {
     >
       <div className="flex flex-col items-center">
         {/* ROUND */}
-        <div className="mb-4 rounded-full border border-white/60 bg-white/70 px-5 py-2 shadow-lg">
-          <p className="text-sm text-slate-500">
+        <div className="shell-title-panel mb-4 rounded-full border border-white/60 bg-white/70 px-5 py-2 shadow-lg transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60">
+          <p className="text-body text-sm text-slate-500 transition-colors duration-300 dark:text-slate-400">
             Round {Math.min(round, 3)} / 3
           </p>
         </div>
 
         {/* SCORE */}
-        <div className="mb-8 flex items-center gap-6 rounded-full border border-white/60 bg-white/70 px-8 py-4 shadow-lg backdrop-blur-xl">
+        <div className="shell-title-panel mb-8 flex items-center gap-6 rounded-full border border-white/60 bg-white/70 px-8 py-4 shadow-lg backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60">
           <div className="text-center">
-            <p className="text-sm text-slate-400">You</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500">You</p>
 
-            <p className="font-[family:var(--font-pixel)] text-3xl text-pink-400">
+            <p className="font-[family:var(--font-pixel)] text-3xl text-pink-400 dark:text-pink-500">
               {playerScore}
             </p>
           </div>
 
-          <div className="text-slate-300">vs</div>
+          <div className="text-slate-300 dark:text-slate-650">vs</div>
 
           <div className="text-center">
-            <p className="text-sm text-slate-400">CPU</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500">CPU</p>
 
-            <p className="font-[family:var(--font-pixel)] text-3xl text-sky-400">
+            <p className="font-[family:var(--font-pixel)] text-3xl text-sky-400 dark:text-sky-500">
               {cpuScore}
             </p>
           </div>
         </div>
 
         {/* BOARD */}
-        <div className="grid grid-cols-7 gap-3 rounded-[36px] border border-white/60 bg-white/70 p-5 shadow-xl backdrop-blur-xl">
+        <div className="shell-game-area grid grid-cols-7 gap-3 rounded-[36px] border border-white/60 bg-white/70 p-5 shadow-xl backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
           {board.map((row, rowIndex) =>
             row.map((cell, colIndex) => (
               <motion.button
@@ -184,15 +184,15 @@ export const SoloConnect4 = () => {
                   scale: 0.92,
                 }}
                 onClick={() => makeMove(colIndex)}
-                className="flex h-16 w-16 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm"
+                className="flex h-16 w-16 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm transition-all duration-300 dark:border-white/10 dark:bg-slate-900/90 dark:shadow-[0_4px_10px_rgba(0,0,0,0.3)]"
               >
                 <div
-                  className={`h-12 w-12 rounded-full ${
+                  className={`h-12 w-12 rounded-full transition-colors duration-300 ${
                     cell === "X"
-                      ? "bg-pink-400"
+                      ? "bg-pink-400 dark:bg-pink-500"
                       : cell === "O"
-                        ? "bg-sky-400"
-                        : "bg-slate-100"
+                        ? "bg-sky-400 dark:bg-sky-500"
+                        : "bg-slate-100 dark:bg-slate-800"
                   }`}
                 />
               </motion.button>
@@ -203,15 +203,15 @@ export const SoloConnect4 = () => {
         {/* STATUS */}
         <div className="mt-8">
           {!winner ? (
-            <div className="rounded-full border border-white/60 bg-white/70 px-6 py-4 shadow-lg">
-              <p className="text-slate-600">
+            <div className="shell-title-panel rounded-full border border-white/60 bg-white/70 px-6 py-4 shadow-lg transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60">
+              <p className="text-title text-slate-600 transition-colors duration-300 dark:text-slate-300">
                 {currentTurn === "X" ? "your turn" : "cpu thinking..."}
               </p>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-5">
-              <div className="rounded-full border border-white/60 bg-white/80 px-8 py-4 shadow-lg">
-                <p className="font-[family:var(--font-pixel)] text-3xl text-violet-500">
+              <div className="shell-title-panel rounded-full border border-white/60 bg-white/80 px-8 py-4 shadow-lg transition-all duration-300 dark:border-white/10 dark:bg-slate-900/80">
+                <p className="font-[family:var(--font-pixel)] text-3xl text-violet-500 dark:text-violet-400">
                   {matchWinner
                     ? matchWinner === "PLAYER"
                       ? "MATCH WON ✨"
@@ -226,7 +226,7 @@ export const SoloConnect4 = () => {
 
               <button
                 onClick={nextRound}
-                className="rounded-full bg-violet-400 px-8 py-4 font-medium text-white shadow-lg shadow-violet-200 transition hover:scale-[1.03]"
+                className="player-btn rounded-full bg-violet-400 px-8 py-4 font-medium text-white shadow-lg shadow-violet-200 transition-all duration-300 hover:scale-[1.03] dark:bg-violet-500 dark:shadow-violet-950/30 dark:hover:bg-violet-600"
               >
                 {matchWinner ? "Play Again" : "Next Round"}
               </button>

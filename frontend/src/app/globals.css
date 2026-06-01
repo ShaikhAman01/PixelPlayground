@@ -1,9 +1,15 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #f7f7fb;
-
   --foreground: #1e293b;
+}
+
+.dark {
+  --background: #090514;
+  --foreground: #f8fafc;
 }
 
 * {
@@ -18,7 +24,6 @@ body,
 
 body {
   margin: 0;
-
   background:
     radial-gradient(
       circle at top left,
@@ -35,13 +40,29 @@ body {
       #fcfcff,
       #f5f7ff
     );
-
   color: var(--foreground);
-
-  font-family:
-    var(--font-inter);
-
+  font-family: var(--font-inter);
   overflow-x: hidden;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.dark body {
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(139, 92, 246, 0.18),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(14, 165, 233, 0.15),
+      transparent 35%
+    ),
+    linear-gradient(
+      to bottom,
+      #0b071e,
+      #080414
+    );
 }
 
 button,
@@ -50,6 +71,217 @@ input {
 }
 
 ::selection {
-  background:
-    rgba(167, 139, 250, 0.3);
+  background: rgba(167, 139, 250, 0.3);
+}
+
+.dark ::selection {
+  background: rgba(167, 139, 250, 0.5);
+}
+
+/* ==========================================================================
+   Cozy Dark Mode Stylesheet overrides (100% Turbopack & Next.js compatible)
+   ========================================================================== */
+
+/* Typography & Titles */
+.text-title {
+  transition: color 0.3s ease;
+}
+.dark .text-title {
+  color: #f1f5f9 !important; /* slate-100 */
+}
+
+.text-body {
+  transition: color 0.3s ease;
+}
+.dark .text-body {
+  color: #94a3b8 !important; /* slate-400 */
+}
+
+/* GlassPanel Component */
+.glass-panel {
+  transition: all 0.3s ease;
+}
+.dark .glass-panel {
+  background-color: rgba(15, 23, 42, 0.4) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* AmbientBackground Component */
+.sky-bg {
+  transition: all 0.5s ease;
+}
+.dark .sky-bg {
+  background: linear-gradient(to bottom, #090514, #0d0c22, #110e2e) !important;
+}
+
+.sunset-glow {
+  transition: all 0.5s ease;
+}
+.dark .sunset-glow {
+  background: radial-gradient(circle at center, rgba(139, 92, 246, 0.15), transparent 45%) !important;
+}
+
+.mountain-layer {
+  transition: all 0.5s ease;
+}
+.dark .mountain-layer {
+  background: linear-gradient(to top, rgba(76, 29, 149, 0.2), transparent) !important;
+}
+
+.water-layer {
+  transition: all 0.5s ease;
+}
+.dark .water-layer {
+  background: linear-gradient(to top, rgba(8, 47, 73, 0.25), transparent) !important;
+}
+
+/* CozyFooter Component */
+.footer-horizon {
+  transition: all 0.5s ease;
+}
+.dark .footer-horizon {
+  background: linear-gradient(to top, rgba(59, 7, 100, 0.2), transparent) !important;
+}
+
+.footer-water {
+  transition: all 0.5s ease;
+}
+.dark .footer-water {
+  background: linear-gradient(to top, rgba(8, 47, 73, 0.2), transparent) !important;
+}
+
+.mountain-blur-1-l {
+  transition: all 0.5s ease;
+}
+.dark .mountain-blur-1-l {
+  background-color: rgba(76, 29, 149, 0.3) !important;
+}
+
+.mountain-blur-1-r {
+  transition: all 0.5s ease;
+}
+.dark .mountain-blur-1-r {
+  background-color: rgba(131, 24, 67, 0.2) !important;
+}
+
+.mountain-blur-2 {
+  transition: all 0.5s ease;
+}
+.dark .mountain-blur-2 {
+  background-color: rgba(8, 47, 73, 0.1) !important;
+}
+
+/* FloatingClouds Component */
+.cloud-1-blur {
+  transition: all 0.5s ease;
+}
+.dark .cloud-1-blur {
+  background-color: rgba(76, 29, 149, 0.2) !important;
+}
+
+.cloud-2-blur {
+  transition: all 0.5s ease;
+}
+.dark .cloud-2-blur {
+  background-color: rgba(131, 24, 67, 0.2) !important;
+}
+
+.cloud-3-blur {
+  transition: all 0.5s ease;
+}
+.dark .cloud-3-blur {
+  background-color: rgba(8, 47, 73, 0.2) !important;
+}
+
+/* MusicPlayer Component */
+.player-vinyl {
+  transition: all 0.3s ease;
+}
+.dark .player-vinyl {
+  background-color: #0f172a !important; /* slate-900 */
+}
+
+.player-btn {
+  transition: all 0.3s ease;
+}
+.dark .player-btn {
+  background-color: #8b5cf6 !important; /* violet-500 */
+  box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3) !important;
+}
+
+.player-vol-icon {
+  transition: all 0.3s ease;
+}
+.dark .player-vol-icon {
+  color: #94a3b8 !important; /* slate-400 */
+}
+
+.player-slider {
+  transition: all 0.3s ease;
+}
+.dark .player-slider {
+  accent-color: #8b5cf6 !important; /* violet-500 */
+}
+
+/* GameCard Component */
+.game-card {
+  transition: all 0.3s ease;
+}
+.dark .game-card {
+  background-color: rgba(15, 23, 42, 0.4) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* GameShell Component */
+.shell-title-panel {
+  transition: all 0.3s ease;
+}
+.dark .shell-title-panel {
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.shell-btn {
+  transition: all 0.3s ease;
+}
+.dark .shell-btn {
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.shell-btn-icon {
+  transition: all 0.3s ease;
+}
+.dark .shell-btn-icon {
+  color: #94a3b8 !important; /* slate-400 */
+}
+
+.shell-game-area {
+  transition: all 0.3s ease;
+}
+.dark .shell-game-area {
+  background-color: rgba(15, 23, 42, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* TopBar Header Icons */
+.topbar-btn {
+  transition: all 0.3s ease;
+}
+.dark .topbar-btn {
+  background-color: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.topbar-icon {
+  transition: all 0.3s ease;
+}
+.dark .topbar-icon {
+  color: #cbd5e1 !important; /* slate-300 */
 }

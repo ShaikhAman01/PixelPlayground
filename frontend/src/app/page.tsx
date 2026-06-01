@@ -19,11 +19,11 @@ export default function HomePage() {
 
         {/* Hero */}
         <section className="mt-20 text-center">
-          <h1 className="font-[family:var(--font-pixel)] text-6xl text-slate-700">
+          <h1 className="text-title font-[family:var(--font-pixel)] text-6xl text-slate-700 transition-colors duration-300 dark:text-slate-200">
             PixelPlayground
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-500">
+          <p className="text-body mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-500 transition-colors duration-300 dark:text-slate-400">
             cozy games, dreamy vibes,
             and relaxing little worlds
             to spend time in ✨
