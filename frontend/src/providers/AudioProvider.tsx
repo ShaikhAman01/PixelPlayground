@@ -8,195 +8,159 @@ import {
   useState,
 } from "react";
 
-const playlist = [
+export const playlist = [
   {
-    title: "Cozy Evening",
-    artist: "Lofi Ambience",
-    src: "/music/cozy-lofi.mp3",
+    title: "Midnight Coffee",
+    artist: "Lofi Study Beats",
+    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    fallbackSrc: "/music/cozy-lofi.mp3", 
+    albumArt: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=120&auto=format&fit=crop&q=60"
   },
+  {
+    title: "Rainy Desktop",
+    artist: "Chillhop Workspace",
+    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    fallbackSrc: "/music/cozy-lofi.mp3",
+    albumArt: "https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?w=120&auto=format&fit=crop&q=60"
+  }
 ];
+
+interface TrackType {
+  title: string;
+  artist: string;
+  src: string;
+  fallbackSrc?: string;
+  albumArt: string;
+}
 
 interface AudioContextType {
   audioRef: React.RefObject<HTMLAudioElement | null>;
-
   isPlaying: boolean;
-
   volume: number;
-
-  currentTrack: number;
-
+  currentTrack: TrackType | null;
   togglePlay: () => void;
-
-  setVolume: (
-    volume: number
-  ) => void;
-
+  setVolume: (volume: number) => void;
   nextTrack: () => void;
-
   previousTrack: () => void;
 }
 
-const AudioContext =
-  createContext<AudioContextType | null>(
-    null
-  );
+const AudioContext = createContext<AudioContextType | null>(null);
 
-export function AudioProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const audioRef =
-    useRef<HTMLAudioElement>(
-      null
-    );
+export function AudioProvider({ children }: { children: React.ReactNode }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [trackIndex, setTrackIndex] = useState(0);
+  const [volume, setVolumeState] = useState<number>(35);
+  const [isMounted, setIsMounted] = useState(false);
 
-  const [isPlaying, setIsPlaying] =
-    useState(false);
+  const currentTrack = playlist[trackIndex] || null;
 
-  const [volume, setVolumeState] = useState<number>(() => {
+  useEffect(() => {
+    setIsMounted(true);
     try {
-      const saved =
-        typeof window !== "undefined"
-          ? localStorage.getItem("pp-volume")
-          : null;
-      return saved ? Number(saved) : 35;
-    } catch {
-      return 35;
+      const saved = localStorage.getItem("pp-volume");
+      if (saved) setVolumeState(Number(saved));
+    } catch (e) {
+      console.warn("Storage sync failed:", e);
     }
-  });
-
-  const [
-    currentTrack,
-    setCurrentTrack,
-  ] = useState(0);
+  }, []);
 
   useEffect(() => {
-    if (
-      audioRef.current
-    ) {
-      audioRef.current.volume =
-        volume / 100;
+    if (audioRef.current) {
+      audioRef.current.volume = volume / 100;
     }
-
-    localStorage.setItem(
-      "pp-volume",
-      String(volume)
-    );
-  }, [volume]);
-
-  const togglePlay =
-    async () => {
-      if (
-        !audioRef.current
-      )
-        return;
-
-      try {
-        if (isPlaying) {
-          audioRef.current.pause();
-
-          setIsPlaying(
-            false
-          );
-        } else {
-          await audioRef.current.play();
-
-          setIsPlaying(
-            true
-          );
-        }
-      } catch (error) {
-        console.error(
-          error
-        );
-      }
-    };
-
-  const nextTrack =
-    () => {
-      setCurrentTrack(
-        (prev) =>
-          (prev + 1) %
-          playlist.length
-      );
-    };
-
-  const previousTrack =
-    () => {
-      setCurrentTrack(
-        (prev) =>
-          prev === 0
-            ? playlist.length -
-              1
-            : prev - 1
-      );
-    };
+    if (isMounted) {
+      localStorage.setItem("pp-volume", String(volume));
+    }
+  }, [volume, isMounted]);
 
   useEffect(() => {
-    if (
-      !audioRef.current
-    )
+    if (!audioRef.current || !currentTrack || !isMounted) return;
+
+    audioRef.current.pause();
+    audioRef.current.src = currentTrack.src;
+    audioRef.current.load();
+
+    if (isPlaying) {
+      audioRef.current.play()
+        .then(() => setIsPlaying(true))
+        .catch(() => handlePlaybackFallback(currentTrack));
+    }
+  }, [trackIndex, isMounted]);
+
+  // Fallback engine to recover if cross-origin sources get blocked by a user's browser extensions
+  const handlePlaybackFallback = (track: TrackType) => {
+    if (!audioRef.current || !track.fallbackSrc) {
+      setIsPlaying(false);
       return;
-
-    audioRef.current.src =
-      playlist[
-        currentTrack
-      ].src;
-
-    if (
-      isPlaying
-    ) {
-      audioRef.current.play();
     }
-  }, [
-    currentTrack,
-    isPlaying,
-  ]);
+    
+    console.warn("External stream blocked by extension proxy. Attempting local asset recovery path...");
+    audioRef.current.src = track.fallbackSrc;
+    audioRef.current.load();
+    audioRef.current.play()
+      .then(() => setIsPlaying(true))
+      .catch((err) => {
+        console.error("Critical Audio Pipeline failure. Extensions blocking local audio tags:", err);
+        setIsPlaying(false);
+      });
+  };
+
+  const togglePlay = async () => {
+    if (!audioRef.current || !currentTrack) return;
+
+    try {
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+      } else {
+        if (!audioRef.current.src) {
+          audioRef.current.src = currentTrack.src;
+          audioRef.current.load();
+        }
+        
+        await audioRef.current.play();
+        setIsPlaying(true);
+      }
+    } catch (error) {
+      console.warn("Initial play route intercepted. Running dynamic fallback strategy...");
+      handlePlaybackFallback(currentTrack);
+    }
+  };
+
+  const nextTrack = () => {
+    setIsPlaying(false);
+    setTrackIndex((prev) => (prev + 1) % playlist.length);
+    setTimeout(() => setIsPlaying(true), 50);
+  };
+
+  const previousTrack = () => {
+    setIsPlaying(false);
+    setTrackIndex((prev) => (prev === 0 ? playlist.length - 1 : prev - 1));
+    setTimeout(() => setIsPlaying(true), 50);
+  };
 
   return (
     <AudioContext.Provider
       value={{
         audioRef,
-
         isPlaying,
-
         volume,
-
         currentTrack,
-
         togglePlay,
-
-        setVolume:
-          setVolumeState,
-
+        setVolume: setVolumeState,
         nextTrack,
-
         previousTrack,
       }}
     >
       {children}
-
-      <audio
-        ref={audioRef}
-        preload="auto"
-        loop
-      />
+      <audio ref={audioRef} preload="auto" crossOrigin="anonymous" loop />
     </AudioContext.Provider>
   );
 }
 
 export function useAudio() {
-  const context =
-    useContext(
-      AudioContext
-    );
-
-  if (!context) {
-    throw new Error(
-      "useAudio must be used inside AudioProvider"
-    );
-  }
-
+  const context = useContext(AudioContext);
+  if (!context) throw new Error("useAudio must be wrapped inside an AudioProvider node.");
   return context;
 }
