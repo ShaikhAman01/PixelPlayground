@@ -5,6 +5,7 @@ import { AudioProvider } from "@/providers/AudioProvider";
 
 import { Inter, Pixelify_Sans } from "next/font/google";
 
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -34,8 +35,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${pixelFont.variable}`}>
         <AudioProvider>
-          {children}
-
+          <ThemeProvider>
+            {children}
+          </ThemeProvider>
           <Toaster richColors position="top-center" />
         </AudioProvider>
       </body>

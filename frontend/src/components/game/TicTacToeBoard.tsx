@@ -48,6 +48,11 @@ export const TicTacToeBoard =
             p-5
             shadow-[0_20px_60px_rgba(0,0,0,0.08)]
             backdrop-blur-2xl
+            transition-all
+            duration-300
+            dark:border-white/10
+            dark:bg-slate-900/60
+            dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]
 
             before:absolute
             before:inset-0
@@ -55,6 +60,7 @@ export const TicTacToeBoard =
             before:rounded-[42px]
             before:bg-violet-200/20
             before:blur-3xl
+            dark:before:bg-violet-950/20
           "
         >
           {/* BOARD */}
@@ -105,20 +111,24 @@ export const TicTacToeBoard =
                     shadow-sm
 
                     transition-all
+                    duration-300
 
                     hover:border-violet-200
                     hover:shadow-md
+                    dark:border-white/10
+                    dark:bg-slate-900/90
+                    dark:hover:border-violet-500/50
 
                     disabled:cursor-not-allowed
                   "
                 >
                   {/* Hover Glow */}
                   <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <div className="absolute inset-0 bg-gradient-to-br from-violet-100/40 to-sky-100/30" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-violet-100/40 to-sky-100/30 dark:from-violet-950/30 dark:to-sky-950/20" />
                   </div>
 
                   {/* Inner Soft Glow */}
-                  <div className="absolute inset-[1px] rounded-[26px] border border-white/60" />
+                  <div className="absolute inset-[1px] rounded-[26px] border border-white/60 dark:border-white/5" />
 
                   {/* Symbol */}
                   <motion.span
@@ -143,8 +153,8 @@ export const TicTacToeBoard =
                       ${
                         cell ===
                         "X"
-                          ? "text-pink-400"
-                          : "text-sky-400"
+                          ? "text-pink-400 dark:text-pink-500"
+                          : "text-sky-400 dark:text-sky-500"
                       }
                     `}
                   >
@@ -169,8 +179,8 @@ export const TicTacToeBoard =
             }}
             className="mt-8 flex flex-col items-center gap-5"
           >
-            <div className="rounded-full border border-white/60 bg-white/80 px-8 py-4 shadow-lg backdrop-blur-xl">
-              <p className="font-[family:var(--font-pixel)] text-3xl text-violet-500">
+            <div className="rounded-full border border-white/60 bg-white/80 px-8 py-4 shadow-lg backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-slate-900/80">
+              <p className="font-[family:var(--font-pixel)] text-3xl text-violet-500 dark:text-violet-400">
                 {winner ===
                 "DRAW"
                   ? "DRAW!"
@@ -191,10 +201,14 @@ export const TicTacToeBoard =
                 text-white
                 shadow-lg
                 shadow-violet-200
-                transition
+                transition-all
+                duration-300
 
                 hover:scale-[1.03]
                 hover:bg-violet-500
+                dark:bg-violet-500
+                dark:shadow-violet-950/30
+                dark:hover:bg-violet-600
               "
             >
               Play Again

@@ -37,7 +37,7 @@ interface AudioContextType {
   audioRef: React.RefObject<HTMLAudioElement | null>;
   isPlaying: boolean;
   volume: number;
-  currentTrack: TrackType | null;
+  currentTrack: number; // Sticking to index mapping pattern
   togglePlay: () => void;
   setVolume: (volume: number) => void;
   nextTrack: () => void;
@@ -53,7 +53,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [volume, setVolumeState] = useState<number>(35);
   const [isMounted, setIsMounted] = useState(false);
 
-  const currentTrack = playlist[trackIndex] || null;
+  const activeTrackPayload = playlist[trackIndex] || null;
 
   useEffect(() => {
     setIsMounted(true);
@@ -70,25 +70,28 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       audioRef.current.volume = volume / 100;
     }
     if (isMounted) {
-      localStorage.setItem("pp-volume", String(volume));
+      try {
+        localStorage.setItem("pp-volume", String(volume));
+      } catch (e) {
+        // Safe fall-through
+      }
     }
   }, [volume, isMounted]);
 
   useEffect(() => {
-    if (!audioRef.current || !currentTrack || !isMounted) return;
+    if (!audioRef.current || !activeTrackPayload || !isMounted) return;
 
     audioRef.current.pause();
-    audioRef.current.src = currentTrack.src;
+    audioRef.current.src = activeTrackPayload.src;
     audioRef.current.load();
 
     if (isPlaying) {
       audioRef.current.play()
         .then(() => setIsPlaying(true))
-        .catch(() => handlePlaybackFallback(currentTrack));
+        .catch(() => handlePlaybackFallback(activeTrackPayload));
     }
   }, [trackIndex, isMounted]);
 
-  // Fallback engine to recover if cross-origin sources get blocked by a user's browser extensions
   const handlePlaybackFallback = (track: TrackType) => {
     if (!audioRef.current || !track.fallbackSrc) {
       setIsPlaying(false);
@@ -101,13 +104,13 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     audioRef.current.play()
       .then(() => setIsPlaying(true))
       .catch((err) => {
-        console.error("Critical Audio Pipeline failure. Extensions blocking local audio tags:", err);
+        console.error("Critical Audio Pipeline failure:", err);
         setIsPlaying(false);
       });
   };
 
   const togglePlay = async () => {
-    if (!audioRef.current || !currentTrack) return;
+    if (!audioRef.current || !activeTrackPayload) return;
 
     try {
       if (isPlaying) {
@@ -115,7 +118,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         setIsPlaying(false);
       } else {
         if (!audioRef.current.src) {
-          audioRef.current.src = currentTrack.src;
+          audioRef.current.src = activeTrackPayload.src;
           audioRef.current.load();
         }
         
@@ -124,7 +127,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.warn("Initial play route intercepted. Running dynamic fallback strategy...");
-      handlePlaybackFallback(currentTrack);
+      handlePlaybackFallback(activeTrackPayload);
     }
   };
 
@@ -146,7 +149,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         audioRef,
         isPlaying,
         volume,
-        currentTrack,
+        currentTrack: trackIndex,
         togglePlay,
         setVolume: setVolumeState,
         nextTrack,

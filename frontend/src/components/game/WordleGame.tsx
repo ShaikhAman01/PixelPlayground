@@ -215,7 +215,7 @@ if (
           solution[index] ===
           letter
         ) {
-          return "bg-green-300";
+          return "bg-green-300 text-slate-800 dark:bg-emerald-600 dark:text-white";
         }
 
         if (
@@ -223,10 +223,10 @@ if (
             letter
           )
         ) {
-          return "bg-yellow-300";
+          return "bg-yellow-300 text-slate-800 dark:bg-amber-600 dark:text-white";
         }
 
-        return "bg-slate-200";
+        return "bg-slate-200 text-slate-700 dark:bg-slate-850 dark:text-slate-400 dark:border-white/5";
       };
 
     return (
@@ -281,13 +281,13 @@ if (
                             key={
                               colIndex
                             }
-                            className={`flex h-16 w-16 items-center justify-center rounded-2xl border border-white/60 text-2xl font-bold shadow-lg ${
+                            className={`flex h-16 w-16 items-center justify-center rounded-2xl border border-white/60 text-2xl font-bold shadow-lg transition-all duration-300 dark:border-white/10 dark:shadow-[0_10px_20px_rgba(0,0,0,0.3)] ${
                               submitted
                                 ? getTileClass(
                                     letter,
                                     colIndex
                                   )
-                                : "bg-white/70"
+                                : "bg-white/70 text-slate-800 dark:bg-slate-900/60 dark:text-slate-100"
                             }`}
                           >
                             {
@@ -333,7 +333,7 @@ if (
                               )
                             );
                           }}
-                          className="rounded-xl bg-white/70 px-4 py-3 text-sm shadow-lg"
+                          className="rounded-xl bg-white/70 px-4 py-3 text-sm text-slate-700 shadow-lg transition-all duration-300 dark:bg-slate-900/60 dark:text-slate-200 dark:shadow-none dark:border dark:border-white/5 dark:hover:bg-slate-800/80"
                         >
                           {key}
                         </button>
@@ -348,8 +348,8 @@ if (
           <div className="mt-8">
             {status ===
               "WON" && (
-              <div className="rounded-full bg-green-200 px-8 py-4 shadow-lg">
-                <p className="font-[family:var(--font-pixel)] text-2xl text-green-800">
+              <div className="shell-title-panel rounded-full bg-green-200 px-8 py-4 shadow-lg transition-all duration-300 dark:bg-emerald-950/60 dark:border dark:border-emerald-500/20">
+                <p className="font-[family:var(--font-pixel)] text-2xl text-green-800 dark:text-emerald-450">
                   You Won ✨
                 </p>
               </div>
@@ -357,8 +357,8 @@ if (
 
             {status ===
               "LOST" && (
-              <div className="rounded-full bg-rose-200 px-8 py-4 shadow-lg">
-                <p className="font-[family:var(--font-pixel)] text-2xl text-rose-800">
+              <div className="shell-title-panel rounded-full bg-rose-200 px-8 py-4 shadow-lg transition-all duration-300 dark:bg-rose-950/60 dark:border dark:border-rose-500/20">
+                <p className="font-[family:var(--font-pixel)] text-2xl text-rose-800 dark:text-rose-450">
                   {solution}
                 </p>
               </div>

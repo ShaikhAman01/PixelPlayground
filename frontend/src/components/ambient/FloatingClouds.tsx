@@ -20,9 +20,9 @@ export const FloatingClouds = () => {
           className="absolute"
         >
           {/* High-fidelity procedural vector cloud structure */}
-          <div className="relative w-48 h-12 bg-white/30 backdrop-blur-[2px] rounded-full shadow-[inset_0_4px_12px_rgba(255,255,255,0.4)]">
-            <div className="absolute -top-6 left-8 w-16 h-16 bg-white/30 backdrop-blur-[2px] rounded-full" />
-            <div className="absolute -top-4 left-20 w-12 h-12 bg-white/30 backdrop-blur-[2px] rounded-full" />
+          <div className="relative w-48 h-12 bg-white/30 dark:bg-violet-950/10 backdrop-blur-[2px] rounded-full shadow-[inset_0_4px_12px_rgba(255,255,255,0.4)] dark:shadow-none transition-colors duration-500">
+            <div className="absolute -top-6 left-8 w-16 h-16 bg-white/30 dark:bg-violet-950/10 backdrop-blur-[2px] rounded-full" />
+            <div className="absolute -top-4 left-20 w-12 h-12 bg-white/30 dark:bg-violet-950/10 backdrop-blur-[2px] rounded-full" />
           </div>
         </motion.div>
       ))}
