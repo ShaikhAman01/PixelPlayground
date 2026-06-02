@@ -182,7 +182,10 @@ export const SoloTicTacToe = () => {
 
       winner: engineRef.current.winner,
 
-      status: engineRef.current.status,
+      status:
+        engineRef.current.status === "WAITING"
+          ? undefined
+          : engineRef.current.status,
 
       round,
     });
