@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { motion } from "framer-motion";
+import { useMemo, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Pause,
   Play,
@@ -12,141 +12,158 @@ import {
   SkipBack,
   SkipForward,
 } from "lucide-react";
-
 import { useAudio, playlist } from "@/providers/AudioProvider";
-import { GlassPanel } from "../ui/GlassPanel";
 
 export const MusicPlayer = () => {
   const {
     isPlaying,
     volume,
-    currentTrack,
+    currentTrack, // Track Index Integer from Provider State
     togglePlay,
     setVolume,
     nextTrack,
     previousTrack,
   } = useAudio();
 
-  const track = playlist[currentTrack];
+  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const track = useMemo(() => playlist[currentTrack], [currentTrack]);
 
   const waveformDurations = useMemo(
-    () => Array.from({ length: 18 }, () => 1 + Math.random()),
+    () => Array.from({ length: 20 }, () => 0.6 + Math.random() * 0.8),
     []
   );
 
-  // Dynamic Volume Icon based on state
   const VolumeIcon = useMemo(() => {
-    if (volume === 0) return VolumeX;
+    if (!isMounted || volume === 0) return VolumeX;
     if (volume < 30) return Volume;
     if (volume < 70) return Volume1;
     return Volume2;
-  }, [volume]);
-
-  // Framer Motion configuration for smooth, continuous vinyl rotation
-  const vinylVariants = {
-    play: {
-      rotate: 360,
-      transition: {
-        duration: 12,
-        repeat: Infinity,
-        ease: "linear" as const,
-      },
-    },
-    pause: {
-      rotate: 0, // Fallback style if needed, or stays static
-    },
-  };
+  }, [volume, isMounted]);
 
   return (
-    <GlassPanel className="flex items-center gap-6 px-5 py-4 w-full max-w-2xl justify-between">
-      {/* Track Info Section */}
-      <div className="flex items-center gap-4">
-        {/* Album Art / Vinyl */}
-        <motion.div
-          variants={vinylVariants}
-          animate={isPlaying ? "play" : "pause"}
-          className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-200 via-pink-200 to-sky-200 shadow-inner"
-        >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-700">
-            <div className="h-3 w-3 rounded-full bg-white" />
-          </div>
-        </motion.div>
+    <div className="flex items-center gap-4 bg-white/50 dark:bg-slate-900/40 border border-white/70 dark:border-white/10 px-4 py-2 rounded-2xl shadow-[0_8px_32px_rgba(31,38,135,0.04)] backdrop-blur-md w-full justify-between select-none transition-colors duration-300">
+      
+      {/* Left Column: Cover Platter Base */}
+      <div className="flex items-center gap-3 min-w-[170px] max-w-[210px]">
+        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-300">
+          {isMounted && track?.albumArt ? (
+            <div
+              className={`w-full h-full relative rounded-full overflow-hidden p-0.5 bg-slate-900 border border-slate-950/20 ${
+                isPlaying ? "animate-[spin_12s_linear_infinite]" : ""
+              }`}
+              style={{
+                animationPlayState: isPlaying ? "running" : "paused",
+              }}
+            >
+              <img 
+                src={track.albumArt} 
+                alt="Cover"
+                className="w-full h-full object-cover rounded-full pointer-events-none opacity-90"
+              />
+              <div className="absolute inset-0 m-auto w-2 h-2 rounded-full bg-white border border-slate-950/30 shadow-sm z-10" />
+            </div>
+          ) : (
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center shadow-md">
+              <div className="w-1.5 h-1.5 rounded-full bg-white/80" />
+            </div>
+          )}
+        </div>
 
-        {/* Dynamic Typography & Waveform */}
-        <div className="min-w-[180px]">
-          <p className="font-semibold text-slate-700 line-clamp-1">
-            {track?.title || "No Track Selected"}
-          </p>
-          <p className="text-xs text-slate-400 line-clamp-1">
-            {track?.artist || "Unknown Artist"}
-          </p>
-
-          {/* Audio Visualizer Waveform simulation */}
-          <div className="mt-2.5 flex items-end gap-0.5 h-[18px]">
+        <div className="flex flex-col overflow-hidden">
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate transition-colors duration-300">
+            {isMounted && track ? track.title : "Loading Player..."}
+          </span>
+          <span className="text-[10px] text-slate-400 dark:text-slate-400 font-semibold truncate mt-0.5 uppercase tracking-wider transition-colors duration-300">
+            {isMounted && track ? track.artist : "Radio Hub"}
+          </span>
+          
+          {/* Audio Equalizer Simulation */}
+          <div className="mt-1 flex items-end gap-[2px] h-2.5">
             {waveformDurations.map((duration, i) => (
               <motion.div
                 key={i}
-                animate={{
-                  height: isPlaying ? [6, 18, 10, 14, 6] : 4,
-                }}
-                transition={{
-                  duration: duration,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="w-1 rounded-full bg-violet-400/70"
+                animate={{ height: isPlaying && isMounted ? [2, 10, 4, 8, 2] : 2 }}
+                transition={{ duration, repeat: Infinity, ease: "easeInOut" }}
+                className="w-[2px] rounded-full bg-violet-400/90"
               />
             ))}
           </div>
         </div>
       </div>
 
-      {/* Playback Controls Wrapper */}
-      <div className="flex items-center gap-4">
+      {/* Center Column: Control Actions */}
+      <div className="flex items-center gap-1.5">
         <button
           onClick={previousTrack}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 text-slate-600 shadow-sm transition hover:bg-slate-100 active:scale-95"
-          aria-label="Previous track"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/40 active:scale-95 transition-all"
+          aria-label="Previous Track"
         >
-          <SkipBack className="h-4 w-4 fill-current" />
+          <SkipBack className="h-3.5 w-3.5 fill-current" />
         </button>
 
         <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.96 }}
           onClick={togglePlay}
-          className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500 text-white shadow-lg shadow-violet-200 transition hover:bg-violet-600"
+          className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500 text-white shadow-md shadow-violet-200 dark:shadow-none hover:bg-violet-600 transition-colors"
           aria-label={isPlaying ? "Pause" : "Play"}
         >
-          {isPlaying ? (
-            <Pause className="h-5 w-5 fill-current" />
+          {isPlaying && isMounted ? (
+            <Pause className="h-3.5 w-3.5 fill-current" />
           ) : (
-            <Play className="ml-0.5 h-5 w-5 fill-current" />
+            <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />
           )}
         </motion.button>
 
         <button
           onClick={nextTrack}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-50 text-slate-600 shadow-sm transition hover:bg-slate-100 active:scale-95"
-          aria-label="Next track"
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/40 active:scale-95 transition-all"
+          aria-label="Next Track"
         >
-          <SkipForward className="h-4 w-4 fill-current" />
+          <SkipForward className="h-3.5 w-3.5 fill-current" />
         </button>
       </div>
 
-      {/* Volume Controller */}
-      <div className="flex items-center gap-2 group">
-        <VolumeIcon className="h-4 w-4 text-slate-400 transition group-hover:text-slate-600" />
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={volume}
-          onChange={(e) => setVolume(Number(e.target.value))}
-          className="h-1 w-20 cursor-pointer accent-violet-500 bg-slate-200 rounded-lg appearance-none structural-slider"
-          aria-label="Volume slider"
-        />
+      {/* Right Column: Sliding Volume Component */}
+      <div 
+        className="relative flex items-center gap-1"
+        onMouseEnter={() => setShowVolumeSlider(true)}
+        onMouseLeave={() => setShowVolumeSlider(false)}
+      >
+        <button className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/40 transition-all">
+          <VolumeIcon className="h-4 w-4" />
+        </button>
+
+        <AnimatePresence>
+          {showVolumeSlider && isMounted && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 72, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              className="overflow-hidden flex items-center pr-1"
+            >
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={volume}
+                onChange={(e) => setVolume(Number(e.target.value))}
+                className="w-full h-1 appearance-none bg-slate-200 dark:bg-slate-800 rounded-lg cursor-pointer accent-violet-500 outline-none"
+                style={{
+                  background: `linear-gradient(to right, #8b5cf6 0%, #8b5cf6 ${volume}%, #cbd5e1 ${volume}%, #cbd5e1 100%)`
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </GlassPanel>
+
+    </div>
   );
 };

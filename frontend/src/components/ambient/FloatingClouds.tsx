@@ -2,54 +2,30 @@
 
 import { motion } from "framer-motion";
 
-export const FloatingClouds =
-  () => {
-    return (
-      <>
-        {/* Cloud 1 */}
-        <motion.div
-          animate={{
-            x: [0, 30, 0],
-          }}
-          transition={{
-            duration: 14,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute left-[8%] top-[20%]"
-        >
-          <div className="cloud-1-blur h-20 w-44 rounded-full bg-white/40 blur-2xl dark:bg-violet-950/20" />
-        </motion.div>
+export const FloatingClouds = () => {
+  const cloudData = [
+    { initialX: "10%", top: "18%", scale: 1, duration: 25, reverse: false },
+    { initialX: "65%", top: "28%", scale: 0.85, duration: 32, reverse: true },
+    { initialX: "25%", top: "42%", scale: 0.7, duration: 28, reverse: false },
+  ];
 
-        {/* Cloud 2 */}
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none">
+      {cloudData.map((cloud, index) => (
         <motion.div
-          animate={{
-            x: [0, -25, 0],
-          }}
-          transition={{
-            duration: 18,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute right-[10%] top-[30%]"
+          key={index}
+          style={{ left: cloud.initialX, top: cloud.top, scale: cloud.scale }}
+          animate={{ x: cloud.reverse ? [0, -40, 0] : [0, 40, 0] }}
+          transition={{ duration: cloud.duration, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute"
         >
-          <div className="cloud-2-blur h-24 w-52 rounded-full bg-pink-100/40 blur-2xl dark:bg-pink-950/20" />
+          {/* High-fidelity procedural vector cloud structure */}
+          <div className="relative w-48 h-12 bg-white/30 dark:bg-violet-950/10 backdrop-blur-[2px] rounded-full shadow-[inset_0_4px_12px_rgba(255,255,255,0.4)] dark:shadow-none transition-colors duration-500">
+            <div className="absolute -top-6 left-8 w-16 h-16 bg-white/30 dark:bg-violet-950/10 backdrop-blur-[2px] rounded-full" />
+            <div className="absolute -top-4 left-20 w-12 h-12 bg-white/30 dark:bg-violet-950/10 backdrop-blur-[2px] rounded-full" />
+          </div>
         </motion.div>
-
-        {/* Cloud 3 */}
-        <motion.div
-          animate={{
-            x: [0, 20, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          className="absolute bottom-[18%] left-[20%]"
-        >
-          <div className="cloud-3-blur h-24 w-60 rounded-full bg-sky-100/30 blur-2xl dark:bg-sky-950/20" />
-        </motion.div>
-      </>
-    );
-  };
+      ))}
+    </div>
+  );
+};
