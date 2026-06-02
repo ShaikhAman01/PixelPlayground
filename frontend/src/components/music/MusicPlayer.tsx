@@ -13,7 +13,7 @@ import {
   SkipForward,
 } from "lucide-react";
 
-import { useAudio } from "@/providers/AudioProvider";
+import { useAudio, playlist } from "@/providers/AudioProvider";
 import { GlassPanel } from "../ui/GlassPanel";
 
 export const MusicPlayer = () => {
@@ -26,6 +26,8 @@ export const MusicPlayer = () => {
     nextTrack,
     previousTrack,
   } = useAudio();
+
+  const track = playlist[currentTrack];
 
   const waveformDurations = useMemo(
     () => Array.from({ length: 18 }, () => 1 + Math.random()),
@@ -47,7 +49,7 @@ export const MusicPlayer = () => {
       transition: {
         duration: 12,
         repeat: Infinity,
-        ease: "linear",
+        ease: "linear" as const,
       },
     },
     pause: {
@@ -73,10 +75,10 @@ export const MusicPlayer = () => {
         {/* Dynamic Typography & Waveform */}
         <div className="min-w-[180px]">
           <p className="font-semibold text-slate-700 line-clamp-1">
-            {currentTrack?.title || "No Track Selected"}
+            {track?.title || "No Track Selected"}
           </p>
           <p className="text-xs text-slate-400 line-clamp-1">
-            {currentTrack?.artist || "Unknown Artist"}
+            {track?.artist || "Unknown Artist"}
           </p>
 
           {/* Audio Visualizer Waveform simulation */}

@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 
-const playlist = [
+export const playlist = [
   {
     title: "Cozy Evening",
     artist: "Lofi Ambience",
@@ -54,22 +54,26 @@ export function AudioProvider({
   const [isPlaying, setIsPlaying] =
     useState(false);
 
-  const [volume, setVolumeState] = useState<number>(() => {
-    try {
-      const saved =
-        typeof window !== "undefined"
-          ? localStorage.getItem("pp-volume")
-          : null;
-      return saved ? Number(saved) : 35;
-    } catch {
-      return 35;
-    }
-  });
+  const [volume, setVolumeState] = useState<number>(35);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const [
     currentTrack,
     setCurrentTrack,
   ] = useState(0);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("pp-volume");
+      if (saved) {
+        setVolumeState(Number(saved));
+      }
+    } catch {
+      // Ignore
+    } finally {
+      setIsLoaded(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (
@@ -79,11 +83,17 @@ export function AudioProvider({
         volume / 100;
     }
 
-    localStorage.setItem(
-      "pp-volume",
-      String(volume)
-    );
-  }, [volume]);
+    if (isLoaded) {
+      try {
+        localStorage.setItem(
+          "pp-volume",
+          String(volume)
+        );
+      } catch {
+        // Ignore
+      }
+    }
+  }, [volume, isLoaded]);
 
   const togglePlay =
     async () => {
