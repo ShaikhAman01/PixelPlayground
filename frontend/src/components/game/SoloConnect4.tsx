@@ -1,37 +1,25 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-
+import { useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
-
 import { GameShell } from "./GameShell";
-
 import { Connect4Engine } from "@/games/connect4.engine";
-
 import { Connect4AI } from "@/games/connect4.ai";
-
 import { useConnect4Store } from "@/store/connect4.store";
-
 import { useTimer } from "@/hooks/useTimer";
 
 export const SoloConnect4 = () => {
   const engineRef = useRef(new Connect4Engine());
-
   const aiRef = useRef(new Connect4AI());
 
   const {
     board,
     currentTurn,
     winner,
-    status,
-
     playerScore,
     cpuScore,
-
     round,
-
     matchWinner,
-
     setState,
   } = useConnect4Store();
 
@@ -39,102 +27,71 @@ export const SoloConnect4 = () => {
     autoStart: true,
   });
 
+  const syncState = useCallback(() => {
+    setState({
+      board: engineRef.current.board,
+      currentTurn: engineRef.current.currentTurn,
+      winner: engineRef.current.winner,
+      status: engineRef.current.status,
+    });
+  }, [setState]);
+
   // PLAYER MOVE
   const makeMove = (col: number) => {
-    if (currentTurn !== "X") return;
-
+    if (currentTurn !== "X" || winner) return;
     const success = engineRef.current.makeMove(col);
-
     if (!success) return;
-
     syncState();
   };
 
   // CPU MOVE
   useEffect(() => {
-    if (currentTurn !== "O" || winner) {
-      return;
-    }
+    if (currentTurn !== "O" || winner) return;
 
     const timeout = setTimeout(() => {
       const move = aiRef.current.getMove(engineRef.current.board);
-
       if (move === null) return;
-
       engineRef.current.makeMove(move);
-
       syncState();
     }, 700);
 
     return () => clearTimeout(timeout);
-  }, [currentTurn, winner]);
+  }, [currentTurn, winner, syncState]);
 
-  // SCORE
+  // SCORE & MATCH EVALUATION TRACKING
+  // Extracted logic updates layout mutations cleanly only on explicit winner updates
   useEffect(() => {
     if (!winner) return;
-
     pause();
 
-    if (winner === "X") {
-      setState({
-        playerScore: playerScore + 1,
+    // Reading store primitives inside functional updates prevents dependency re-trigger loop cascading
+    useConnect4Store.setState((prev) => {
+      let nextPlayerScore = prev.playerScore;
+      let nextCpuScore = prev.cpuScore;
+      let nextMatchWinner = prev.matchWinner;
 
-        round: round + 1,
-      });
-    }
+      if (winner === "X") nextPlayerScore += 1;
+      if (winner === "O") nextCpuScore += 1;
 
-    if (winner === "O") {
-      setState({
-        cpuScore: cpuScore + 1,
+      if (nextPlayerScore >= 2) nextMatchWinner = "PLAYER";
+      if (nextCpuScore >= 2) nextMatchWinner = "CPU";
 
-        round: round + 1,
-      });
-    }
-
-    if (playerScore >= 2) {
-      setState({
-        matchWinner: "PLAYER",
-      });
-    }
-
-    if (cpuScore >= 2) {
-      setState({
-        matchWinner: "CPU",
-      });
-    }
-  }, [winner]);
-
-  const syncState = () => {
-    setState({
-      board: engineRef.current.board,
-
-      currentTurn: engineRef.current.currentTurn,
-
-      winner: engineRef.current.winner,
-
-      status: engineRef.current.status,
+      return {
+        playerScore: nextPlayerScore,
+        cpuScore: nextCpuScore,
+        round: prev.round + 1,
+        matchWinner: nextMatchWinner,
+      };
     });
-  };
+  }, [winner, pause]);
 
   const nextRound = () => {
     if (matchWinner) {
-      setState({
-        playerScore: 0,
-
-        cpuScore: 0,
-
-        round: 1,
-
-        matchWinner: null,
-      });
+      setState({ playerScore: 0, cpuScore: 0, round: 1, matchWinner: null });
     }
-
     engineRef.current.reset();
-
     syncState();
-
     reset();
-
     start();
   };
 
@@ -156,18 +113,14 @@ export const SoloConnect4 = () => {
         {/* SCORE */}
         <div className="shell-title-panel mb-8 flex items-center gap-6 rounded-full border border-white/60 bg-white/70 px-8 py-4 shadow-lg backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-slate-900/60">
           <div className="text-center">
-            <p className="text-sm text-slate-400 dark:text-slate-500">You</p>
-
+            <p className="text-xs text-slate-400 dark:text-slate-500">You</p>
             <p className="font-[family:var(--font-pixel)] text-3xl text-pink-400 dark:text-pink-500">
               {playerScore}
             </p>
           </div>
-
           <div className="text-slate-300 dark:text-slate-650">vs</div>
-
           <div className="text-center">
-            <p className="text-sm text-slate-400 dark:text-slate-500">CPU</p>
-
+            <p className="text-xs text-slate-400 dark:text-slate-500">CPU</p>
             <p className="font-[family:var(--font-pixel)] text-3xl text-sky-400 dark:text-sky-500">
               {cpuScore}
             </p>
@@ -179,10 +132,8 @@ export const SoloConnect4 = () => {
           {board.map((row, rowIndex) =>
             row.map((cell, colIndex) => (
               <motion.button
-                key={rowIndex * 7 + colIndex}
-                whileTap={{
-                  scale: 0.92,
-                }}
+                key={`${rowIndex}-${colIndex}`}
+                whileTap={{ scale: 0.92 }}
                 onClick={() => makeMove(colIndex)}
                 className="flex h-16 w-16 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm transition-all duration-300 dark:border-white/10 dark:bg-slate-900/90 dark:shadow-[0_4px_10px_rgba(0,0,0,0.3)]"
               >

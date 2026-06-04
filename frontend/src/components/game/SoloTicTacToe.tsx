@@ -91,7 +91,7 @@ export const SoloTicTacToe = () => {
     }, 700);
 
     return () => clearTimeout(timeout);
-  }, [currentTurn, status]);
+  }, [currentTurn, status, syncState]);
 
   // SCORE TRACKING
   useEffect(() => {
@@ -120,7 +120,7 @@ export const SoloTicTacToe = () => {
         round: round + 1,
       });
     }
-  }, [winner]);
+  }, [winner, pause, round, cpuScore, playerScore, setState]);
 
   // MATCH WINNER
   useEffect(() => {
@@ -135,7 +135,7 @@ export const SoloTicTacToe = () => {
         matchWinner: "CPU",
       });
     }
-  }, [playerScore, cpuScore]);
+  }, [playerScore, cpuScore, setState]);
 
   // RESET ROUND
   const nextRound = () => {

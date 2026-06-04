@@ -116,6 +116,7 @@ export const ColorMemory =
       sequence,
       status,
       started,
+      setState,
     ]);
 
     // PLAYER MOVE

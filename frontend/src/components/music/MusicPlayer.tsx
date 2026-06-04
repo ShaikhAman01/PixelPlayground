@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef } from "react";
+import Image from "next/image";
+import { useMemo, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Pause, Play, VolumeX, Volume, Volume1, Volume2, SkipBack, SkipForward } from "lucide-react";
 import { useAudioStore, playlist } from "@/store/audio.store";
@@ -18,33 +19,28 @@ export const MusicPlayer = () => {
   const setIsPlaying = useAudioStore((s) => s.setIsPlaying);
 
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-  
-  // Track previous volume level before muting so we can restore it accurately
   const preMuteVolumeRef = useRef(35);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  // Using a robust hydration check to securely eliminate server-side mismatches
+  const isClient = typeof window !== "undefined";
 
   const track = playlist[trackIndex];
   const isLongTitle = track && track.title.length > 20;
 
-  // Compute reactive volume icon
+  // Compute reactive volume icon safely using client-only environments
   const VolumeIcon = useMemo(() => {
-    if (!isMounted || volume === 0) return VolumeX;
+    if (!isClient || volume === 0) return VolumeX;
     if (volume < 30) return Volume;
     if (volume < 70) return Volume1;
     return Volume2;
-  }, [volume, isMounted]);
+  }, [volume, isClient]);
 
-  // Click-to-Mute / Restore Volume Handlers
   const handleVolumeIconClick = () => {
     if (volume > 0) {
-      preMuteVolumeRef.current = volume; // Save current volume state
+      preMuteVolumeRef.current = volume;
       setVolume(0);
     } else {
-      setVolume(preMuteVolumeRef.current); // Restore to previous non-zero state
+      setVolume(preMuteVolumeRef.current);
     }
   };
 
@@ -54,13 +50,21 @@ export const MusicPlayer = () => {
       {/* 1. Left Column: Album Art + Moving Text Container */}
       <div className="flex items-center gap-3 w-[190px] min-w-[190px] max-w-[190px] overflow-hidden">
         <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/80 dark:bg-slate-950 border border-slate-200/60 dark:border-slate-800 shadow-inner overflow-hidden transition-colors">
-          {isMounted && track?.albumArt ? (
+          {isClient && track?.albumArt ? (
             <motion.div
               className="w-full h-full relative rounded-full overflow-hidden p-0.5 bg-slate-900 border border-slate-950/20"
               animate={isPlaying ? { rotate: 360 } : {}}
               transition={isPlaying ? { duration: 12, repeat: Infinity, ease: "linear" } : { duration: 0 }}
             >
-              <img src={track.albumArt} alt="Cover" className="w-full h-full object-cover rounded-full opacity-90 pointer-events-none" />
+              {/* Using an optimized image component with proper size boundaries to avoid LCP layout thrashing */}
+              <Image
+                src={track.albumArt}
+                alt="Cover"
+                width={44}
+                height={44}
+                loading="eager"
+                className="w-full h-full object-cover rounded-full opacity-90 pointer-events-none"
+              />
               <div className="absolute inset-0 m-auto w-2 h-2 rounded-full bg-white border border-slate-950/30 shadow-sm z-10" />
             </motion.div>
           ) : (
@@ -70,7 +74,7 @@ export const MusicPlayer = () => {
 
         <div className="flex flex-col overflow-hidden flex-1 w-full max-w-[135px]">
           <div className="relative w-full overflow-hidden">
-            {isMounted && track ? (
+            {isClient && track ? (
               isLongTitle ? (
                 <div className={`flex gap-4 ${isPlaying ? "animate-marquee" : ""}`}>
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 whitespace-nowrap">
@@ -91,16 +95,15 @@ export const MusicPlayer = () => {
           </div>
 
           <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold truncate mt-0.5 uppercase tracking-wider block">
-            {isMounted && track ? track.artist : "Radio Hub"}
+            {isClient && track ? track.artist : "Radio Hub"}
           </span>
           
-          {/* Reactive Waveform Equalizer (Animations scale dynamically based on playing state) */}
           <div className="mt-1 flex items-end gap-[2px] h-2.5 w-full">
             {WAVEFORM_DURATIONS.map((duration, i) => (
               <motion.div
                 key={i}
                 style={{ transformOrigin: "bottom" }}
-                animate={{ scaleY: isPlaying && isMounted ? [0.2, 1.0, 0.4, 0.8, 0.2] : 0.15 }}
+                animate={{ scaleY: isPlaying && isClient ? [0.2, 1.0, 0.4, 0.8, 0.2] : 0.15 }}
                 transition={{ duration, repeat: Infinity, ease: "easeInOut" }}
                 className={`w-[2px] h-full rounded-full origin-bottom transition-colors duration-500 ${
                   isPlaying ? "bg-violet-400/90 dark:bg-violet-400/80" : "bg-slate-300 dark:bg-slate-700"
@@ -128,7 +131,7 @@ export const MusicPlayer = () => {
           className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 text-white shadow-md shadow-violet-500/20 dark:shadow-none hover:from-violet-600 hover:to-indigo-600 transition-all duration-300"
           aria-label={isPlaying ? "Pause Track" : "Play Track"}
         >
-          {isPlaying && isMounted ? <Pause className="h-4 w-4 fill-current" /> : <Play className="ml-0.5 h-4 w-4 fill-current" />}
+          {isPlaying && isClient ? <Pause className="h-4 w-4 fill-current" /> : <Play className="ml-0.5 h-4 w-4 fill-current" />}
         </motion.button>
 
         <button 
@@ -156,14 +159,13 @@ export const MusicPlayer = () => {
 
         <div className="w-[76px] h-8 flex items-center justify-end overflow-hidden pr-1">
           <AnimatePresence>
-            {showVolumeSlider && isMounted && (
+            {showVolumeSlider && isClient && (
               <motion.div 
                 initial={{ width: 0, opacity: 0, x: 10 }} 
                 animate={{ width: 72, opacity: 1, x: 0 }} 
                 exit={{ width: 0, opacity: 0, x: 10 }} 
                 className="flex items-center w-full"
               >
-                {/* Sleek Custom Styled Slider Native Track Override */}
                 <input
                   type="range"
                   min="0"

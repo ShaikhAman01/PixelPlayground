@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Sun, Volume2, Users } from "lucide-react";
+import { Moon, Sun, Users } from "lucide-react";
 import { MusicPlayer } from "../music/MusicPlayer";
 import { motion } from "framer-motion";
 import { useTheme } from "../providers/ThemeProvider";
