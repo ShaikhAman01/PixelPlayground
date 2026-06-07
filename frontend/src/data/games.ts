@@ -43,10 +43,10 @@ export const games: GameItem[] = [
     color: "from-yellow-200 to-orange-200",
   },
   {
-    id: "sudoku",
-    title: "Sudoku",
-    description: "relax & solve",
-    iconName: "Binary",
-    color: "from-violet-200 to-indigo-200",
+    id: "game2048",
+    title: "2048",
+    description: "merge the tiles",
+    iconName: "Grid",
+    color: "from-pink-200 to-violet-200",
   },
 ];

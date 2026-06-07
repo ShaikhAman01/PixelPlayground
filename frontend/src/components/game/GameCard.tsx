@@ -12,8 +12,10 @@ interface Props {
   color: string;
 }
 
+const LucideIconsMap = Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>;
+
 export const GameCard = ({ id, title, description, iconName = "Gamepad2", color }: Props) => {
-  const LucideIcon = (Icons as any)[iconName] || Icons.Gamepad2;
+  const LucideIcon = LucideIconsMap[iconName] || Icons.Gamepad2;
 
   return (
     <Link href={`/game/${id}`} className="h-full block">
@@ -31,7 +33,6 @@ export const GameCard = ({ id, title, description, iconName = "Gamepad2", color 
         />
 
         <div className="relative z-10 flex flex-col h-full items-center text-center">
-          {/* Vector Graphics Frame Box */}
           <div className="mb-3.5 flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-slate-100 dark:bg-slate-950 dark:border-slate-800 shadow-sm text-slate-600 dark:text-slate-300 group-hover:text-violet-500 dark:group-hover:text-violet-400 group-hover:border-violet-100 transition-all duration-300">
             <LucideIcon className="h-5 w-5 stroke-[1.75]" />
           </div>

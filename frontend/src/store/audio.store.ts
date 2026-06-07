@@ -12,6 +12,20 @@ export interface TrackType {
   source: string;
 }
 
+interface AudioState {
+  volume: number;
+  trackIndex: number;
+  isPlaying: boolean;
+  hydrated: boolean;
+
+  setHydrated: (value: boolean) => void;
+
+  setVolume: (vol: number) => void;
+  nextTrack: () => void;
+  prevTrack: () => void;
+  setIsPlaying: (playing: boolean) => void;
+}
+
 export const playlist: TrackType[] = [
   {
     title: "Good Night - Lofi Cozy Chill Music",
@@ -115,27 +129,48 @@ export const playlist: TrackType[] = [
   }
 ];
 
-interface AudioState {
-  volume: number;
-  trackIndex: number;
-  isPlaying: boolean;
-  setVolume: (vol: number) => void;
-  nextTrack: () => void;
-  prevTrack: () => void;
-  setIsPlaying: (playing: boolean) => void;
-}
-
 export const useAudioStore = create<AudioState>()(
   persist(
     (set) => ({
       volume: 35,
       trackIndex: 0,
       isPlaying: false,
-      setVolume: (volume) => set({ volume: Math.min(Math.max(volume, 0), 100) }),
-      nextTrack: () => set((state) => ({ trackIndex: (state.trackIndex + 1) % playlist.length })),
-      prevTrack: () => set((state) => ({ trackIndex: state.trackIndex === 0 ? playlist.length - 1 : state.trackIndex - 1 })),
-      setIsPlaying: (isPlaying) => set({ isPlaying }),
+
+      hydrated: false,
+
+      setHydrated: (hydrated) => set({ hydrated }),
+
+      setVolume: (volume) =>
+        set({
+          volume: Math.min(Math.max(volume, 0), 100),
+        }),
+
+      nextTrack: () =>
+        set((state) => ({
+          trackIndex: (state.trackIndex + 1) % playlist.length,
+        })),
+
+      prevTrack: () =>
+        set((state) => ({
+          trackIndex:
+            state.trackIndex === 0
+              ? playlist.length - 1
+              : state.trackIndex - 1,
+        })),
+
+      setIsPlaying: (isPlaying) =>
+        set({
+          isPlaying,
+        }),
     }),
-    { name: "pixel-playground-audio-sync" }
+    {
+      name: "pixel-playground-audio-sync",
+
+      onRehydrateStorage: () => {
+        return (state) => {
+          state?.setHydrated(true);
+        };
+      },
+    }
   )
 );

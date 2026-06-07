@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import { AudioRuntime } from "@/components/audio/AudioRuntime";
-import { AudioCreditsModal } from "@/components/music/AudioCreditsModal"; // Import your credits module
+import { AudioCreditsModal } from "@/components/music/AudioCreditsModal";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Inter, Pixelify_Sans } from "next/font/google";
 import "./globals.css";
@@ -13,6 +13,7 @@ const inter = Inter({
 
 const pixelFont = Pixelify_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-pixel",
 });
 
@@ -31,11 +32,10 @@ export default function RootLayout({
       <body className={`${inter.variable} ${pixelFont.variable} antialiased`}>
         <ThemeProvider>
           {children}
-          
-          {/* Running background systems and active view models */}
+
           <AudioRuntime />
-          <AudioCreditsModal /> 
-          
+          <AudioCreditsModal />
+
           <Toaster richColors position="top-center" />
         </ThemeProvider>
       </body>

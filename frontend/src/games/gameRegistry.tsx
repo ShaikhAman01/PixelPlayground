@@ -4,7 +4,7 @@ import { SoloConnect4 } from "@/components/game/SoloConnect4";
 import { ColorMemory } from "@/components/game/ColorMemory";
 import { SlidePuzzle } from "@/components/game/SlidePuzzle";
 import { WordleGame } from "@/components/game/WordleGame";
-import { SudokuGame } from "@/components/game/SudokuGame";
+import { Game2048 } from "@/components/game/Game2048";
 
 export const gameRegistry = {
   tictactoe: {
@@ -43,10 +43,10 @@ slidepuzzle: {
     SlidePuzzle,
 },
 
-sudoku: {
-  title: "Sudoku",
+game2048: {
+  title: "2048",
 
   component:
-    SudokuGame,
+    Game2048,
 },
 };
