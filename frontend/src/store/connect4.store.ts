@@ -1,23 +1,14 @@
 import { create } from "zustand";
-
 import { Cell } from "@/games/connect4.engine";
 
 interface Connect4State {
   board: Cell[][];
 
-  currentTurn:
-    | "X"
-    | "O";
+  currentTurn: "X" | "O";
 
-  winner:
-    | "X"
-    | "O"
-    | "DRAW"
-    | null;
+  winner: "X" | "O" | "DRAW" | null;
 
-  status:
-    | "PLAYING"
-    | "FINISHED";
+  status: "PLAYING" | "FINISHED";
 
   playerScore: number;
 
@@ -25,48 +16,37 @@ interface Connect4State {
 
   round: number;
 
-  matchWinner:
-    | "PLAYER"
-    | "CPU"
-    | null;
+  matchWinner: "PLAYER" | "CPU" | null;
 
-  setState: (
-    state: Partial<Connect4State>
-  ) => void;
+  // DIFFICULTY SETTING
+  difficulty: "EASY" | "MEDIUM" | "HARD";
+
+  setState: (state: Partial<Connect4State>) => void;
 }
 
-export const useConnect4Store =
-  create<Connect4State>(
-    (set) => ({
-      board:
-        Array.from({
-          length: 6,
-        }).map(() =>
-          Array(7).fill(
-            null
-          )
-        ),
+export const useConnect4Store = create<Connect4State>((set) => ({
+  board: Array.from({ length: 6 }).map(() => Array(7).fill(null)),
 
-      currentTurn: "X",
+  currentTurn: "X",
 
-      winner: null,
+  winner: null,
 
-      status: "PLAYING",
+  status: "PLAYING",
 
-      playerScore: 0,
+  playerScore: 0,
 
-      cpuScore: 0,
+  cpuScore: 0,
 
-      round: 1,
+  round: 1,
 
-      matchWinner: null,
+  matchWinner: null,
 
-      setState: (
-        state
-      ) =>
-        set((prev) => ({
-          ...prev,
-          ...state,
-        })),
-    })
-  );
+  // DEFAULT SETTING
+  difficulty: "MEDIUM",
+
+  setState: (state) =>
+    set((prev) => ({
+      ...prev,
+      ...state,
+    })),
+}));

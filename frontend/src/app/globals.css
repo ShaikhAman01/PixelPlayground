@@ -24,6 +24,10 @@ body {
   overflow-x: hidden;
 }
 
+.pixel-font {
+  font-family: var(--font-pixel), sans-serif;
+}
+
 /* Custom design token utility mappings replacing the explicit overrides */
 @utility pp-glass {
   @apply border border-white/60 bg-white/65 backdrop-blur-xl shadow-[0_10px_40px_rgba(0,0,0,0.05)] transition-all duration-300;
@@ -47,4 +51,13 @@ body {
   display: inline-flex;
   white-space: nowrap;
   animation: marquee 15s linear infinite;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+@utility animate-shake {
+  animation: shake 0.4s ease-in-out;
 }

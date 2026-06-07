@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { motion } from "framer-motion";
+import { motion, LayoutGroup } from "framer-motion";
 import { GameShell } from "./GameShell";
 import { useSlidePuzzleStore } from "@/store/slidePuzzle.store";
 import { useTimer } from "@/hooks/useTimer";
@@ -11,7 +11,6 @@ const solvedBoard = [1, 2, 3, 4, 5, 6, 7, 8, 0];
 export const SlidePuzzle = () => {
   const { board, moves, won, setState } = useSlidePuzzleStore();
   const { formattedTime, reset, start, pause } = useTimer({ autoStart: true });
-  
 
   const isSolvable = useCallback((arr: number[]) => {
     let inversions = 0;
@@ -34,21 +33,18 @@ export const SlidePuzzle = () => {
     start();
   }, [isSolvable, reset, start, setState]);
 
-// Replace your old setup initialization effect with this clean trigger:
-useEffect(() => {
-  // Direct lazy checks avoid firing duplicate rendering updates to the screen threads
-  const hasItems = useSlidePuzzleStore.getState().board.length > 0;
-  if (!hasItems) {
-    shuffleBoard();
-  }
-}, [shuffleBoard]);
+  useEffect(() => {
+    const hasItems = useSlidePuzzleStore.getState().board.length > 0;
+    if (!hasItems) {
+      shuffleBoard();
+    }
+  }, [shuffleBoard]);
 
   useEffect(() => {
     if (board.length === 0 || won) return;
     const isSolved = board.every((val, idx) => val === solvedBoard[idx]);
     
     if (isSolved) {
-      // Isolate loop boundaries from the concurrent render stack thread
       queueMicrotask(() => {
         pause();
         setState({ won: true });
@@ -74,40 +70,55 @@ useEffect(() => {
   return (
     <GameShell title="Slide Puzzle" timer={formattedTime} onRestart={shuffleBoard} info="Arrange tiles in numerical order.">
       <div className="flex flex-col items-center max-w-full px-2">
-        <div className="pp-glass mb-6 rounded-full px-5 py-2 shadow-sm bg-white/70 dark:bg-slate-900/60 border border-white/60 dark:border-white/10">
-          <p className="text-xs font-bold text-slate-600 dark:text-slate-300 tracking-wide">
-            Moves: {moves}
+        
+        {/* COUNTER STATUS BADGE */}
+        <div className="mb-6 rounded-full px-5 py-1.5 shadow-sm bg-white/70 dark:bg-slate-900/60 border border-white/60 dark:border-white/10">
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase">
+            Total Moves: <span className="text-violet-500 font-extrabold">{moves}</span>
           </p>
         </div>
 
-        <div className="pp-glass grid grid-cols-3 gap-3 md:gap-4 p-4 rounded-[28px]">
-          {board.map((tile, index) => (
-            <motion.button
-              key={index}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => moveTile(index)}
-              className={`flex size-[clamp(4.5rem,22vw,6.5rem)] items-center justify-center rounded-2xl border text-2xl font-bold shadow-md transition-all duration-300 ${
-                tile === 0
-                  ? "border-transparent bg-transparent shadow-none pointer-events-none"
-                  : "border-white/60 bg-white text-slate-700 dark:border-white/10 dark:bg-slate-900/90 dark:text-slate-200"
-              }`}
-            >
-              {tile !== 0 && tile}
-            </motion.button>
-          ))}
+        {/* RE-ARCHITECTED BOARD LAYOUT WRAPPER */}
+        <div className="grid grid-cols-3 gap-3 md:gap-4 p-4 rounded-[32px] border border-white/60 bg-white/30 backdrop-blur-xl dark:border-white/5 dark:bg-slate-900/30">
+          {/* LayoutGroup captures internal shifts across indices seamlessly */}
+          <LayoutGroup>
+            {board.map((tile, index) => {
+              const isCorrectPosition = tile !== 0 && tile === solvedBoard[index];
+              
+              return (
+                <motion.button
+                  key={tile} // Crucial! Using tile value as key allows layout morph tracking
+                  layout
+                  transition={{ type: "spring", stiffness: 220, damping: 22 }}
+                  whileTap={tile !== 0 ? { scale: 0.95 } : {}}
+                  onClick={() => moveTile(index)}
+                  className={`flex size-[clamp(4.5rem,22vw,6.2rem)] items-center justify-center rounded-2xl border text-2xl font-black shadow-sm transition-colors duration-200 ${
+                    tile === 0
+                      ? "border-transparent bg-transparent shadow-none pointer-events-none"
+                      : isCorrectPosition
+                        ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:border-emerald-500/10 dark:bg-emerald-500/20 dark:text-emerald-400"
+                        : "border-slate-200/60 bg-white text-slate-700 dark:border-white/5 dark:bg-slate-900/90 dark:text-slate-200 hover:border-violet-300 dark:hover:border-violet-500/30"
+                  }`}
+                >
+                  {tile !== 0 && tile}
+                </motion.button>
+              );
+            })}
+          </LayoutGroup>
         </div>
 
+        {/* BANNER REACTION NOTIFIER */}
         <div className="mt-8 min-h-[56px]">
           {won ? (
-            <div className="pp-glass bg-green-100/80 rounded-full px-6 py-2">
-              <p className="font-[family:var(--font-pixel)] text-xl text-violet-500 dark:text-violet-400">
-                Puzzle Solved ✨
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full px-8 py-2.5 shadow-md animate-in fade-in zoom-in-95 duration-300">
+              <p className="text-sm font-bold uppercase tracking-widest">
+                Puzzle Solved Successfully! ✨
               </p>
             </div>
           ) : (
-            <div className="pp-glass rounded-full px-5 py-2">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                Arrange tiles in numerical order
+            <div className="rounded-full bg-white/60 dark:bg-slate-900/60 border border-white/40 dark:border-white/5 px-5 py-2 shadow-inner">
+              <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                Shift matching numeric neighbors
               </p>
             </div>
           )}

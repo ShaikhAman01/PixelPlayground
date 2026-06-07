@@ -41,7 +41,7 @@ export const WordleGame = () => {
           triggerShakeEffect();
           return;
         }
-        if (!validWords.has(currentGuess.toLowerCase())) {
+        if (!validWords.has(currentGuess.toUpperCase())) {
           triggerShakeEffect();
           return;
         }
@@ -75,14 +75,19 @@ export const WordleGame = () => {
   }, [currentGuess, guesses, solution, status, setState, triggerShakeEffect]);
 
   const getTileClass = (letter: string, index: number) => {
-    if (solution[index] === letter) {
-      return "bg-emerald-400 text-white border-transparent shadow-emerald-200 dark:shadow-none";
-    }
-    if (solution.includes(letter)) {
-      return "bg-amber-400 text-white border-transparent shadow-amber-200 dark:shadow-none";
-    }
+  // Guard clause: If the state hasn't populated the solution yet, wait.
+  if (!solution || solution.length === 0) {
     return "bg-slate-300 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-transparent";
-  };
+  }
+
+  if (solution[index] === letter) {
+    return "bg-emerald-400 text-white border-transparent shadow-emerald-200 dark:shadow-none";
+  }
+  if (solution.includes(letter)) {
+    return "bg-amber-400 text-white border-transparent shadow-amber-200 dark:shadow-none";
+  }
+  return "bg-slate-300 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-transparent";
+};
 
   return (
     <GameShell title="Wordle" info="Guess the hidden 5-letter word.">
