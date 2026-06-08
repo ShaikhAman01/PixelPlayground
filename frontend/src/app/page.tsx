@@ -14,7 +14,7 @@ export default function HomePage() {
       <div className="absolute inset-0 bg-pink-100/5 dark:bg-indigo-950/20 pointer-events-none z-0" />
 
       {/* Main layout flow wrapper container */}
-      <div className="relative z-10 w-full max-w-[1280px] mx-auto flex flex-col px-8 pt-6 gap-16">
+      <div className="relative z-10 w-full max-w-[1280px] mx-auto flex flex-col px-8 pt-28 gap-16">
         
         {/* GLOBAL HEADER BAR NAVBAR */}
         <TopBar />

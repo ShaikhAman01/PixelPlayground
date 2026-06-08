@@ -12,7 +12,6 @@ export const WordleGame = () => {
   const { solution, guesses, currentGuess, status, setState } = useWordleStore();
   const [isShaking, setIsShaking] = useState(false);
 
-  // Safely calculate seed logic inside standard execution paths to satisfy the purity audit rules
   const dailyWord = useMemo(() => {
     if (typeof window === "undefined") return words[0];
     const timestampSeed = new Date().setHours(0,0,0,0);
@@ -25,7 +24,6 @@ export const WordleGame = () => {
     setState({ solution: dailyWord });
   }, [solution, dailyWord, setState]);
 
-
   const triggerShakeEffect = useCallback(() => {
     setIsShaking(true);
     setTimeout(() => setIsShaking(false), 400);
@@ -37,11 +35,7 @@ export const WordleGame = () => {
       const key = e.key.toUpperCase();
 
       if (key === "ENTER") {
-        if (currentGuess.length !== 5) {
-          triggerShakeEffect();
-          return;
-        }
-        if (!validWords.has(currentGuess.toUpperCase())) {
+        if (currentGuess.length !== 5 || !validWords.has(currentGuess.toUpperCase())) {
           triggerShakeEffect();
           return;
         }
@@ -75,33 +69,23 @@ export const WordleGame = () => {
   }, [currentGuess, guesses, solution, status, setState, triggerShakeEffect]);
 
   const getTileClass = (letter: string, index: number) => {
-  // Guard clause: If the state hasn't populated the solution yet, wait.
-  if (!solution || solution.length === 0) {
-    return "bg-slate-300 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-transparent";
-  }
-
-  if (solution[index] === letter) {
-    return "bg-emerald-400 text-white border-transparent shadow-emerald-200 dark:shadow-none";
-  }
-  if (solution.includes(letter)) {
-    return "bg-amber-400 text-white border-transparent shadow-amber-200 dark:shadow-none";
-  }
-  return "bg-slate-300 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-transparent";
-};
+    if (!solution || solution.length === 0) return "bg-slate-300 dark:bg-slate-800 text-slate-700";
+    if (solution[index] === letter) return "bg-emerald-400 text-white border-transparent";
+    if (solution.includes(letter)) return "bg-amber-400 text-white border-transparent";
+    return "bg-slate-300 dark:bg-slate-800 text-slate-400 border-transparent";
+  };
 
   return (
-    <GameShell title="Wordle" info="Guess the hidden 5-letter word.">
-      <div className="flex flex-col items-center max-w-full px-2">
-        <div className="space-y-2.5">
+    <GameShell title="Wordle">
+      <div className="flex flex-col items-center justify-center w-full">
+        
+        <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, rowIndex) => {
             const isCurrentRow = rowIndex === guesses.length;
             const guess = guesses[rowIndex] ?? (isCurrentRow ? currentGuess : "");
 
             return (
-              <div 
-                key={rowIndex} 
-                className={`flex gap-2.5 transition-transform duration-300 ${isCurrentRow && isShaking ? "animate-shake" : ""}`}
-              >
+              <div key={rowIndex} className={`flex gap-2 ${isCurrentRow && isShaking ? "animate-shake" : ""}`}>
                 {Array.from({ length: 5 }).map((_, colIndex) => {
                   const letter = guess[colIndex];
                   const submitted = rowIndex < guesses.length;
@@ -109,10 +93,10 @@ export const WordleGame = () => {
                   return (
                     <div
                       key={colIndex}
-                      className={`flex size-[clamp(3.25rem,11vw,3.75rem)] items-center justify-center rounded-2xl border text-xl font-bold shadow-md transition-all duration-300 ${
+                      className={`flex size-[clamp(3rem,10vw,3.4rem)] items-center justify-center rounded-xl border text-lg font-black transition-all duration-300 ${
                         submitted
                           ? getTileClass(letter, colIndex)
-                          : "border-white/80 bg-white/60 dark:border-white/10 dark:bg-slate-900/60 text-slate-800 dark:text-slate-100"
+                          : "border-slate-200/60 bg-white/80 dark:border-white/5 dark:bg-slate-900/60 text-slate-800 dark:text-slate-100"
                       }`}
                     >
                       {letter}
@@ -124,15 +108,14 @@ export const WordleGame = () => {
           })}
         </div>
 
-        {/* Keyboard Input Deck */}
-        <div className="mt-8 space-y-2 max-w-full overflow-hidden">
+        <div className="mt-6 space-y-1.5 max-w-full overflow-hidden opacity-95">
           {keyboard.map((row) => (
-            <div key={row} className="flex justify-center gap-1.5">
+            <div key={row} className="flex justify-center gap-1">
               {row.split("").map((key) => (
                 <button
                   key={key}
                   onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key }))}
-                  className="rounded-xl bg-white/60 dark:bg-slate-900/50 text-slate-700 dark:text-slate-200 px-3 py-3 text-xs font-bold shadow-sm border border-white/40 dark:border-white/5 hover:bg-white/90 dark:hover:bg-slate-800 active:scale-95 transition-all"
+                  className="rounded-lg bg-white/80 dark:bg-slate-900/60 text-slate-700 dark:text-slate-200 px-2.5 py-2.5 text-xs font-bold border border-slate-200/40 dark:border-white/5 hover:bg-white dark:hover:bg-slate-800 active:scale-95 transition-all"
                 >
                   {key}
                 </button>
@@ -140,6 +123,7 @@ export const WordleGame = () => {
             </div>
           ))}
         </div>
+
       </div>
     </GameShell>
   );
