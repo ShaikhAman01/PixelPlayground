@@ -4,30 +4,62 @@ import { Moon, Sun, Users } from "lucide-react";
 import { MusicPlayer } from "../music/MusicPlayer";
 import { motion } from "framer-motion";
 import { useTheme } from "../providers/ThemeProvider";
-
+import Image from "next/image";
 export const TopBar = () => {
   const { theme, toggleTheme } = useTheme();
 
   return (
     <header className="w-full flex items-center justify-between gap-8 z-20">
  {/* Brand Logo Wrapper */}
-<div className="flex items-center gap-3 bg-white/40 dark:bg-slate-900/40 border border-white/60 dark:border-white/10 px-4 py-2 rounded-xl shadow-[0_2px_12px_rgba(0,0,0,0.02)] backdrop-blur-md transition-colors duration-300">
-  <div className="grid grid-cols-2 gap-0.5 w-5 h-5 shrink-0">
-    <div className="rounded-[3px] bg-violet-400" />
-    <div className="rounded-[3px] bg-pink-400" />
-    <div className="rounded-[3px] bg-sky-400" />
-    <div className="rounded-[3px] bg-amber-400" />
+<div
+  className="
+    flex items-center gap-3
+    bg-white/40 dark:bg-slate-900/40
+    border border-white/60 dark:border-white/10
+    px-4 py-2
+    rounded-xl
+    backdrop-blur-md
+    transition-colors duration-300
+  "
+>
+<Image
+  src="/logo/logo3.png"
+  alt="Pixel Playground"
+  width={220}
+  height={70}
+  className="h-12 sm:h-14 w-auto"
+  priority
+/>
+
+  <div className="leading-none">
+    <div
+      className="
+        pixel-font
+        text-lg sm:text-xl
+        font-bold
+        tracking-[0.12em]
+        uppercase
+        text-[#0F2C75]
+        dark:text-slate-100
+      "
+    >
+      PIXEL
+    </div>
+
+    <div
+      className="
+        pixel-font
+        text-[10px] sm:text-xs
+        tracking-[0.35em]
+        uppercase
+        text-[#0F2C75]
+        dark:text-slate-300
+        mt-1
+      "
+    >
+      PLAYGROUND
+    </div>
   </div>
-
-  <div className="flex flex-col leading-none">
-  <span className="pixel-font text-sm sm:text-base font-bold tracking-wide text-slate-700 dark:text-slate-100 uppercase">
-    Pixel
-  </span>
-
-  <span className="pixel-font text-[11px] text-violet-500 dark:text-violet-400 uppercase tracking-[0.2em] font-semibold">
-    Playground
-  </span>
-</div>
 </div>
 
       {/* Centered Integrated Media Hub */}

@@ -1,51 +1,70 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
-import * as Icons from "lucide-react";
 
-interface Props {
+interface GameCardProps {
   id: string;
   title: string;
   description: string;
+  color?: string;
   iconName?: string;
-  color: string;
 }
 
-const LucideIconsMap = Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>;
-
-export const GameCard = ({ id, title, description, iconName = "Gamepad2", color }: Props) => {
-  const LucideIcon = LucideIconsMap[iconName] || Icons.Gamepad2;
-
+export const GameCard: React.FC<GameCardProps> = ({ id, title }) => {
   return (
-    <Link href={`/game/${id}`} className="h-full block">
-      <motion.div
-        whileHover={{
-          y: -6,
-          scale: 1.01,
-          transition: { type: "spring", stiffness: 350, damping: 18 }
-        }}
-        whileTap={{ scale: 0.99 }}
-        className="group relative h-full flex flex-col justify-between overflow-hidden rounded-2xl border border-white/80 bg-white/40 p-5 shadow-[0_4px_24px_rgba(0,0,0,0.02)] backdrop-blur-md hover:shadow-[0_12px_32px_rgba(139,92,246,0.06)] dark:border-white/10 dark:bg-slate-900/40 dark:shadow-[0_10px_40px_rgba(0,0,0,0.25)] transition-all duration-300"
-      >
-        <div
-          className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 transition-opacity duration-500 group-hover:opacity-10 dark:group-hover:opacity-20 pointer-events-none`}
-        />
-
-        <div className="relative z-10 flex flex-col h-full items-center text-center">
-          <div className="mb-3.5 flex h-12 w-12 items-center justify-center rounded-xl bg-white border border-slate-100 dark:bg-slate-950 dark:border-slate-800 shadow-sm text-slate-600 dark:text-slate-300 group-hover:text-violet-500 dark:group-hover:text-violet-400 group-hover:border-violet-100 transition-all duration-300">
-            <LucideIcon className="h-5 w-5 stroke-[1.75]" />
-          </div>
-
-          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 tracking-tight w-full truncate transition-colors duration-300">
-            {title}
-          </h3>
-
-          <p className="mt-1 text-[11px] leading-normal text-slate-400 dark:text-slate-400 font-medium line-clamp-2 w-full px-0.5 transition-colors duration-300">
-            {description}
-          </p>
+    <motion.div
+      whileHover={{ y: -6 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      className="w-full bg-white/80 dark:bg-slate-900/40 border border-white/60 dark:border-white/5 rounded-[32px] p-5 shadow-md dark:shadow-xl flex flex-col items-center backdrop-blur-sm transition-all duration-300"
+    >
+      {/* 1. EMULATOR SCREEN PREVIEW */}
+      <div className="relative w-full aspect-[4/3] rounded-2xl bg-gradient-to-b from-[#2B1B54] to-[#140F2D] p-2.5 shadow-inner border-[3px] border-[#3F365E]/60 dark:border-[#2C244C]/80 overflow-hidden group">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%)] bg-[length:100%_4px] pointer-events-none z-10 opacity-40" />
+        
+        <div className="relative w-full h-full rounded-lg overflow-hidden bg-slate-950/40">
+          <Image
+            src={`/previews/${id.toLowerCase().replace(/\s+/g, "")}.png`}
+            alt={`${title} Preview Grid`}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
         </div>
-      </motion.div>
-    </Link>
+      </div>
+
+      {/* 2. D-PAD & HARDWARE DECK */}
+      <div className="w-full flex items-center justify-between mt-5 px-1 select-none pointer-events-none">
+        <div className="relative w-8 h-8 flex items-center justify-center">
+          <div className="absolute w-8 h-2.5 bg-slate-300 dark:bg-slate-700/80 rounded-sm transition-colors duration-300" />
+          <div className="absolute h-8 w-2.5 bg-slate-300 dark:bg-slate-700/80 rounded-sm transition-colors duration-300" />
+          <div className="absolute w-2 h-2 bg-slate-400 dark:bg-slate-600 rounded-full transition-colors duration-300" />
+        </div>
+
+        <div className="relative w-8 h-8 grid grid-cols-2 gap-1.5 rotate-45">
+          <div className="w-2.5 h-2.5 rounded-full bg-pink-400 dark:bg-pink-500/90 shadow-sm transition-colors duration-300" />
+          <div className="w-2.5 h-2.5 rounded-full bg-pink-400 dark:bg-pink-500/90 shadow-sm transition-colors duration-300" />
+          <div className="w-2.5 h-2.5 rounded-full bg-pink-400 dark:bg-pink-500/90 shadow-sm transition-colors duration-300" />
+          <div className="w-2.5 h-2.5 rounded-full bg-pink-400 dark:bg-pink-500/90 shadow-sm transition-colors duration-300" />
+        </div>
+      </div>
+
+      {/* 3. GAME TITLE */}
+      <h3 className="pixel-font text-lg font-black tracking-wide text-[#32354A] dark:text-indigo-200 uppercase mt-4 transition-colors duration-300">
+        {title}
+      </h3>
+
+      {/* 4. PLAY NOW CTA */}
+      <Link href={`/game/${id.toLowerCase().replace(/\s+/g, "")}`} className="w-full mt-4">
+        <button className="w-full bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 dark:from-violet-600 dark:to-indigo-600 dark:hover:from-violet-700 dark:hover:to-indigo-700 active:scale-95 text-white font-bold text-xs py-3 px-4 rounded-xl shadow-sm tracking-wide uppercase transition-all flex items-center justify-center gap-2 group">
+          <span className="flex items-center justify-center text-sm">按</span>
+          <span className="flex items-center justify-center">Play Now</span>
+          <span className="flex items-center justify-center transition-transform duration-200 group-hover:translate-x-1 font-mono text-sm leading-none h-full">
+            →
+          </span>
+        </button>
+      </Link>
+    </motion.div>
   );
 };
