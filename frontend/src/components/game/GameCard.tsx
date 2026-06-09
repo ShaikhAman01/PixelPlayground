@@ -13,58 +13,77 @@ interface GameCardProps {
   iconName?: string;
 }
 
-export const GameCard: React.FC<GameCardProps> = ({ id, title }) => {
+export const GameCard: React.FC<GameCardProps> = ({
+  id,
+  title,
+  description,
+}) => {
+  // FIXED: Adjusted string parser to create standard kebab-case paths (e.g. slide-puzzle, color-memory)
+  // Added standard 2048 conversion tracking override to match your filesystem layout name rules perfectly
+  const cleanId = id.toLowerCase().trim();
+  const gameSlug = cleanId === "2048" ? "game2048" : cleanId.replace(/\s+/g, "-");
+
   return (
-    <motion.div
-      whileHover={{ y: -6 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="w-full bg-white/80 dark:bg-slate-900/40 border border-white/60 dark:border-white/5 rounded-[32px] p-5 shadow-md dark:shadow-xl flex flex-col items-center backdrop-blur-sm transition-all duration-300"
+    <motion.article
+      whileHover={{ y: -8, scale: 1.015 }}
+      transition={{ type: "spring", stiffness: 250, damping: 18 }}
+      className="group relative overflow-hidden rounded-[32px] border border-white/60 dark:border-white/10 bg-white/70 dark:bg-slate-900/35 backdrop-blur-xl p-5 shadow-[0_12px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)] transition-all duration-300"
     >
-      {/* 1. EMULATOR SCREEN PREVIEW */}
-      <div className="relative w-full aspect-[4/3] rounded-2xl bg-gradient-to-b from-[#2B1B54] to-[#140F2D] p-2.5 shadow-inner border-[3px] border-[#3F365E]/60 dark:border-[#2C244C]/80 overflow-hidden group">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%)] bg-[length:100%_4px] pointer-events-none z-10 opacity-40" />
-        
-        <div className="relative w-full h-full rounded-lg overflow-hidden bg-slate-950/40">
+      {/* Ambient glow */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-violet-400/10 via-transparent to-pink-400/10 pointer-events-none" />
+
+      {/* Preview */}
+      <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-b from-[#2B1B54] to-[#140F2D] p-2">
+        {/* Scanlines */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.12)_50%)] bg-[length:100%_4px] pointer-events-none z-10 opacity-40" />
+
+        <div className="relative w-full h-full rounded-xl overflow-hidden">
+          {/* Asset matches compact name tracking mapping */}
           <Image
-            src={`/previews/${id.toLowerCase().replace(/\s+/g, "")}.png`}
-            alt={`${title} Preview Grid`}
+            src={`/previews/${cleanId.replace(/\s+/g, "")}.png`}
+            alt={`${title} Preview`}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
         </div>
       </div>
 
-      {/* 2. D-PAD & HARDWARE DECK */}
-      <div className="w-full flex items-center justify-between mt-5 px-1 select-none pointer-events-none">
+      {/* Controller Deck */}
+      <div className="flex items-center justify-between mt-5 px-1 select-none">
+        {/* D-Pad */}
         <div className="relative w-8 h-8 flex items-center justify-center">
-          <div className="absolute w-8 h-2.5 bg-slate-300 dark:bg-slate-700/80 rounded-sm transition-colors duration-300" />
-          <div className="absolute h-8 w-2.5 bg-slate-300 dark:bg-slate-700/80 rounded-sm transition-colors duration-300" />
-          <div className="absolute w-2 h-2 bg-slate-400 dark:bg-slate-600 rounded-full transition-colors duration-300" />
+          <div className="absolute w-8 h-2.5 rounded-sm bg-slate-300 dark:bg-slate-700" />
+          <div className="absolute h-8 w-2.5 rounded-sm bg-slate-300 dark:bg-slate-700" />
+          <div className="absolute w-2 h-2 rounded-full bg-slate-400 dark:bg-slate-600" />
         </div>
 
-        <div className="relative w-8 h-8 grid grid-cols-2 gap-1.5 rotate-45">
-          <div className="w-2.5 h-2.5 rounded-full bg-pink-400 dark:bg-pink-500/90 shadow-sm transition-colors duration-300" />
-          <div className="w-2.5 h-2.5 rounded-full bg-pink-400 dark:bg-pink-500/90 shadow-sm transition-colors duration-300" />
-          <div className="w-2.5 h-2.5 rounded-full bg-pink-400 dark:bg-pink-500/90 shadow-sm transition-colors duration-300" />
-          <div className="w-2.5 h-2.5 rounded-full bg-pink-400 dark:bg-pink-500/90 shadow-sm transition-colors duration-300" />
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-1.5 rotate-45">
+          <div className="w-2.5 h-2.5 rounded-full bg-pink-400" />
+          <div className="w-2.5 h-2.5 rounded-full bg-pink-400" />
+          <div className="w-2.5 h-2.5 rounded-full bg-pink-400" />
+          <div className="w-2.5 h-2.5 rounded-full bg-pink-400" />
         </div>
       </div>
 
-      {/* 3. GAME TITLE */}
-      <h3 className="pixel-font text-lg font-black tracking-wide text-[#32354A] dark:text-indigo-200 uppercase mt-4 transition-colors duration-300">
-        {title}
-      </h3>
+      {/* Content */}
+      <div className="mt-4 text-center">
+        <h3 className="pixel-font text-lg font-black uppercase tracking-wide text-[#32354A] dark:text-indigo-100">
+          {title}
+        </h3>
+        <p className="mt-2 text-xs font-mono text-slate-500 dark:text-indigo-200/60 tracking-wide uppercase">
+          {description}
+        </p>
+      </div>
 
-      {/* 4. PLAY NOW CTA */}
-      <Link href={`/game/${id.toLowerCase().replace(/\s+/g, "")}`} className="w-full mt-4">
-        <button className="w-full bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 dark:from-violet-600 dark:to-indigo-600 dark:hover:from-violet-700 dark:hover:to-indigo-700 active:scale-95 text-white font-bold text-xs py-3 px-4 rounded-xl shadow-sm tracking-wide uppercase transition-all flex items-center justify-center gap-2 group">
-          <span className="flex items-center justify-center text-sm">按</span>
-          <span className="flex items-center justify-center">Play Now</span>
-          <span className="flex items-center justify-center transition-transform duration-200 group-hover:translate-x-1 font-mono text-sm leading-none h-full">
-            →
-          </span>
+      {/* CTA */}
+      <Link href={`/game/${gameSlug}`} className="block w-full mt-5">
+        <button className="w-full rounded-xl bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 active:scale-[0.98] text-white font-bold text-xs py-3 px-4 uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 shadow-lg shadow-violet-500/20 cursor-pointer">
+          <span>Play Now</span>
+          <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
         </button>
       </Link>
-    </motion.div>
+    </motion.article>
   );
 };

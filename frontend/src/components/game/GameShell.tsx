@@ -1,7 +1,18 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { 
+  Gamepad2, 
+  Trophy, 
+  Target, 
+  Clock, 
+  Play, 
+  Sparkles,
+  ChevronDown,
+  Activity
+} from "lucide-react";
 import { useSoloStore } from "@/store/solo.store";
 import { useConnect4Store } from "@/store/connect4.store";
 import { useGame2048Store } from "@/store/game2048.store";
@@ -13,6 +24,7 @@ interface GameShellProps {
   info?: string;
   timer?: string;
   onRestart?: () => void;
+  onNewGame?: () => void;
   children: React.ReactNode;
 }
 
@@ -21,196 +33,239 @@ export const GameShell: React.FC<GameShellProps> = ({
   info,
   timer,
   onRestart,
+  onNewGame,
   children,
 }) => {
-  // 1. Hook into all Zustand stores to extract live score data dynamically
+  const router = useRouter();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
   const tictactoe = useSoloStore();
   const connect4 = useConnect4Store();
   const game2048 = useGame2048Store();
   const slidePuzzle = useSlidePuzzleStore();
   const colorMemory = useColorMemoryStore();
 
-  // Normalized helper to determine if the active game mode supports vs-CPU play
   const isCpuGame = title.toLowerCase().includes("tic tac toe") || title.toLowerCase().includes("connect 4");
 
-  // 2. Resolve stats and difficulties based on the current active game module
+  const gamesList = [
+    { name: "Tic Tac Toe", slug: "tictactoe" },
+    { name: "Connect 4", slug: "connect4" },
+    { name: "2048", slug: "game2048" },
+    { name: "Wordle", slug: "wordle" },
+    { name: "Color Memory", slug: "colormemory" },
+    { name: "Slide Puzzle", slug: "slidepuzzle" }
+  ];
+
   const getGameStats = () => {
     const gameKey = title.toLowerCase();
 
     if (gameKey.includes("tic tac toe")) {
+      const winRate = tictactoe.round > 1 ? Math.round((tictactoe.playerScore / (tictactoe.round - 1)) * 100) : 0;
       return {
+        description: "Get three in a row before the computer!",
         difficulty: tictactoe.difficulty,
         setDifficulty: (diff: any) => tictactoe.setState({ difficulty: diff }),
-        round: tictactoe.round,
         metrics: [
-          { label: "Games Played", value: tictactoe.round - 1 },
-          { label: "You Won", value: tictactoe.playerScore, color: "text-emerald-500" },
-          { label: "CPU Won", value: tictactoe.cpuScore, color: "text-rose-500" },
+          { label: "Games Played", value: tictactoe.round - 1, icon: <Gamepad2 className="w-4 h-4 text-violet-500" /> },
+          { label: "Games Won", value: tictactoe.playerScore, icon: <Trophy className="w-4 h-4 text-amber-500" /> },
+          { label: "Win Rate", value: `${winRate}%`, icon: <Sparkles className="w-4 h-4 text-pink-500" /> }
         ],
+        statusTitle: "Turn",
+        statusValue: tictactoe.currentTurn === "X" ? "You" : "Computer",
+        statusColor: tictactoe.currentTurn === "X" ? "text-violet-500" : "text-rose-500",
         scoreboard: [
-          { label: "🔵 You (Player)", score: tictactoe.playerScore },
-          { label: "❌ Computer (AI)", score: tictactoe.cpuScore }
+          { label: "You", score: tictactoe.playerScore, indicator: "🔵" },
+          { label: "Computer", score: tictactoe.cpuScore, indicator: "❌" }
         ],
-        statusText: tictactoe.currentTurn === "X" ? "Your Turn" : "CPU Thinking...",
-        statusSub: tictactoe.currentTurn === "X" ? "Awaiting your grid input" : "Calculating vectors"
+        objective: "Beat the computer",
+        bestScore: `${tictactoe.playerScore} wins`
       };
     }
 
     if (gameKey.includes("connect 4")) {
+      const winRate = connect4.round > 1 ? Math.round((connect4.playerScore / (connect4.round - 1)) * 100) : 0;
       return {
+        description: "Drop tokens to match four in a row vertically, horizontally, or diagonally.",
         difficulty: connect4.difficulty,
         setDifficulty: (diff: any) => connect4.setState({ difficulty: diff }),
-        round: connect4.round,
         metrics: [
-          { label: "Games Played", value: connect4.round - 1 },
-          { label: "You Won", value: connect4.playerScore, color: "text-emerald-500" },
-          { label: "CPU Won", value: connect4.cpuScore, color: "text-rose-500" },
+          { label: "Games Played", value: connect4.round - 1, icon: <Gamepad2 className="w-4 h-4 text-violet-500" /> },
+          { label: "Games Won", value: connect4.playerScore, icon: <Trophy className="w-4 h-4 text-amber-500" /> },
+          { label: "Win Rate", value: `${winRate}%`, icon: <Sparkles className="w-4 h-4 text-pink-500" /> }
         ],
+        statusTitle: "Turn",
+        statusValue: connect4.currentTurn === "X" ? "You" : "Computer",
+        statusColor: connect4.currentTurn === "X" ? "text-violet-500" : "text-rose-500",
         scoreboard: [
-          { label: "🔴 You (Player)", score: connect4.playerScore },
-          { label: "🟡 Computer (AI)", score: connect4.cpuScore }
+          { label: "You", score: connect4.playerScore, indicator: "🔴" },
+          { label: "Computer", score: connect4.cpuScore, indicator: "🟡" }
         ],
-        statusText: connect4.currentTurn === "X" ? "Your Turn" : "CPU Thinking...",
-        statusSub: connect4.currentTurn === "X" ? "Drop a token into a slot" : "Simulating columns"
+        objective: "Connect four slots",
+        bestScore: `${connect4.playerScore} wins`
       };
     }
 
     if (gameKey.includes("2048")) {
       return {
+        description: "Slide the numbered grid tiles together to combine them into the 2048 block!",
         difficulty: null,
-        round: null,
         metrics: [
-          { label: "Current Score", value: game2048.score, color: "text-violet-500" },
-          { label: "Personal Best", value: game2048.bestScore },
-          { label: "Game State", value: game2048.gameOver ? "Game Over" : "Playing", color: game2048.gameOver ? "text-rose-500" : "text-emerald-500" },
+          { label: "Current Score", value: game2048.score, icon: <Gamepad2 className="w-4 h-4 text-violet-500" /> },
+          { label: "Personal Best", value: game2048.bestScore, icon: <Trophy className="w-4 h-4 text-amber-500" /> }
         ],
+        statusTitle: "Status",
+        statusValue: game2048.gameOver ? "Game Over" : "Playing",
+        statusColor: game2048.gameOver ? "text-rose-500" : "text-emerald-500",
         scoreboard: [
-          { label: "✨ Current Score", score: game2048.score },
-          { label: "🏆 All-Time Best", score: game2048.bestScore }
+          { label: "Score", score: game2048.score, indicator: "✨" },
+          { label: "Best", score: game2048.bestScore, indicator: "🏆" }
         ],
-        statusText: game2048.gameOver ? "Simulation Over" : "Active Input",
-        statusSub: game2048.gameOver ? "No valid moves remaining" : "Use WASD or Arrow Keys"
+        objective: "Reach the 2048 tile",
+        bestScore: `${game2048.bestScore} pts`
       };
     }
 
     if (gameKey.includes("slide puzzle")) {
       return {
+        description: "Slide grid blocks around to sort them into ascending numerical order.",
         difficulty: null,
-        round: null,
         metrics: [
-          { label: "Total Moves", value: slidePuzzle.moves, color: "text-violet-500" },
-          { label: "Solved Status", value: slidePuzzle.won ? "Completed" : "Solving", color: slidePuzzle.won ? "text-emerald-500" : "text-amber-500" },
+          { label: "Total Moves", value: slidePuzzle.moves, icon: <Gamepad2 className="w-4 h-4 text-violet-500" /> },
+          { label: "Puzzle State", value: slidePuzzle.won ? "Solved" : "Active", icon: <Sparkles className="w-4 h-4 text-emerald-500" /> }
         ],
+        statusTitle: "Status",
+        statusValue: slidePuzzle.won ? "Winner!" : "Playing",
+        statusColor: slidePuzzle.won ? "text-emerald-500" : "text-amber-500",
         scoreboard: [
-          { label: "⏱️ Moves Taken", score: slidePuzzle.moves },
+          { label: "Moves Taken", score: slidePuzzle.moves, indicator: "⏱️" }
         ],
-        statusText: slidePuzzle.won ? "Puzzle Solved!" : "Shifting Blocks",
-        statusSub: slidePuzzle.won ? "Excellent sorting!" : "Slide neighbor into blank spot"
+        objective: "Sort blocks sequentially",
+        bestScore: "Fastest Clear"
       };
     }
 
     if (gameKey.includes("color memory")) {
       return {
+        description: "Watch the light pattern flash, then repeat it exactly.",
         difficulty: null,
-        round: null,
         metrics: [
-          { label: "Current Level", value: colorMemory.level, color: "text-violet-500" },
-          { label: "Sequence Length", value: colorMemory.sequence.length },
-          { label: "System Status", value: colorMemory.status, color: "text-slate-600 font-bold" },
+          { label: "Current Level", value: colorMemory.level, icon: <Gamepad2 className="w-4 h-4 text-violet-500" /> },
+          { label: "Sequence Run", value: colorMemory.sequence.length, icon: <Activity className="w-4 h-4 text-pink-500" /> }
         ],
+        statusTitle: "Status",
+        statusValue: colorMemory.status === "WATCHING" ? "Watching" : "Your Turn",
+        statusColor: colorMemory.status === "WATCHING" ? "text-rose-400 animate-pulse" : "text-emerald-500",
         scoreboard: [
-          { label: "🌟 Highest Stage", score: colorMemory.level },
+          { label: "Highest Stage", score: colorMemory.level, indicator: "🌟" }
         ],
-        statusText: colorMemory.status === "WATCHING" ? "Scanning Playback" : "Your Sequence Turn",
-        statusSub: colorMemory.status === "WATCHING" ? "Watch light vectors carefully" : "Repeat the tones precisely"
+        objective: "Match the lights",
+        bestScore: `Stage ${colorMemory.level}`
       };
     }
 
-    // Default Fallback values for basic games (like Wordle)
     return {
+      description: "Solve the daily word puzzle grid.",
       difficulty: null,
-      round: null,
-      metrics: [
-        { label: "Session State", value: "Active" }
-      ],
-      scoreboard: [
-        { label: "🎮 Puzzle Mode", score: "Solo" }
-      ],
-      statusText: "Puzzle Active",
-      statusSub: "Solve the challenge"
+      metrics: [{ label: "Status", value: "Active", icon: <Gamepad2 className="w-4 h-4 text-violet-500" /> }],
+      statusTitle: "Status",
+      statusValue: "Playing",
+      statusColor: "text-violet-500",
+      scoreboard: [{ label: "Puzzle Mode", score: "Solo", indicator: "🧩" }],
+      objective: "Find hidden letters",
+      bestScore: "Active"
     };
   };
 
   const game = getGameStats();
 
+  React.useEffect(() => {
+    const preventDefaultScrollKeys = (e: KeyboardEvent) => {
+      const blockKeys = ["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "PageUp", "PageDown"];
+      if (blockKeys.includes(e.code)) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("keydown", preventDefaultScrollKeys, { passive: false });
+    return () => window.removeEventListener("keydown", preventDefaultScrollKeys);
+  }, []);
+
   return (
-    <div 
-      className="relative min-h-screen w-full flex flex-col items-center bg-cover bg-center bg-no-repeat overflow-x-hidden font-sans text-[#4A4E69]"
-      style={{ backgroundImage: "url('/background/bg.png')" }}
-    >
-      <div className="absolute inset-0 bg-indigo-950/10 backdrop-blur-[1px] pointer-events-none z-0" />
-
-      {/* 1. GLOBAL LOFI NAVBAR PLATFORM */}
-      <header className="relative z-10 w-full max-w-[1200px] mt-4 px-4">
-        <div className="w-full flex items-center justify-between rounded-2xl bg-white/80 p-4 shadow-sm border border-white/40">
-          <div className="flex items-center gap-2">
-            <div className="text-xl font-black tracking-wider text-[#4A4E69] uppercase font-mono">
-              🐱 PIXEL PLAYGROUND
-            </div>
-          </div>
-
-          {/* Simulated Lofi Music Stream Widget Container */}
-          <div className="hidden md:flex items-center gap-4 bg-white/40 rounded-xl px-4 py-1.5 border border-white/60 shadow-inner">
-            <div className="w-8 h-8 rounded-lg bg-indigo-200/60 animate-pulse" />
-            <div className="text-left">
-              <p className="text-[11px] font-bold text-slate-700 leading-tight">lofi beats to relax / study to</p>
-              <p className="text-[9px] font-medium text-slate-400">Lofi Girl Stream</p>
-            </div>
-            <div className="flex items-center gap-2.5 ml-4 text-slate-400 text-xs font-mono">
-              <span>⏮</span> <span className="text-violet-500 text-lg">▶</span> <span>⏭</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-sm shadow-sm border border-slate-100">🔊</div>
-            <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-sm shadow-sm border border-slate-100">🌙</div>
-            <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center text-sm shadow-sm border border-slate-100">⚙️</div>
-          </div>
+    <div className="w-full max-w-[1280px] mx-auto px-4 md:px-8 py-4 flex flex-col flex-1 select-none text-[#4A4E69] dark:text-indigo-200 overflow-hidden">
+      
+      <div className="w-full flex justify-center mb-6">
+        <div className="rounded-full bg-white/80 dark:bg-slate-900/80 border border-white/60 dark:border-slate-800/40 px-6 py-2 shadow-sm flex items-center gap-2 backdrop-blur-sm">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-indigo-300">Game Engine:</p>
+          <span className="text-xs font-black text-violet-600 dark:text-violet-400 uppercase font-mono bg-violet-100/60 dark:bg-violet-950/40 px-2.5 py-0.5 rounded-md">
+            {isCpuGame ? "Versus Computer" : "Solo Match"}
+          </span>
         </div>
-      </header>
+      </div>
 
-      {/* 2. THE THREE-COLUMN ADAPTIVE LAYOUT MATRIX GRID */}
-      <main className="relative z-10 w-full max-w-[1200px] flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 my-4 items-start">
+      <main className="w-full grid grid-cols-1 lg:grid-cols-12 gap-5 items-start mt-2 overflow-hidden">
         
-        {/* ================= LEFT CONTROLS SIDEBAR (COL 1-3) ================= */}
+        {/* ================= LEFT CONFIGURATION PANEL (COL 1-3) ================= */}
         <section className="lg:col-span-3 flex flex-col gap-4 w-full">
-          <div className="rounded-3xl border border-white/80 bg-white/85 p-5 shadow-md flex flex-col">
-            <div className="text-[10px] font-black uppercase tracking-widest text-violet-400 flex items-center gap-1.5">
-              <span>{isCpuGame ? "⚔️" : "🧩"}</span> {isCpuGame ? "VS CPU Mode" : "Solo Puzzle Mode"}
+          <div className="rounded-[28px] border border-white/60 dark:border-slate-800/40 bg-white/70 dark:bg-slate-950/60 p-6 shadow-sm flex flex-col backdrop-blur-md">
+            
+            <div className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-indigo-400 flex items-center gap-2 mb-2">
+              <Gamepad2 className="w-3.5 h-3.5" /> Select Game
             </div>
-            <h2 className="text-2xl font-black text-[#32354A] uppercase tracking-wide mt-2 font-mono">
-              {title}
-            </h2>
-            {game.round && (
-              <p className="text-[11px] font-semibold text-slate-400 mt-0.5">
-                Round tracking parameter: {Math.min(game.round, 3)} / 3
-              </p>
-            )}
+            
+            <div className="relative w-full">
+              <button 
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="w-full flex items-center justify-between rounded-xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 px-4 py-2.5 text-xs font-bold shadow-inner text-slate-700 dark:text-indigo-100"
+              >
+                <span>{title}</span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
+              </button>
 
-            {/* CONDITIONAL COMPONENT ADAPTATION: Render difficulty configurations ONLY for vs-CPU modes */}
+              <AnimatePresence>
+                {dropdownOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 4 }}
+                    className="absolute left-0 right-0 mt-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl z-50 overflow-hidden"
+                  >
+                    {gamesList.map((g) => (
+                      <button
+                        key={g.slug}
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          router.push(`/game/${g.slug}`);
+                        }}
+                        className="w-full text-left px-4 py-2 text-xs font-semibold text-slate-600 dark:text-indigo-200 hover:bg-violet-50 dark:hover:bg-violet-950/40 hover:text-violet-600 transition-colors"
+                      >
+                        {g.name}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-indigo-400 flex items-center gap-2 mt-6 mb-2">
+              Description
+            </div>
+            <p className="text-xs font-medium text-slate-500 dark:text-indigo-300/80 leading-relaxed">
+              {game.description}
+            </p>
+
             {isCpuGame && game.difficulty && (
               <>
-                <div className="h-px bg-slate-200/60 my-4" />
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Select Difficulty</p>
-                <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-100/80 rounded-xl border border-slate-200/40">
+                <div className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-indigo-400 flex items-center gap-2 mt-6 mb-2">
+                  Difficulty
+                </div>
+                <div className="grid grid-cols-3 gap-1 p-1 bg-slate-100/60 dark:bg-slate-900/60 rounded-xl border border-slate-200/40 dark:border-slate-800/40">
                   {(["EASY", "MEDIUM", "HARD"] as const).map((mode) => (
                     <button
                       key={mode}
                       onClick={() => game.setDifficulty(mode)}
-                      className={`text-[11px] font-bold py-1.5 rounded-lg shadow-sm uppercase tracking-wider transition-all ${
+                      className={`text-[10px] font-bold py-1.5 rounded-lg uppercase tracking-wider transition-all ${
                         game.difficulty === mode
-                          ? "bg-violet-500 text-white"
-                          : "text-slate-400 hover:text-slate-700"
+                          ? "bg-violet-500 text-white shadow-sm"
+                          : "text-slate-400 dark:text-indigo-400 hover:text-slate-700 dark:hover:text-white"
                       }`}
                     >
                       {mode.toLowerCase()}
@@ -219,16 +274,17 @@ export const GameShell: React.FC<GameShellProps> = ({
                 </div>
               </>
             )}
-          </div>
 
-          {/* Statistics Profile Interface Deck */}
-          <div className="rounded-3xl border border-white/80 bg-white/85 p-5 shadow-md flex flex-col">
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Module Statistics</p>
-            <div className="space-y-2.5 text-xs font-semibold">
+            <div className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-indigo-400 flex items-center gap-2 mt-6 mb-3">
+              Stats
+            </div>
+            <div className="space-y-3">
               {game.metrics.map((item, index) => (
-                <div key={index} className="flex justify-between border-b border-slate-100 pb-2 last:border-none last:pb-0">
-                  <span className="text-slate-400">{item.label}</span>
-                  <span className={`font-bold font-mono ${item.color ?? "text-slate-700"}`}>
+                <div key={index} className="flex justify-between items-center text-xs font-semibold bg-white/40 dark:bg-slate-900/30 border border-slate-100 dark:border-slate-800/20 rounded-xl p-2.5">
+                  <span className="text-slate-500 dark:text-indigo-300/70 flex items-center gap-2">
+                    {item.icon} {item.label}
+                  </span>
+                  <span className="font-bold font-mono text-slate-800 dark:text-indigo-100">
                     {item.value}
                   </span>
                 </div>
@@ -237,81 +293,106 @@ export const GameShell: React.FC<GameShellProps> = ({
           </div>
         </section>
 
-        {/* ================= CENTER GAMEPLAY CONTAINER SCREEN (COL 4-9) ================= */}
-        <section className="lg:col-span-6 flex flex-col items-center justify-center w-full gap-4">
-          <div className="rounded-full border border-white/80 bg-white/90 px-6 py-2 shadow-sm flex items-center gap-2">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-500">System Environment:</p>
-            <span className="text-xs font-black text-violet-600 uppercase font-mono bg-violet-100/80 px-2.5 py-0.5 rounded-md">
-              {isCpuGame ? "Match Arena Active" : "Local Sandbox Matrix"}
-            </span>
-          </div>
-
-          {/* Target Game Inject Node Frame */}
-          <div className="w-full rounded-[36px] border border-white/60 bg-white/60 p-6 shadow-xl backdrop-blur-md flex items-center justify-center min-h-[400px]">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-              className="w-full flex justify-center items-center"
-            >
-              {children}
-            </motion.div>
-          </div>
-
-          {info && (
-            <div className="rounded-full bg-white/40 border border-white/60 px-6 py-1.5 shadow-sm text-center">
-              <p className="text-[10px] font-bold text-slate-500/90 uppercase tracking-widest">
-                ✨ {info}
-              </p>
+        {/* ================= CENTER PLAYING FIELD GRID CONTAINER (COL 4-9) ================= */}
+        <section className="lg:col-span-6 flex flex-col items-center justify-center w-full">
+          <div className="w-full rounded-[32px] border border-white/60 dark:border-slate-800/40 bg-white/70 dark:bg-slate-950/60 p-5 shadow-sm backdrop-blur-md flex flex-col items-center">
+            
+            <div className="w-full flex items-center justify-between border-b border-slate-100 dark:border-slate-800/60 pb-3 mb-4 px-2">
+              <span className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-indigo-400 font-mono">
+                Game Area
+              </span>
             </div>
-          )}
+
+            <div className="w-full flex items-center justify-center min-h-[380px] p-2">
+              {children}
+            </div>
+
+            {/* FIXED: Scaled layout down to a clean 2-column distribution row (Hint Removed) */}
+            <div className="w-full grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/60">
+              <button 
+                onClick={onNewGame}
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-violet-500 hover:bg-violet-600 text-white font-bold text-xs py-2.5 shadow-sm transition-all active:scale-[0.98]"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" /> New Game
+              </button>
+              <button 
+                onClick={onRestart}
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 hover:bg-slate-200/60 dark:hover:bg-slate-800/60 text-slate-600 dark:text-indigo-200 font-bold text-xs py-2.5 shadow-sm transition-all active:scale-[0.98]"
+              >
+                Reset Match
+              </button>
+            </div>
+
+          </div>
         </section>
 
-        {/* ================= RIGHT SYNC ACTION BUTTONS DECK (COL 10-12) ================= */}
+        {/* ================= RIGHT METADATA STATUS SIDEBAR (COL 10-12) ================= */}
         <section className="lg:col-span-3 flex flex-col gap-4 w-full">
-          <div className="rounded-3xl border border-white/80 bg-white/85 p-5 shadow-md flex flex-col">
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Activity State</p>
-            <div className="flex items-center gap-3 bg-violet-50/70 p-3 rounded-xl border border-violet-100/50">
-              <div className="w-2.5 h-2.5 rounded-full bg-violet-500 animate-ping" />
-              <div className="text-left">
-                <p className="text-xs font-black text-slate-700 uppercase tracking-wide">{game.statusText}</p>
-                <p className="text-[10px] font-medium text-slate-400">{game.statusSub}</p>
-              </div>
+          <div className="rounded-[28px] border border-white/60 dark:border-slate-800/40 bg-white/70 dark:bg-slate-950/60 p-6 shadow-sm flex flex-col backdrop-blur-md">
+            
+            <div className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-indigo-400 flex items-center gap-1 mb-2">
+              Status <span className="text-[10px] opacity-60">+</span>
             </div>
-          </div>
+            <div className="rounded-xl border border-slate-100 dark:border-slate-800/40 bg-white/50 dark:bg-slate-900/40 p-3 flex flex-col items-start mb-6">
+              <span className="text-[10px] font-bold text-slate-400 dark:text-indigo-400 uppercase tracking-wide">{game.statusTitle}</span>
+              <span className={`text-base font-black uppercase font-mono mt-0.5 ${game.statusColor}`}>
+                {game.statusValue}
+              </span>
+            </div>
 
-          {/* Adaptive Scoring Monitor Deck */}
-          <div className="rounded-3xl border border-white/80 bg-white/85 p-5 shadow-md flex flex-col">
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
-              {isCpuGame ? "Live Scoreboard" : "Performance Tracker"}
-            </p>
-            <div className="space-y-2 text-xs font-semibold">
+            <div className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-indigo-400 flex items-center gap-1 mb-2">
+              Score <span className="text-[10px] opacity-60">+</span>
+            </div>
+            <div className="space-y-2 mb-6">
               {game.scoreboard.map((scoreCard, idx) => (
-                <div key={idx} className="flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                  <span className="text-slate-500">{scoreCard.label}</span>
-                  <span className="text-lg font-black text-slate-800 font-mono">{scoreCard.score}</span>
+                <div key={idx} className="flex justify-between items-center bg-white/50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-800/20 p-3 rounded-xl">
+                  <span className="text-xs font-bold text-slate-500 dark:text-indigo-200 flex items-center gap-2">
+                    <span>{scoreCard.indicator}</span> {scoreCard.label}
+                  </span>
+                  <span className="text-lg font-black text-slate-800 dark:text-white font-mono leading-none">
+                    {scoreCard.score}
+                  </span>
                 </div>
               ))}
             </div>
-          </div>
 
-          {/* Reset / Core Match Action Deck */}
-          <div className="rounded-3xl border border-white/80 bg-white/85 p-5 shadow-md flex flex-col gap-2.5">
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Game Actions</p>
-            {onRestart && (
-              <button
-                onClick={onRestart}
-                className="w-full rounded-xl bg-violet-500 hover:bg-violet-600 text-white py-2.5 text-xs font-bold uppercase tracking-wider transition-all active:scale-95 shadow-sm"
-              >
-                🔄 Reset Engine Board
-              </button>
-            )}
-
-            {timer !== undefined && (
-              <div className="w-full rounded-xl bg-white text-center border border-slate-200 py-2 text-xs font-bold font-mono tracking-wider text-slate-600 shadow-inner">
-                ⏱️ Run Duration: {timer}
+            <div className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-indigo-400 flex items-center gap-1 mb-2">
+              Game Info <span className="text-[10px] opacity-60">+</span>
+            </div>
+            <div className="space-y-3.5 text-xs font-semibold">
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-lg bg-rose-100 dark:bg-rose-950/40 text-rose-500 flex items-center justify-center shadow-sm">
+                  <Target className="w-4 h-4" />
+                </div>
+                <div className="text-left leading-tight">
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-indigo-400 uppercase tracking-wide">Objective</p>
+                  <p className="text-xs font-black text-slate-700 dark:text-indigo-100 uppercase mt-0.5">{game.objective}</p>
+                </div>
               </div>
-            )}
+
+              <div className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-lg bg-amber-100 dark:bg-amber-950/40 text-amber-500 flex items-center justify-center shadow-sm">
+                  <Trophy className="w-4 h-4" />
+                </div>
+                <div className="text-left leading-tight">
+                  <p className="text-[10px] font-bold text-slate-400 dark:text-indigo-400 uppercase tracking-wide">Best Score</p>
+                  <p className="text-xs font-black text-slate-700 dark:text-indigo-100 uppercase mt-0.5">{game.bestScore}</p>
+                </div>
+              </div>
+
+              {timer !== undefined && (
+                <div className="flex items-center gap-3">
+                  <div className="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-950/40 text-indigo-50 flex items-center justify-center shadow-sm">
+                    <Clock className="w-4 h-4" />
+                  </div>
+                  <div className="text-left leading-tight">
+                    <p className="text-[10px] font-bold text-slate-400 dark:text-indigo-400 uppercase tracking-wide">Time Elapsed</p>
+                    <p className="text-xs font-black text-slate-700 dark:text-indigo-100 uppercase mt-0.5">{timer}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
           </div>
         </section>
 

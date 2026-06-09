@@ -16,6 +16,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   background-color: var(--background);
@@ -52,6 +56,7 @@ body {
   white-space: nowrap;
   animation: marquee 15s linear infinite;
 }
+
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   20%, 60% { transform: translateX(-6px); }
@@ -60,4 +65,67 @@ body {
 
 @utility animate-shake {
   animation: shake 0.4s ease-in-out;
+}
+
+/* ================================
+FLOATING SPARKLES
+================================ */
+@keyframes sparkle {
+  0%, 100% { opacity: 0.2; transform: translateY(0px) scale(1); }
+  50% { opacity: 1; transform: translateY(-4px) scale(1.15); }
+}
+
+.animate-sparkle {
+  animation: sparkle 4s ease-in-out infinite;
+}
+
+/* ================================
+CAT BREATHING (FIXED ORIGIN)
+================================ */
+/* FIXED: Modulating scale transformations exclusively along the vertical axis (scaleY) 
+   and forcing bottom transform origins so the paws remain locked perfectly to the glass box line */
+@keyframes breathing {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.04); }
+}
+
+.animate-breathing {
+  animation: breathing 4s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+/* ================================
+GLOWING LANTERN
+================================ */
+@keyframes lantern {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+.animate-lantern {
+  animation: lantern 3s ease-in-out infinite;
+}
+
+/* ================================
+WATER SHIMMER
+================================ */
+@keyframes shimmer {
+  from { transform: translateX(-30%); }
+  to { transform: translateX(130%); }
+}
+
+.water-shimmer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.water-shimmer::before {
+  content: "";
+  position: absolute;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  animation: shimmer 12s linear infinite;
 }

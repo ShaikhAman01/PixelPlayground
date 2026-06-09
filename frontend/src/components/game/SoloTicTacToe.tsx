@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { GameShell } from "./GameShell";
 import { useTimer } from "@/hooks/useTimer";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,8 +8,21 @@ import { TicTacToeEngine } from "@/games/tictactoe.engine";
 import { getCpuMove } from "@/games/tictactoe.ai";
 import { useSoloStore } from "@/store/solo.store";
 
+// Winning combo mappings to append absolute positioning classes
+const winLineStyles: Record<string, string> = {
+  "0,1,2": "top-[16.5%] left-[5%] right-[5%] h-1.5 origin-left",
+  "3,4,5": "top-[50%] left-[5%] right-[5%] h-1.5 origin-left",
+  "6,7,8": "top-[83.5%] left-[5%] right-[5%] h-1.5 origin-left",
+  "0,3,6": "left-[16.5%] top-[5%] bottom-[5%] w-1.5 origin-top",
+  "1,4,7": "left-[50%] top-[5%] bottom-[5%] w-1.5 origin-top",
+  "2,5,8": "left-[83.5%] top-[5%] bottom-[5%] w-1.5 origin-top",
+  "0,4,8": "top-[0%] left-[0%] w-[141%] h-1.5 rotate-45 origin-top-left translate-x-[4%] translate-y-[4%]",
+  "2,4,6": "top-[0%] right-[0%] w-[141%] h-1.5 -rotate-45 origin-top-right -translate-x-[4%] translate-y-[4%]",
+};
+
 export const SoloTicTacToe = () => {
   const engineRef = useRef(new TicTacToeEngine());
+  const [winningComboKey, setWinningComboKey] = useState<string | null>(null);
 
   const {
     board,
@@ -24,18 +37,36 @@ export const SoloTicTacToe = () => {
     setState,
   } = useSoloStore();
 
-  const { formattedTime, start, pause, reset } = useTimer({
-    autoStart: true,
-  });
+  const { formattedTime, start, pause, reset } = useTimer({ autoStart: true });
+
+  // Scan current layout map indices to identify the match condition track
+  const detectWinningCombo = useCallback((currentBoard: (string | null)[]) => {
+    const lines = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8], // Horizontal rows
+      [0, 3, 6], [1, 4, 7], [2, 5, 8], // Vertical rows
+      [0, 4, 8], [2, 4, 6]             // Diagonals
+    ];
+    for (const line of lines) {
+      const [a, b, c] = line;
+      if (currentBoard[a] && currentBoard[a] === currentBoard[b] && currentBoard[a] === currentBoard[c]) {
+        return line.join(",");
+      }
+    }
+    return null;
+  }, []);
 
   const syncState = useCallback(() => {
+    const currentBoard = [...engineRef.current.board];
+    const combo = detectWinningCombo(currentBoard);
+    if (combo) setWinningComboKey(combo);
+
     setState({
-      board: [...engineRef.current.board],
+      board: currentBoard,
       currentTurn: engineRef.current.currentTurn,
       winner: engineRef.current.winner,
       status: engineRef.current.status === "WAITING" ? undefined : engineRef.current.status,
     });
-  }, [setState]);
+  }, [setState, detectWinningCombo]);
 
   const makeMove = (index: number) => {
     if (currentTurn !== "X" || status !== "PLAYING") return;
@@ -43,7 +74,6 @@ export const SoloTicTacToe = () => {
     if (success) syncState();
   };
 
-  // AI TURN EFFECT HANDLER
   useEffect(() => {
     if (currentTurn !== "O" || status !== "PLAYING" || winner) return;
 
@@ -58,23 +88,15 @@ export const SoloTicTacToe = () => {
     return () => clearTimeout(timeout);
   }, [currentTurn, status, winner, difficulty, syncState]);
 
-  // FIXED RE-RENDER LOOP: Listened exclusively to winner changes
   useEffect(() => {
     if (!winner) return;
     pause();
 
-    // Functional conditional updates executed isolated without external dependency tracking
-    if (winner === "X") {
-      setState({ playerScore: playerScore + 1, round: round + 1 });
-    } else if (winner === "O") {
-      setState({ cpuScore: cpuScore + 1, round: round + 1 });
-    } else if (winner === "DRAW") {
-      setState({ round: round + 1 });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [winner]); 
+    if (winner === "X") setState({ playerScore: playerScore + 1, round: round + 1 });
+    else if (winner === "O") setState({ cpuScore: cpuScore + 1, round: round + 1 });
+    else if (winner === "DRAW") setState({ round: round + 1 });
+  }, [winner]);
 
-  // MATCH WINNER
   useEffect(() => {
     if (playerScore >= 2) setState({ matchWinner: "PLAYER" });
     if (cpuScore >= 2) setState({ matchWinner: "CPU" });
@@ -82,6 +104,7 @@ export const SoloTicTacToe = () => {
 
   const nextRound = () => {
     engineRef.current.reset();
+    setWinningComboKey(null);
     reset();
     start();
 
@@ -107,108 +130,66 @@ export const SoloTicTacToe = () => {
   };
 
   return (
-    <GameShell
-      title="Tic Tac Toe"
-      timer={formattedTime}
-      onRestart={nextRound}
-      info="Get 3 in a row before the CPU does."
-    >
-      <div className="flex flex-col items-center max-w-full px-4">
+    <GameShell title="Tic Tac Toe" timer={formattedTime} onRestart={nextRound}>
+      <div className="flex flex-col items-center justify-center w-full">
         
-        {/* IMPROVED UI: SEGMENTED DIFFICULTY TOGGLE */}
-        <div className="mb-6 flex gap-1 rounded-2xl bg-slate-100/80 p-1.5 backdrop-blur-md dark:bg-slate-900/60 border border-slate-200/50 dark:border-white/5">
-          {(["EASY", "MEDIUM", "HARD"] as const).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setState({ difficulty: mode })}
-              className={`relative rounded-xl px-4 py-1.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-                difficulty === mode
-                  ? "bg-white text-violet-600 shadow-sm dark:bg-slate-800 dark:text-violet-400"
-                  : "text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200"
-              }`}
-            >
-              {mode}
-            </button>
-          ))}
-        </div>
+        {/* Board Container Wrapper */}
+        <div className="relative rounded-[32px] bg-white/10 dark:bg-slate-900/10 p-4 border border-white/20 shadow-sm">
+          
+          {/* Animated Win Strike Cross Line Overlay */}
+          <AnimatePresence>
+            {winningComboKey && winLineStyles[winningComboKey] && (
+              <motion.div
+                initial={{ scaleX: 0, scaleY: 0, opacity: 0 }}
+                animate={{ scaleX: 1, scaleY: 1, opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className={`absolute rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 shadow-[0_0_12px_rgba(139,92,246,0.6)] z-30 pointer-events-none ${winLineStyles[winningComboKey]}`}
+              />
+            )}
+          </AnimatePresence>
 
-        {/* ROUND PANEL */}
-        <div className="mb-4 rounded-full border border-white/60 bg-white/70 px-5 py-1.5 shadow-sm dark:border-white/10 dark:bg-slate-900/60">
-          <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-            Round {Math.min(round, 3)} / 3
-          </p>
-        </div>
-
-        {/* SCORE PANEL */}
-        <div className="mb-8 flex items-center gap-8 rounded-3xl border border-white/60 bg-white/70 px-10 py-4 shadow-xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/60">
-          <div className="text-center">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">You</p>
-            <p className="text-3xl font-extrabold text-pink-500 dark:text-pink-400">{playerScore}</p>
-          </div>
-          <div className="text-xl font-black text-slate-300 dark:text-slate-700">VS</div>
-          <div className="text-center">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">CPU</p>
-            <p className="text-3xl font-extrabold text-sky-500 dark:text-sky-400">{cpuScore}</p>
-          </div>
-        </div>
-
-        {/* MODERNIZED GRAPHICAL BOARD */}
-        <div className="grid grid-cols-3 gap-4 rounded-[36px] border border-white/80 bg-white/40 p-4 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.06)] backdrop-blur-2xl dark:border-white/5 dark:bg-slate-900/40">
-          {board.map((cell, index) => (
-            <motion.button
-              key={index}
-              whileHover={!cell && status === "PLAYING" ? { scale: 1.04, y: -2 } : {}}
-              whileTap={!cell && status === "PLAYING" ? { scale: 0.96 } : {}}
-              onClick={() => makeMove(index)}
-              disabled={!!cell || status !== "PLAYING"}
-              className={`flex h-28 w-28 sm:h-32 sm:w-32 items-center justify-center rounded-[24px] border transition-all duration-300 text-5xl font-black shadow-sm ${
-                cell 
-                  ? "bg-white/90 border-transparent dark:bg-slate-800/90" 
-                  : "bg-white/60 border-slate-200/60 hover:bg-white hover:border-violet-300 dark:bg-slate-900/60 dark:border-white/5 dark:hover:border-violet-500/40"
-              }`}
-            >
-              <AnimatePresence mode="popLayout">
-                {cell && (
-                  <motion.span
-                    initial={{ scale: 0, rotate: cell === "X" ? -10 : 10 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    className={cell === "X" ? "text-pink-500 drop-shadow-sm" : "text-sky-500 drop-shadow-sm"}
-                  >
-                    {cell}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </motion.button>
-          ))}
-        </div>
-
-        {/* BOTTOM GAME FOOTER STATUS */}
-        <div className="mt-8 min-h-[80px]">
-          {!winner ? (
-            <div className="rounded-full border border-white/60 bg-white/70 px-6 py-3 shadow-md dark:border-white/10 dark:bg-slate-900/60">
-              <p className="text-sm font-medium tracking-wide text-slate-600 dark:text-slate-300">
-                {currentTurn === "X" ? "Your turn to move" : "CPU is thinking..."}
-              </p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-4 animate-in fade-in zoom-in-95 duration-300">
-              <div className="rounded-full border border-transparent bg-violet-500 px-8 py-3 shadow-lg shadow-violet-500/20">
-                <p className="text-sm font-bold uppercase tracking-widest text-white">
-                  {matchWinner
-                    ? matchWinner === "PLAYER" ? "🎉 Match Won!" : "CPU Wins Match"
-                    : winner === "DRAW" ? "Round Draw!" : winner === "X" ? "Round Won" : "CPU Won Round"}
-                </p>
-              </div>
-
-              <button
-                onClick={nextRound}
-                className="rounded-full bg-slate-900 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-slate-800 active:scale-95 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+          <div className="grid grid-cols-3 gap-3.5">
+            {board.map((cell, index) => (
+              <motion.button
+                key={index}
+                whileHover={!cell && status === "PLAYING" ? { scale: 1.03 } : {}}
+                whileTap={!cell && status === "PLAYING" ? { scale: 0.97 } : {}}
+                onClick={() => makeMove(index)}
+                disabled={!!cell || status !== "PLAYING"}
+                className={`flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center rounded-2xl border transition-all duration-200 text-4xl font-black shadow-sm ${
+                  cell 
+                    ? "bg-white dark:bg-slate-800 border-transparent z-10" 
+                    : "bg-white/50 border-slate-200/60 dark:bg-slate-900/50 dark:border-white/5"
+                }`}
               >
-                {matchWinner ? "Reset Entire Match" : "Advance to Next Round"}
-              </button>
-            </div>
-          )}
+                <AnimatePresence mode="popLayout">
+                  {cell && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className={cell === "X" ? "text-pink-500" : "text-sky-500"}
+                    >
+                      {cell}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+            ))}
+          </div>
         </div>
+
+        {winner && (
+          <div className="mt-6">
+            <button
+              onClick={nextRound}
+              className="rounded-xl bg-slate-900 px-6 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-md dark:bg-white dark:text-slate-900 transition-all active:scale-95"
+            >
+              {matchWinner ? "Reset Match" : "Next Round"}
+            </button>
+          </div>
+        )}
+
       </div>
     </GameShell>
   );
