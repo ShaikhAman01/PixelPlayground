@@ -41,8 +41,8 @@ export const AudioCreditsModal = () => {
                   </p>
                   <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
                     Licensed via <span className="font-medium">{track.source}</span> under{" "}
-                    {track.licenseUrl ? (
-                      <a href={track.licenseUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-500">
+                    {track.license ? (
+                      <a href={track.license} target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-500">
                         {track.license}
                       </a>
                     ) : (

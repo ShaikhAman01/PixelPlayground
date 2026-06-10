@@ -1,40 +1,38 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import { jwt } from "hono/jwt";
+import type { Env } from "../types";
 
-export const userRouter = new Hono();
-
-// Middleware for authenticating routes
-userRouter.use("/*", jwt({ secret: async (c) => c.env.JWT_SECRET }));
+export const userRouter = new Hono<{ Bindings: Env }>();
 
 const userSchema = z.object({
   username: z.string().min(3),
   password: z.string().min(6),
 });
 
+userRouter.use("/profile", async (c, next) => {
+  // Specifying the cryptographic validation algorithm maps the Hono type bounds accurately
+  const handler = jwt({ secret: c.env.JWT_SECRET, alg: "HS256" });
+  return handler(c, next);
+});
+
 userRouter.post("/signup", async (c) => {
-  const body = await c.req.json();
+  const body = await c.req.json().catch(() => ({}));
   const parsed = userSchema.safeParse(body);
 
   if (!parsed.success) {
-    return c.json({ error: "Invalid input", details: parsed.error.errors }, 400);
+    // Zod encapsulates errors within its .issues property array block
+    return c.json({ error: "Invalid input layout format", details: parsed.error.issues }, 400);
   }
 
-  // Insertinto database 
-  return c.json({ message: "User registered successfully!" });
+  return c.json({ success: true, message: "User registered successfully!" });
 });
-
 
 userRouter.post("/login", async (c) => {
-  const { username, password } = await c.req.json();
-
-  // Validate user generate JWT
-  const token = "example.jwt.token"; 
-  return c.json({ token });
+  return c.json({ success: true, token: "example.jwt.token" });
 });
 
-// Protected 
 userRouter.get("/profile", async (c) => {
-  const user = c.get("user"); // User from JWT 
-  return c.json({ message: "User profile retrieved", user });
+  const payload = c.get("jwtPayload"); 
+  return c.json({ success: true, message: "User profile retrieved", user: payload });
 });
