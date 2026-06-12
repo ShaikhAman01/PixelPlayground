@@ -6,10 +6,10 @@ import { GameShell } from "./GameShell";
 import { useColorMemoryStore } from "@/store/colorMemory.store";
 
 const tilesConfig = [
-  { default: "bg-rose-400/40 border-rose-400/30 text-rose-500", active: "bg-rose-400 shadow-rose-400/80 text-white border-transparent", note: 261.63 },
-  { default: "bg-sky-400/40 border-sky-400/30 text-sky-500", active: "bg-sky-400 shadow-sky-400/80 text-white border-transparent", note: 293.66 },
-  { default: "bg-amber-400/40 border-amber-400/30 text-amber-500", active: "bg-amber-400 shadow-amber-400/80 text-white border-transparent", note: 329.63 },
-  { default: "bg-emerald-400/40 border-emerald-400/30 text-emerald-500", active: "bg-emerald-400 shadow-emerald-400/80 text-white border-transparent", note: 349.23 }
+  { default: "bg-rose-500/20 border-rose-300/40 text-rose-600 dark:text-rose-400 dark:bg-rose-950/20", active: "bg-rose-400 border-transparent text-white shadow-[0_0_24px_rgba(251,113,133,0.5)]", note: 261.63 },
+  { default: "bg-sky-500/20 border-sky-300/40 text-sky-600 dark:text-sky-400 dark:bg-sky-950/20", active: "bg-sky-400 border-transparent text-white shadow-[0_0_24px_rgba(56,189,248,0.5)]", note: 293.66 },
+  { default: "bg-amber-500/20 border-amber-300/40 text-amber-600 dark:text-amber-400 dark:bg-amber-950/20", active: "bg-amber-400 border-transparent text-white shadow-[0_0_24px_rgba(251,191,36,0.5)]", note: 329.63 },
+  { default: "bg-emerald-500/20 border-emerald-300/40 text-emerald-600 dark:text-emerald-400 dark:bg-emerald-950/20", active: "bg-emerald-400 border-transparent text-white shadow-[0_0_24px_rgba(52,211,153,0.5)]", note: 349.23 }
 ];
 
 export const ColorMemory = () => {
@@ -28,8 +28,8 @@ export const ColorMemory = () => {
 
       osc.type = "sine";
       osc.frequency.setValueAtTime(frequency, ctx.currentTime);
-      gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+      gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
 
       osc.connect(gainNode);
       gainNode.connect(ctx.destination);
@@ -37,6 +37,29 @@ export const ColorMemory = () => {
       osc.stop(ctx.currentTime + 0.4);
     } catch (e) {
       console.warn("Audio Context blocked:", e);
+    }
+  };
+
+  const playFailureTone = () => {
+    try {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(120, ctx.currentTime);
+      gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.5);
+    } catch (e) {
+      console.warn(e);
     }
   };
 
@@ -77,14 +100,16 @@ export const ColorMemory = () => {
   const handleClick = (index: number) => {
     if (status !== "PLAYING") return;
 
-    playTone(tilesConfig[index].note);
     const next = [...playerSequence, index];
     setState({ playerSequence: next });
 
-    if (next[next.length - 1] !== sequence[next.length - 1]) {
+    if (index !== sequence[playerSequence.length]) {
       setState({ status: "FAILED" });
+      playFailureTone();
       return;
     }
+
+    playTone(tilesConfig[index].note);
 
     if (next.length === sequence.length) {
       setState({ status: "WATCHING" });
@@ -100,46 +125,42 @@ export const ColorMemory = () => {
 
   return (
     <GameShell title="Color Memory" onRestart={startGame}>
-      <div className="flex flex-col items-center justify-center w-full">
+      <div className="flex flex-col items-center justify-center w-full max-w-md px-2 select-none pb-2">
         
-        <div className={`grid grid-cols-2 gap-5 p-5 rounded-[36px] bg-white/10 dark:bg-slate-900/10 border border-white/20 ${
-          status === "WATCHING" ? "pointer-events-none opacity-90" : ""
-        }`}>
+        {/* Expanded, high-impact grid alignment setup */}
+        <motion.div 
+          animate={status === "FAILED" ? {
+            x: [0, -6, 6, -6, 6, 0],
+            transition: { duration: 0.4 }
+          } : {}}
+          className={`grid grid-cols-2 gap-4 sm:gap-5 p-4 sm:p-5 rounded-[28px] border w-full justify-items-center transition-all duration-300 shadow-sm backdrop-blur-md ${
+            status === "FAILED"
+              ? "bg-rose-500/10 border-rose-300 dark:border-rose-900/60 opacity-90 shadow-[0_0_32px_rgba(239,68,68,0.15)]"
+              : status === "WATCHING" || !started 
+                ? "bg-white/60 dark:bg-zinc-950/40 border-zinc-200 dark:border-zinc-800 pointer-events-none opacity-80" 
+                : "bg-white/60 dark:bg-zinc-950/40 border-zinc-200 dark:border-zinc-800"
+          }`}
+        >
           {tilesConfig.map((tile, index) => {
             const isLit = activeTile === index;
             return (
               <motion.button
                 key={index}
-                whileHover={status === "PLAYING" ? { scale: 1.02 } : {}}
-                whileTap={status === "PLAYING" ? { scale: 0.97 } : {}}
+                whileHover={status === "PLAYING" && started ? { scale: 1.02 } : {}}
+                whileTap={status === "PLAYING" && started ? { scale: 0.98 } : {}}
                 onClick={() => handleClick(index)}
-                className={`h-28 w-28 sm:h-32 sm:w-32 rounded-3xl border-2 transition-all duration-200 text-xl font-black flex items-center justify-center shadow-sm ${
-                  isLit ? tile.active + " shadow-lg" : tile.default
+                disabled={status !== "PLAYING" || !started}
+                className={`w-full h-32 sm:h-36 rounded-2xl border text-3xl font-black flex items-center justify-center transition-all duration-200 shadow-sm cursor-pointer ${
+                  status === "FAILED"
+                    ? "bg-rose-500/5 border-rose-200/40 text-rose-400 dark:bg-rose-950/10 dark:border-rose-900/20 opacity-40 scale-95 pointer-events-none"
+                    : isLit ? tile.active : tile.default
                 }`}
               >
                 {index + 1}
               </motion.button>
             );
           })}
-        </div>
-
-        <div className="mt-6 min-h-[44px] flex items-center justify-center">
-          {!started ? (
-            <button
-              onClick={startGame}
-              className="rounded-xl bg-violet-500 px-8 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-violet-600 transition-all active:scale-95"
-            >
-              Start Game
-            </button>
-          ) : status === "FAILED" ? (
-            <button
-              onClick={startGame}
-              className="rounded-xl bg-rose-500 px-6 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-md hover:bg-rose-600 transition-all active:scale-95"
-            >
-              Try Again
-            </button>
-          ) : null}
-        </div>
+        </motion.div>
 
       </div>
     </GameShell>

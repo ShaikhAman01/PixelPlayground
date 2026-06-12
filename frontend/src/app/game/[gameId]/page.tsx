@@ -21,16 +21,18 @@ export default async function GamePage({ params }: Props) {
   const GameComponent = game.component;
 
   return (
-    <main 
-      className="relative h-screen max-h-screen w-full overflow-hidden flex flex-col bg-cover bg-center bg-no-repeat transition-all duration-500 bg-[url('/background/bg2.png')] dark:bg-[url('/background/bg3.png')]"
-    >
-      <div className="absolute inset-0 bg-indigo-950/5 dark:bg-indigo-950/20 pointer-events-none z-0" />
+    <main className="relative min-h-screen lg:h-dvh lg:max-h-dvh w-full overflow-x-hidden lg:overflow-hidden flex flex-col bg-cover bg-center bg-no-repeat transition-all duration-500 bg-[url('/background/bg2.png')] dark:bg-[url('/background/bg3.png')]">
+      
+      {/* Background Overlay Layer */}
+      <div className="absolute inset-0 bg-indigo-950/5 dark:bg-indigo-950/20 pointer-events-none z-10" />
 
-      <div className="relative z-10 mx-auto flex h-full w-full max-w-[1280px] flex-col px-4 md:px-8 pt-28 overflow-hidden">
+      {/* Main Structural Application Grid Container */}
+      <div className="relative z-20 mx-auto flex h-auto lg:h-full w-full max-w-[1280px] flex-col px-3 sm:px-4 md:px-8 pt-20 md:pt-28 pb-6 lg:overflow-hidden">
         
         <TopBar />
 
-        <div className="flex flex-1 flex-col items-center justify-center overflow-hidden">
+        {/* Dynamic Game Component Display Frame */}
+        <div className="flex flex-1 flex-col items-center justify-start lg:justify-center overflow-y-auto lg:overflow-hidden mt-4 lg:mt-0 w-full">
           <GameComponent />
         </div>
         
