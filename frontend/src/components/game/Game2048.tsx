@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameShell } from "./GameShell";
 import { useGame2048Store } from "@/store/game2048.store";
@@ -107,36 +107,36 @@ export const Game2048 = () => {
 
   const getTileBg = (val: number) => {
     switch (val) {
-      case 2: return "bg-orange-100 text-slate-800 dark:bg-orange-950/40 dark:text-orange-200 border-orange-200/40";
-      case 4: return "bg-orange-200 text-slate-800 dark:bg-orange-900/40 dark:text-orange-300 border-orange-300/40";
-      case 8: return "bg-amber-400 text-white dark:bg-amber-600 shadow-sm border-transparent animate-pulse";
-      case 16: return "bg-orange-500 text-white dark:bg-orange-700 border-transparent";
-      case 32: return "bg-rose-500 text-white dark:bg-rose-600 border-transparent";
-      case 64: return "bg-red-500 text-white dark:bg-red-700 border-transparent";
-      case 128: return "bg-yellow-400 text-slate-900 dark:bg-yellow-500 font-extrabold border-transparent";
-      case 256: return "bg-yellow-500 text-white font-extrabold border-transparent";
-      case 512: return "bg-emerald-500 text-white font-extrabold border-transparent";
-      case 1024: return "bg-blue-600 text-white font-extrabold border-transparent";
-      case 2048: return "bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white font-black border-transparent scale-105 ring-4 ring-fuchsia-400/20";
-      default: return "bg-slate-900 text-white";
+      case 2: return "bg-orange-50/90 text-zinc-800 dark:bg-zinc-800/80 dark:text-zinc-200 border-zinc-200 dark:border-zinc-700";
+      case 4: return "bg-orange-100 text-zinc-800 dark:bg-zinc-700/80 dark:text-zinc-100 border-zinc-200/60 dark:border-zinc-600";
+      case 8: return "bg-amber-100 text-amber-900 border-amber-200/60 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/40 font-bold";
+      case 16: return "bg-amber-200 text-amber-950 border-transparent dark:bg-amber-900/60 dark:text-amber-100 font-bold shadow-sm";
+      case 32: return "bg-orange-200 text-orange-950 border-transparent dark:bg-orange-950/50 dark:text-orange-200 font-bold shadow-sm";
+      case 64: return "bg-orange-300 text-orange-950 border-transparent dark:bg-orange-900/80 dark:text-orange-100 font-black";
+      case 128: return "bg-rose-200 text-rose-950 border-transparent dark:bg-rose-950/50 dark:text-rose-200 font-black";
+      case 256: return "bg-rose-300 text-rose-950 border-transparent dark:bg-rose-900/80 dark:text-rose-100 font-black shadow-sm";
+      case 512: return "bg-emerald-200 text-emerald-950 border-transparent dark:bg-emerald-950/40 dark:text-emerald-300 font-black";
+      case 1024: return "bg-zinc-800 text-white border-transparent dark:bg-zinc-100 dark:text-zinc-950 font-black ring-2 ring-zinc-500/20";
+      case 2048: return "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 font-black tracking-wide border-transparent scale-[1.03] shadow-[0_0_24px_rgba(24,24,27,0.15)] dark:shadow-[0_0_24px_rgba(255,255,255,0.15)] ring-2 ring-zinc-500";
+      default: return "bg-white/40 dark:bg-zinc-900/30 border-zinc-200/40 dark:border-zinc-800/40";
     }
   };
 
   return (
-    <GameShell title="Game 2048" onRestart={resetGame}>
-      <div className="relative rounded-3xl bg-slate-100/40 dark:bg-slate-950/20 p-3 shadow-inner size-[280px] sm:size-[320px] grid grid-cols-4 grid-rows-4 gap-2.5">
+    <GameShell title="2048" onRestart={resetGame}>
+      <div className="relative rounded-[28px] bg-white/60 dark:bg-zinc-950/40 p-3.5 border border-zinc-200 dark:border-zinc-800 shadow-sm backdrop-blur-md w-full max-w-[380px] sm:max-w-[420px] aspect-square grid grid-cols-4 grid-rows-4 gap-2.5 select-none">
         {board.map((row, rIdx) =>
           row.map((cell, cIdx) => (
-            <div key={`${rIdx}-${cIdx}`} className="relative w-full h-full bg-slate-200/40 dark:bg-slate-900/40 rounded-xl">
+            <div key={`${rIdx}-${cIdx}`} className="relative w-full h-full bg-zinc-200/40 dark:bg-zinc-900/30 rounded-xl border border-zinc-200/20 dark:border-zinc-800/20">
               <AnimatePresence>
                 {cell > 0 && (
                   <motion.div
                     key={`${rIdx}-${cIdx}-${cell}`}
-                    initial={{ scale: 0.8, opacity: 0 }}
+                    initial={{ scale: 0.82, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.8, opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 250, damping: 22 }}
-                    className={`absolute inset-0 flex items-center justify-center font-black rounded-xl text-lg border shadow-sm select-none ${getTileBg(cell)}`}
+                    exit={{ scale: 0.82, opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 280, damping: 20 }}
+                    className={`absolute inset-0 flex items-center justify-center font-black rounded-xl text-base sm:text-lg border select-none ${getTileBg(cell)}`}
                   >
                     {cell}
                   </motion.div>
@@ -152,18 +152,11 @@ export const Game2048 = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm rounded-3xl flex flex-col items-center justify-center gap-3 z-20"
+              className="absolute inset-0 bg-zinc-950/40 backdrop-blur-md rounded-[26px] flex flex-col items-center justify-center gap-2 z-20"
             >
-              <div className="text-center">
-                <p className="text-white text-xl font-black uppercase tracking-wider">Game Over</p>
-                <p className="text-slate-400 text-xs mt-1">Final: {score} points</p>
-              </div>
-              <button 
-                onClick={resetGame}
-                className="rounded-xl bg-white text-slate-950 font-bold px-5 py-2 text-xs uppercase tracking-wide shadow-md hover:bg-slate-100 transition-all active:scale-95"
-              >
-                Try Again
-              </button>
+              <p className="text-zinc-950 dark:text-white text-lg font-black uppercase tracking-wider bg-white/90 dark:bg-zinc-900/90 px-5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
+                No Moves Left
+              </p>
             </motion.div>
           )}
         </AnimatePresence>

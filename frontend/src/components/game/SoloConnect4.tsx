@@ -26,14 +26,14 @@ export const SoloConnect4 = () => {
   }, [setState]);
 
   const makeMove = (col: number) => {
-    if (currentTurn !== "X" || winner) return;
+    if (currentTurn !== "X" || winner || matchWinner) return;
     const success = engineRef.current.makeMove(col);
     if (!success) return;
     syncState();
   };
 
   useEffect(() => {
-    if (currentTurn !== "O" || winner) return;
+    if (currentTurn !== "O" || winner || matchWinner) return;
     const timeout = setTimeout(() => {
       const move = aiRef.current.getMove(engineRef.current.board, difficulty);
       if (move === null) return;
@@ -41,7 +41,7 @@ export const SoloConnect4 = () => {
       syncState();
     }, 600);
     return () => clearTimeout(timeout);
-  }, [currentTurn, winner, difficulty, syncState]);
+  }, [currentTurn, winner, matchWinner, difficulty, syncState]);
 
   useEffect(() => {
     if (!winner) return;
@@ -54,6 +54,7 @@ export const SoloConnect4 = () => {
 
       if (winner === "X") nextPlayerScore += 1;
       if (winner === "O") nextCpuScore += 1;
+      
       if (nextPlayerScore >= 2) nextMatchWinner = "PLAYER";
       if (nextCpuScore >= 2) nextMatchWinner = "CPU";
 
@@ -78,20 +79,20 @@ export const SoloConnect4 = () => {
 
   return (
     <GameShell title="Connect 4" timer={formattedTime} onRestart={nextRound}>
-      <div className="flex flex-col items-center justify-center w-full">
+      <div className="flex flex-col items-center justify-center w-full select-none pb-2 pt-10">
         
-        <div className="relative rounded-[32px] border border-blue-600/20 bg-gradient-to-b from-blue-500 to-blue-700 p-5 shadow-xl dark:from-blue-600 dark:to-blue-900">
+        <div className="relative rounded-[28px] bg-white/90 border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 p-4 shadow-xl backdrop-blur-md">
           
-          <div className="absolute -top-11 left-5 right-5 grid grid-cols-7 gap-3 sm:gap-4 justify-items-center">
+          <div className="absolute -top-12 left-4 right-4 grid grid-cols-7 gap-2.5 sm:gap-3.5 justify-items-center">
             {Array.from({ length: 7 }).map((_, colIdx) => (
-              <div key={colIdx} className="relative flex h-9 w-9 sm:w-12 justify-center items-center">
+              <div key={colIdx} className="relative flex h-10 w-10 sm:h-12 sm:w-12 justify-center items-center">
                 <AnimatePresence>
-                  {hoveredCol === colIdx && currentTurn === "X" && !winner && (
+                  {hoveredCol === colIdx && currentTurn === "X" && !winner && !matchWinner && (
                     <motion.div
-                      initial={{ opacity: 0, y: -8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-pink-400/80 dark:bg-pink-500/80 border-2 border-white"
+                      initial={{ opacity: 0, y: -10, scale: 0.8 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.8 }}
+                      className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-violet-400/70 border border-white"
                     />
                   )}
                 </AnimatePresence>
@@ -99,7 +100,9 @@ export const SoloConnect4 = () => {
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-3 sm:gap-4">
+          <div className={`grid grid-cols-7 gap-2.5 sm:gap-3.5 transition-opacity duration-300 ${
+            winner || matchWinner ? "opacity-60 pointer-events-none" : ""
+          }`}>
             {board.map((row, rowIndex) =>
               row.map((cell, colIndex) => (
                 <div
@@ -107,16 +110,20 @@ export const SoloConnect4 = () => {
                   onMouseEnter={() => setHoveredCol(colIndex)}
                   onMouseLeave={() => setHoveredCol(null)}
                   onClick={() => makeMove(colIndex)}
-                  className="relative flex h-9 w-9 sm:h-12 sm:w-12 cursor-pointer items-center justify-center rounded-full bg-slate-900/30 shadow-[inner_0_3px_6px_rgba(0,0,0,0.4)]"
+                  className={`relative flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-950/60 shadow-[inner_0_2px_4px_rgba(0,0,0,0.06)] border border-zinc-200 dark:border-zinc-800 ${
+                    winner || matchWinner ? "pointer-events-none" : "cursor-pointer"
+                  }`}
                 >
                   <AnimatePresence>
                     {cell && (
                       <motion.div
-                        initial={{ y: -250, scale: 0.4, opacity: 0 }}
+                        initial={{ y: -350, scale: 0.6, opacity: 0 }}
                         animate={{ y: 0, scale: 1, opacity: 1 }}
-                        transition={{ type: "spring", stiffness: 130, damping: 15 }}
-                        className={`absolute inset-0.5 rounded-full border border-white/10 ${
-                          cell === "X" ? "bg-gradient-to-tr from-pink-500 to-pink-400" : "bg-gradient-to-tr from-sky-500 to-sky-400"
+                        transition={{ type: "spring", stiffness: 160, damping: 16 }}
+                        className={`absolute inset-0.5 rounded-full border border-white/20 shadow-sm ${
+                          cell === "X" 
+                            ? "bg-gradient-to-tr from-violet-500 to-violet-400" 
+                            : "bg-gradient-to-tr from-rose-400 to-rose-300"
                         }`}
                       />
                     )}
@@ -127,15 +134,19 @@ export const SoloConnect4 = () => {
           </div>
         </div>
 
-        {winner && (
-          <div className="mt-6">
+        {(winner || matchWinner) && (
+          <motion.div 
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6 flex flex-col items-center gap-1"
+          >
             <button
               onClick={nextRound}
-              className="rounded-xl bg-slate-900 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-md dark:bg-white dark:text-slate-900 transition-all active:scale-95"
+              className="rounded-xl bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-900 dark:hover:bg-zinc-100 px-6 py-3 text-xs font-bold uppercase tracking-wider shadow-sm transition-all active:scale-[0.98] cursor-pointer"
             >
-              {matchWinner ? "Reset Match" : "Next Round"}
+              {matchWinner ? "Reset Match Series" : "Next Round"}
             </button>
-          </div>
+          </motion.div>
         )}
 
       </div>
