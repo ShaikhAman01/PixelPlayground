@@ -102,7 +102,6 @@ export default function HomePage() {
                     id={game.id}
                     title={game.title}
                     description={game.description}
-                    isChillMode={false}
                   />
                 ))}
               </div>
