@@ -4,9 +4,6 @@ main = "src/index.ts"
 
 compatibility_date = "2025-05-25"
 
-[vars]
-JWT_SECRET = "super_secret_key"
-
 [[durable_objects.bindings]]
 name = "GAME_ROOM"
 class_name = "GameRoom"

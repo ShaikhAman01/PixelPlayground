@@ -7,6 +7,10 @@ import { roomsRoutes } from "./routes/rooms.routes";
 import { leaderboardRoutes } from "./routes/leaderboard.routes";
 import { wsRoutes } from "./routes/ws.routes";
 
+import { createGuestSession } from "./controllers/auth.controller";
+import { scoresRouter } from "./routes/scores.routes";
+import type { Env } from "./types";
+
 import { GameRoom } from "./durable-objects/GameRoom";
 
 import {
@@ -21,7 +25,6 @@ import {
   requestIdMiddleware,
 } from "./middleware/request-id.middleware";
 
-import type { Env } from "./types";
 
 const app =
   new Hono<{
@@ -44,6 +47,10 @@ app.get("/", (c) => {
       "PixelPlayground API running",
   });
 });
+
+app.post("/api/auth/guest", createGuestSession);
+
+app.route("/api/scores", scoresRouter);
 
 app.route(
   "/api/v1/auth",
