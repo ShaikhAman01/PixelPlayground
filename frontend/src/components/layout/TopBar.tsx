@@ -4,14 +4,16 @@ import { Moon, Sun, User, Gamepad2, Coffee, Music2 } from "lucide-react";
 import { MusicPlayer } from "../music/MusicPlayer";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../providers/ThemeProvider";
+import { useMode } from "../providers/ModeProvider";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 
 export const TopBar = () => {
+  const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
-
-  const [mode, setMode] = useState<"play" | "chill">("play");
+  const { mode, setMode } = useMode();
   const [musicExpanded, setMusicExpanded] = useState(false);
   const [profileExpanded, setProfileExpanded] = useState(false);
 
@@ -19,7 +21,10 @@ export const TopBar = () => {
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setMusicExpanded(false);
         setProfileExpanded(false);
       }
@@ -28,127 +33,117 @@ export const TopBar = () => {
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
+  const isInsideGamePage = pathname?.startsWith("/game/");
+  const isChillMode = mode === "chill";
+
   return (
-    <header className="fixed top-4 left-0 right-0 z-50 px-4 sm:px-6 md:px-8 select-none">
+    <header className="fixed top-4 left-0 right-0 z-50 px-4 sm:px-6 md:px-8 select-none pointer-events-none">
       <div
         ref={containerRef}
-        className="
-          max-w-[1280px]
-          mx-auto
-          rounded-2xl sm:rounded-3xl
-          border border-white/20 dark:border-white/10
-          bg-white/[0.07] dark:bg-slate-950/[0.12]
-          backdrop-blur-xl
-          shadow-[0_8px_32px_rgba(15,23,42,0.04)]
-          dark:shadow-[0_16px_48px_rgba(0,0,0,0.2)]
-          transition-all duration-300
-        "
+        className="max-w-[1280px] mx-auto flex items-center justify-between w-full"
       >
-        <div className="px-3 sm:px-4 py-2 sm:py-2.5">
-          <div className="flex items-center justify-between gap-4">
-            
-            {/* ================= LEFT BRAND LOGO ================= */}
-            <div className="flex items-center shrink-0">
-              <Link
-                href="/"
-                className="
-                  flex items-center gap-2.5
-                  rounded-xl sm:rounded-2xl
-                  border border-white/10 dark:border-white/5
-                  bg-white/10 dark:bg-white/[0.02]
-                  px-3 py-1.5
-                  transition-all duration-200
-                  hover:bg-white/20 dark:hover:bg-white/[0.06]
-                  active:scale-[0.98]
-                "
-              >
-                <Image
-                  src="/logo/logo3.png"
-                  alt="Pixel Playground Logo"
-                  width={160}
-                  height={44}
-                  className="h-8 sm:h-10 lg:h-12 w-auto object-contain transition-all duration-300"
-                  priority
-                />
-                {/* PRODUCTION CONTRAST FIX: Swapped to text-slate-950 and dark:text-indigo-50/90 for clean readability */}
-                <div className="leading-none hidden sm:block ml-1">
-                  <div className="pixel-font text-xs sm:text-sm lg:text-base font-black tracking-[0.12em] uppercase text-slate-950 dark:text-indigo-50/90">
-                    PIXEL
-                  </div>
-                  <div className="pixel-font text-[8px] sm:text-[9px] lg:text-[10px] tracking-[0.22em] lg:tracking-[0.28em] uppercase text-slate-700 dark:text-indigo-200/70 mt-1">
-                    PLAYGROUND
-                  </div>
-                </div>
-              </Link>
-            </div>
+        <div className="flex items-center shrink-0 pointer-events-auto">
+          <Link
+            href="/"
+            className="transition-transform duration-200 active:scale-[0.98] block"
+          >
+            <Image
+              src="/logo/logo3.png"
+              alt="Pixel Playground Logo"
+              width={240}
+              height={64}
+              className="h-14 sm:h-16 w-auto object-contain transition-all duration-300"
+              priority
+            />
+          </Link>
+        </div>
 
-            {/* ================= CENTER SWITCHER ================= */}
-            <div className="flex flex-1 justify-center px-1 min-w-0">
-              <div
+        {/* ================= CENTERED: MODE SWITCH CAPSULE ================= */}
+        <div className="flex justify-center pointer-events-auto">
+          <AnimatePresence mode="wait">
+            {!isInsideGamePage && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
                 className="
                   relative
                   flex items-center
                   rounded-xl sm:rounded-2xl
-                  border border-white/10 dark:border-white/5
-                  bg-black/[0.04] dark:bg-black/[0.15]
-                  p-0.5 sm:p-1
+                  border border-black/5 dark:border-white/10
+                  bg-white/60 dark:bg-slate-950/40
+                  backdrop-blur-xl
+                  p-1
+                  shadow-md
                 "
               >
                 <button
                   onClick={() => setMode("play")}
                   className={`
                     relative
-                    flex items-center gap-1.5
-                    px-3.5 sm:px-5 py-1.5 sm:py-2
+                    flex items-center gap-2
+                    px-4 sm:px-5 py-2
                     rounded-lg sm:rounded-xl
                     text-xs sm:text-sm
-                    font-bold tracking-wide
+                    font-extrabold tracking-wider uppercase
                     transition-colors duration-200
                     cursor-pointer z-10
-                    ${mode === "play" ? "text-slate-900 dark:text-white" : "text-slate-700/70 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"}
+                    ${mode === "play" ? "text-slate-900" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"}
                   `}
                 >
                   {mode === "play" && (
                     <motion.div
                       layoutId="capsule-mode-pill"
-                      transition={{ type: "spring", stiffness: 420, damping: 32 }}
-                      className="absolute inset-0 rounded-lg sm:rounded-xl bg-white/90 dark:bg-white/15 border border-white/40 dark:border-white/10 shadow-sm"
+                      transition={{
+                        type: "spring",
+                        stiffness: 380,
+                        damping: 30,
+                      }}
+                      className="absolute inset-0 rounded-lg sm:rounded-xl bg-white border border-black/5 shadow-sm"
                     />
                   )}
-                  <Gamepad2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 relative z-10" />
-                  <span className="hidden sm:inline relative z-10">Play</span>
+                  <Gamepad2 className="h-3.5 w-3.5 relative z-10" />
+                  <span className="relative z-10">Play</span>
                 </button>
 
                 <button
                   onClick={() => setMode("chill")}
                   className={`
                     relative
-                    flex items-center gap-1.5
-                    px-3.5 sm:px-5 py-1.5 sm:py-2
+                    flex items-center gap-2
+                    px-4 sm:px-5 py-2
                     rounded-lg sm:rounded-xl
                     text-xs sm:text-sm
-                    font-bold tracking-wide
+                    font-extrabold tracking-wider uppercase
                     transition-colors duration-200
                     cursor-pointer z-10
-                    ${mode === "chill" ? "text-slate-900 dark:text-white" : "text-slate-700/70 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"}
+                    ${mode === "chill" ? "text-slate-900 dark:text-zinc-950" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"}
                   `}
                 >
                   {mode === "chill" && (
                     <motion.div
                       layoutId="capsule-mode-pill"
-                      transition={{ type: "spring", stiffness: 420, damping: 32 }}
-                      className="absolute inset-0 rounded-lg sm:rounded-xl bg-white/90 dark:bg-white/15 border border-white/40 dark:border-white/10 shadow-sm"
+                      transition={{
+                        type: "spring",
+                        stiffness: 380,
+                        damping: 30,
+                      }}
+                      className="absolute inset-0 rounded-lg sm:rounded-xl bg-white border border-black/5 shadow-sm"
                     />
                   )}
-                  <Coffee className="h-3.5 w-3.5 sm:h-4 sm:w-4 relative z-10" />
-                  <span className="hidden sm:inline relative z-10">Chill</span>
+                  <Coffee className="h-3.5 w-3.5 relative z-10" />
+                  <span className="relative z-10">Chill</span>
                 </button>
-              </div>
-            </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-            {/* ================= RIGHT ICON OPERATORS ================= */}
-            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              
+        {/* ================= RIGHT SIDE: OPERATORS MANAGEMENT TREE ================= */}
+        <div className="flex items-center shrink-0 pointer-events-auto">
+          {!isChillMode || isInsideGamePage ? (
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <div className="static sm:relative">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -159,10 +154,11 @@ export const TopBar = () => {
                   }}
                   className={`
                     flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center
-                    rounded-xl border transition-all duration-200 cursor-pointer
-                    ${musicExpanded 
-                      ? "border-white/40 bg-white/30 text-slate-900 dark:border-white/20 dark:bg-white/10 dark:text-white" 
-                      : "border-white/10 dark:border-white/5 bg-white/10 dark:bg-white/[0.02] text-slate-700/80 dark:text-slate-300 hover:bg-white/20 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white"
+                    rounded-xl border transition-all duration-200 cursor-pointer shadow-md
+                    ${
+                      musicExpanded
+                        ? "border-black/20 bg-white/80 text-slate-900 dark:border-white/20 dark:bg-white/10 dark:text-white"
+                        : "border-black/5 dark:border-white/5 bg-white/60 dark:bg-slate-950/40 text-slate-700 dark:text-slate-300 hover:bg-white/80 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white"
                     }
                   `}
                 >
@@ -198,18 +194,18 @@ export const TopBar = () => {
                   onClick={toggleTheme}
                   className="
                     flex h-10 w-10 items-center justify-center
-                    rounded-xl border border-white/10 dark:border-white/5
-                    bg-white/10 dark:bg-white/[0.02]
-                    text-slate-700/80 dark:text-slate-300
-                    hover:bg-white/20 dark:hover:bg-white/[0.06]
+                    rounded-xl border border-black/5 dark:border-white/5
+                    bg-white/60 dark:bg-slate-950/40
+                    text-slate-700 dark:text-slate-300
+                    hover:bg-white/80 dark:hover:bg-white/[0.06]
                     hover:text-slate-900 dark:hover:text-white
-                    transition-all duration-200 cursor-pointer
+                    transition-all duration-200 cursor-pointer shadow-md
                   "
                 >
                   {theme === "dark" ? (
                     <Sun className="h-4 w-4 text-amber-400" />
                   ) : (
-                    <Moon className="h-4 w-4" />
+                    <Moon className="h-4 w-4 text-slate-700" />
                   )}
                 </motion.button>
               </div>
@@ -224,10 +220,11 @@ export const TopBar = () => {
                   }}
                   className={`
                     flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center
-                    rounded-xl border transition-all duration-200 cursor-pointer
-                    ${profileExpanded 
-                      ? "border-white/40 bg-white/30 text-slate-900 dark:border-white/20 dark:bg-white/10 dark:text-white" 
-                      : "border-white/10 dark:border-white/5 bg-white/10 dark:bg-white/[0.02] text-slate-700/80 dark:text-slate-300 hover:bg-white/20 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white"
+                    rounded-xl border transition-all duration-200 cursor-pointer shadow-md
+                    ${
+                      profileExpanded
+                        ? "border-black/20 bg-white/80 text-slate-900 dark:border-white/20 dark:bg-white/10 dark:text-white"
+                        : "border-black/5 dark:border-white/5 bg-white/60 dark:bg-slate-950/40 text-slate-700 dark:text-slate-300 hover:bg-white/80 dark:hover:bg-white/[0.06] hover:text-slate-900 dark:hover:text-white"
                     }
                   `}
                 >
@@ -248,15 +245,16 @@ export const TopBar = () => {
                         w-56
                         overflow-hidden
                         rounded-xl sm:rounded-2xl
-                        border border-white/20 dark:border-slate-800
-                        bg-white/95 dark:bg-slate-900/95
-                        backdrop-blur-xl
+                        border border-slate-200 dark:border-slate-800
+                        bg-white dark:bg-slate-900
                         shadow-2xl
                         z-50
                       "
                     >
-                      <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/30">
-                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1.5">Profile Context</p>
+                      <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/30">
+                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1.5">
+                          Profile Context
+                        </p>
                         <p className="text-sm font-black text-slate-800 dark:text-slate-200">
                           Guest Arcade User
                         </p>
@@ -282,18 +280,23 @@ export const TopBar = () => {
                       >
                         <span>Display Theme</span>
                         {theme === "dark" ? (
-                          <div className="flex items-center gap-1 text-amber-500 font-mono text-[10px]"><Sun className="h-3.5 w-3.5" /> LIGHT</div>
+                          <div className="flex items-center gap-1 text-amber-500 font-mono text-[10px]">
+                            <Sun className="h-3.5 w-3.5" /> LIGHT
+                          </div>
                         ) : (
-                          <div className="flex items-center gap-1 text-slate-700 font-mono text-[10px]"><Moon className="h-3.5 w-3.5" /> DARK</div>
+                          <div className="flex items-center gap-1 text-slate-700 font-mono text-[10px]">
+                            <Moon className="h-3.5 w-3.5" /> DARK
+                          </div>
                         )}
                       </button>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-
             </div>
-          </div>
+          ) : (
+            <div className="w-[140px] hidden md:block" />
+          )}
         </div>
       </div>
     </header>
