@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, TouchEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameShell } from "./GameShell";
 import { useGame2048Store } from "@/store/game2048.store";
@@ -9,6 +9,9 @@ type GridType = number[][];
 
 export const Game2048 = () => {
   const { board, score, gameOver, setState, resetGame } = useGame2048Store();
+  
+  // Refs to track swipe coordinates
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   const spawnRandomTile = useCallback((currentBoard: GridType): GridType => {
     const emptyCells: { r: number; c: number }[] = [];
@@ -105,6 +108,38 @@ export const Game2048 = () => {
     return () => window.removeEventListener("keydown", handleSwipeInput);
   }, [executeMove]);
 
+  // --- Mobile Touch Handlers ---
+  const handleTouchStart = (e: TouchEvent) => {
+    const touch = e.touches[0];
+    touchStart.current = { x: touch.clientX, y: touch.clientY };
+  };
+
+  const handleTouchEnd = (e: TouchEvent) => {
+    if (!touchStart.current) return;
+
+    const touch = e.changedTouches[0];
+    const diffX = touch.clientX - touchStart.current.x;
+    const diffY = touch.clientY - touchStart.current.y;
+
+    const minSwipeDistance = 40; // Avoids triggering on accidental tiny taps
+
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+      // Horizontal swipes
+      if (Math.abs(diffX) > minSwipeDistance) {
+        if (diffX > 0) executeMove("RIGHT");
+        else executeMove("LEFT");
+      }
+    } else {
+      // Vertical swipes
+      if (Math.abs(diffY) > minSwipeDistance) {
+        if (diffY > 0) executeMove("DOWN");
+        else executeMove("UP");
+      }
+    }
+
+    touchStart.current = null;
+  };
+
   const getTileBg = (val: number) => {
     switch (val) {
       case 2: return "bg-orange-50/90 text-zinc-800 dark:bg-zinc-800/80 dark:text-zinc-200 border-zinc-200 dark:border-zinc-700";
@@ -124,7 +159,11 @@ export const Game2048 = () => {
 
   return (
     <GameShell title="2048" onRestart={resetGame}>
-      <div className="relative rounded-[28px] bg-white/60 dark:bg-zinc-950/40 p-3.5 border border-zinc-200 dark:border-zinc-800 shadow-sm backdrop-blur-md w-full max-w-[380px] sm:max-w-[420px] aspect-square grid grid-cols-4 grid-rows-4 gap-2.5 select-none">
+      <div 
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        className="relative rounded-[28px] bg-white/60 dark:bg-zinc-950/40 p-3.5 border border-zinc-200 dark:border-zinc-800 shadow-sm backdrop-blur-md w-full max-w-[380px] sm:max-w-[420px] aspect-square grid grid-cols-4 grid-rows-4 gap-2.5 select-none touch-none"
+      >
         {board.map((row, rIdx) =>
           row.map((cell, cIdx) => (
             <div key={`${rIdx}-${cIdx}`} className="relative w-full h-full bg-zinc-200/40 dark:bg-zinc-900/30 rounded-xl border border-zinc-200/20 dark:border-zinc-800/20">
