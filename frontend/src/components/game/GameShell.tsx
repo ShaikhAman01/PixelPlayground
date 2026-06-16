@@ -208,8 +208,8 @@ export const GameShell: React.FC<GameShellProps> = ({
 
       <main className="w-full flex flex-col lg:grid lg:grid-cols-12 gap-5 items-start mt-1">
         
-        {/* Left Side: Games Index */}
-        <section className="w-full lg:col-span-3 order-1">
+        {/* Left Side: Games Index (FIXED LAYER STACK FOR MOBILE) */}
+        <section className="w-full lg:col-span-3 order-1 relative z-30">
           <div className="rounded-[24px] border border-zinc-200 dark:border-zinc-800/80 bg-amber-50/70 dark:bg-zinc-900/90 p-4 md:p-5 shadow-sm flex flex-col backdrop-blur-xl">
             <div className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 flex items-center gap-2 mb-2">
               <Gamepad2 className="w-3.5 h-3.5" /> Games
@@ -231,7 +231,7 @@ export const GameShell: React.FC<GameShellProps> = ({
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 4 }}
-                      className="absolute left-0 right-0 mt-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-2xl z-50 max-h-[240px] overflow-hidden"
+                      className="absolute left-0 right-0 mt-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-2xl z-50 max-h-[240px] overflow-y-auto"
                     >
                       {gamesList.map((g) => (
                         <button
@@ -255,7 +255,7 @@ export const GameShell: React.FC<GameShellProps> = ({
                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border font-bold transition-all duration-200 cursor-pointer ${
                   rulesOpen 
                     ? "border-zinc-400 bg-white text-zinc-955 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
-                    : "border-zinc-200 bg-white/40 text-zinc-500 hover:bg-white dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-400 dark:hover:bg-zinc-900"
+                    : "border-zinc-200 bg-white/40 text-zinc-500 hover:bg-white dark:border-zinc-800 dark:bg-zinc-955/40 dark:text-zinc-400 dark:hover:bg-zinc-900"
                 }`}
               >
                 <HelpCircle className="h-4 w-4" />
@@ -315,28 +315,28 @@ export const GameShell: React.FC<GameShellProps> = ({
           </div>
         </section>
 
-{/* Center Section: Main Gameplay Core Playfield Container */}
-<section className="w-full lg:col-span-6 order-2 flex flex-col items-center justify-center">
-  <div className="w-full rounded-[28px] md:rounded-[32px] border border-zinc-200 dark:border-zinc-800/80 bg-amber-50/70 dark:bg-zinc-900/90 p-3 sm:p-5 shadow-sm backdrop-blur-xl flex flex-col items-center">
-    
-    <div className="w-full flex items-center justify-center min-h-[340px] md:min-h-[380px] p-1 overflow-x-auto">
-      {children}
-    </div>
+        {/* Center Section: Main Gameplay Core Playfield Container */}
+        <section className="w-full lg:col-span-6 order-2 flex flex-col items-center justify-center relative z-10">
+          <div className="w-full rounded-[28px] md:rounded-[32px] border border-zinc-200 dark:border-zinc-800/80 bg-amber-50/70 dark:bg-zinc-900/90 p-3 sm:p-5 shadow-sm backdrop-blur-xl flex flex-col items-center">
+            
+            <div className="w-full flex items-center justify-center min-h-[340px] md:min-h-[380px] p-1 overflow-x-auto">
+              {children}
+            </div>
 
-    {/* FIXED UX: Collapsed duplicate actions down into one gorgeous, clean primary action anchor */}
-    <div className="w-full mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
-      <button 
-        onClick={handleNewGameTrigger}
-        className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-slate-800 dark:hover:bg-zinc-100 font-bold text-xs py-3.5 shadow-sm transition-all active:scale-[0.99] cursor-pointer"
-      >
-        <Play className="w-3.5 h-3.5 fill-current" /> Clear & Reset Board
-      </button>
-    </div>
-  </div>
-</section>
+            {/* FIXED UX: Collapsed duplicate actions down into one gorgeous, clean primary action anchor */}
+            <div className="w-full mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+              <button 
+                onClick={handleNewGameTrigger}
+                className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-slate-800 dark:hover:bg-zinc-100 font-bold text-xs py-3.5 shadow-sm transition-all active:scale-[0.99] cursor-pointer"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" /> Clear & Reset Board
+              </button>
+            </div>
+          </div>
+        </section>
 
         {/* Right Side: Scoreboard Status Tracker Only */}
-        <section className="w-full lg:col-span-3 order-3 flex flex-col gap-4">
+        <section className="w-full lg:col-span-3 order-3 flex flex-col gap-4 relative z-10">
           <div className="rounded-[24px] border border-zinc-200 dark:border-zinc-800/80 bg-amber-50/70 dark:bg-zinc-900/90 p-4 shadow-sm flex flex-col backdrop-blur-xl w-full">
             <div className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-2">
               Match Status

@@ -97,7 +97,9 @@ const EffectCard = ({ id, name, icon, value, disabled, onChange }: EffectCardPro
   );
 };
 
-const Divider = () => <div className="h-4 w-px bg-white/10 shrink-0" />;
+const Divider = ({ className }: { className?: string }) => (
+  <div className={`h-4 w-px bg-white/10 shrink-0 ${className ?? ""}`} />
+);
 
 const AMBIENT_AUDIO_INSTANCES: Record<string, HTMLAudioElement> = 
   typeof window !== "undefined" 
@@ -288,7 +290,7 @@ export const ChillDashboard = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.97 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="absolute top-6 right-4 md:right-8 w-60 z-40 pointer-events-auto"
+            className="absolute top-24 right-4 md:top-6 md:right-8 w-60 z-40 pointer-events-auto"
           >
             <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/90 backdrop-blur-3xl p-5 text-white shadow-2xl relative">
               <div className="flex items-center justify-between mb-4">
@@ -302,11 +304,11 @@ export const ChillDashboard = () => {
                         setMinutes(tab === "focus" ? focusDuration : breakDuration);
                         setSeconds(0);
                       }}
-                      className={`px-3.5 py-1.5 rounded-lg text-[10px] font-bold tracking-wider uppercase transition-all cursor-pointer ${
-                        activeTab === tab
-                          ? "bg-white/10 text-white shadow-sm"
-                          : "text-white/40 hover:text-white/70"
-                      }`}
+                      className="px-3.5 py-1.5 rounded-lg text-[10px] font-bold tracking-wider uppercase transition-all cursor-pointer dynamic-tab bg-transparent text-white/40"
+                      style={{
+                        backgroundColor: activeTab === tab ? "rgba(255,255,255,0.1)" : "transparent",
+                        color: activeTab === tab ? "#ffffff" : "rgba(255,255,255,0.4)"
+                      }}
                     >
                       {tab}
                     </button>
@@ -539,9 +541,11 @@ export const ChillDashboard = () => {
             )}
           </AnimatePresence>
 
-          <div className="w-full rounded-full border border-white/[0.08] bg-zinc-950/75 backdrop-blur-3xl px-5 py-3 text-white shadow-2xl flex items-center gap-4">
+          {/* MAIN CONTAINER BAR - UPDATED FOR RESPONSIVE SCALING */}
+          <div className="w-full rounded-2xl md:rounded-full border border-white/[0.08] bg-zinc-950/75 backdrop-blur-3xl px-3 py-3 md:px-5 text-white shadow-2xl flex items-center justify-between md:justify-start gap-2 md:gap-4">
 
-            <div className="flex items-center gap-2.5 text-zinc-400 flex-shrink-0">
+            {/* Left Section: Track Transport Controls */}
+            <div className="flex items-center gap-1.5 md:gap-2.5 text-zinc-400 flex-shrink-0">
               <button onClick={prevTrack} className="hover:text-white transition-colors active:scale-90 cursor-pointer">
                 <SkipBack className="w-4 h-4 fill-current" />
               </button>
@@ -561,8 +565,9 @@ export const ChillDashboard = () => {
 
             <Divider />
 
-            <div className="flex-1 flex items-center gap-2.5 min-w-0">
-              <div className="w-7 h-7 rounded-lg overflow-hidden bg-zinc-800 border border-white/[0.06] flex-shrink-0 relative">
+            {/* Middle Section: Metatags Tracker (Flexible dimensions) */}
+            <div className="flex-1 flex items-center gap-2 min-w-0">
+              <div className="w-7 h-7 rounded-lg overflow-hidden bg-zinc-800 border border-white/[0.06] flex-shrink-0 relative hidden sm:block">
                 {imageSrc ? (
                   <Image
                     src={imageSrc}
@@ -607,59 +612,67 @@ export const ChillDashboard = () => {
 
             <Divider />
 
-            <button
-              onClick={() => { closeAllPanels("effects"); setShowEffectsMenu((v) => !v); }}
-              className={`flex-shrink-0 p-1.5 rounded-lg transition-all cursor-pointer ${
-                showEffectsMenu ? "text-white bg-white/10" : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"
-              }`}
-              title="Ambient mixer"
-            >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-            </button>
-
-            <Divider />
-
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <button onClick={toggleMute} className="hover:text-white transition-colors cursor-pointer">
-                {renderVolumeIcon()}
-              </button>
-              <input
-                type="range" min="0" max="100" value={volume}
-                onChange={(e) => setVolume(parseInt(e.target.value))}
-                className="w-16 h-0.5 appearance-none rounded-full bg-white/10 accent-white cursor-pointer"
-              />
-            </div>
-
-            <Divider />
-
-            <button
-              onClick={() => setShowPomodoroPanel((v) => !v)}
-              className={`flex-shrink-0 p-1.5 rounded-lg transition-all cursor-pointer ${
-                showPomodoroPanel ? "text-white bg-white/10" : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"
-              }`}
-              title="Pomodoro timer"
-            >
-              <Clock className="w-3.5 h-3.5" />
-            </button>
-
-            <Divider />
-
-            <div className="flex items-center gap-1.5 flex-shrink-0 text-zinc-400">
+            {/* Right Operators Block Section */}
+            <div className="flex items-center gap-1.5 md:gap-4 flex-shrink-0">
+              
+              {/* Mixer Action Item */}
               <button
-                onClick={() => cycleWallpaper(-1)}
-                className="hover:text-white transition-colors p-0.5 cursor-pointer"
-                title="Previous background"
+                onClick={() => { closeAllPanels("effects"); setShowEffectsMenu((v) => !v); }}
+                className={`flex-shrink-0 p-1.5 rounded-lg transition-all cursor-pointer ${
+                  showEffectsMenu ? "text-white bg-white/10" : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"
+                }`}
+                title="Ambient mixer"
               >
-                <ChevronLeft className="w-3.5 h-3.5" />
+                <SlidersHorizontal className="w-3.5 h-3.5" />
               </button>
-              <ImageIcon className="w-3.5 h-3.5 opacity-40 select-none pointer-events-none" />
+
+              <Divider className="hidden md:block" />
+
+              {/* Volume Scrubber Node Container (Hidden completely on mobile) */}
+              <div className="hidden md:flex items-center gap-2 flex-shrink-0">
+                <button onClick={toggleMute} className="hover:text-white transition-colors cursor-pointer">
+                  {renderVolumeIcon()}
+                </button>
+                <input
+                  type="range" min="0" max="100" value={volume}
+                  onChange={(e) => setVolume(parseInt(e.target.value))}
+                  className="w-16 h-0.5 appearance-none rounded-full bg-white/10 accent-white cursor-pointer"
+                />
+              </div>
+
+              <Divider />
+
+              {/* Pomodoro Focus Action Item */}
               <button
-                onClick={() => cycleWallpaper(1)}
-                className="hover:text-white transition-colors p-0.5 cursor-pointer"
-                title="Next background"
+                onClick={() => setShowPomodoroPanel((v) => !v)}
+                className={`flex-shrink-0 p-1.5 rounded-lg transition-all cursor-pointer ${
+                  showPomodoroPanel ? "text-white bg-white/10" : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"
+                }`}
+                title="Pomodoro timer"
               >
-                <ChevronRight className="w-3.5 h-3.5" />
+                <Clock className="w-3.5 h-3.5" />
               </button>
+
+              <Divider className="hidden sm:block" />
+
+              {/* Wallpaper Canvas Cycles (Hidden on tiny mobile targets) */}
+              <div className="hidden sm:flex items-center gap-1.5 flex-shrink-0 text-zinc-400">
+                <button
+                  onClick={() => cycleWallpaper(-1)}
+                  className="hover:text-white transition-colors p-0.5 cursor-pointer"
+                  title="Previous background"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </button>
+                <ImageIcon className="w-3.5 h-3.5 opacity-40 select-none pointer-events-none" />
+                <button
+                  onClick={() => cycleWallpaper(1)}
+                  className="hover:text-white transition-colors p-0.5 cursor-pointer"
+                  title="Next background"
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
 
           </div>
