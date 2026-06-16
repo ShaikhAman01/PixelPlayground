@@ -35,12 +35,13 @@ export const TopBar = () => {
 
   const isInsideGamePage = pathname?.startsWith("/game/");
   const isChillMode = mode === "chill";
+  const showAllOperators = !isChillMode || isInsideGamePage;
 
   return (
     <header className="fixed top-4 left-0 right-0 z-50 px-4 sm:px-6 md:px-8 select-none pointer-events-none">
       <div
         ref={containerRef}
-        className="max-w-[1280px] mx-auto flex items-center justify-between w-full"
+        className="max-w-[1280px] mx-auto flex items-center justify-between w-full relative"
       >
         <div className="flex items-center shrink-0 pointer-events-auto">
           <Link
@@ -58,8 +59,8 @@ export const TopBar = () => {
           </Link>
         </div>
 
-        {/* ================= CENTERED: MODE SWITCH CAPSULE ================= */}
-        <div className="flex justify-center pointer-events-auto">
+        {/* ================= CENTERED: MODE SWITCH CAPSULE (NOW TRULY FIXED) ================= */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center pointer-events-auto z-10">
           <AnimatePresence mode="wait">
             {!isInsideGamePage && (
               <motion.div
@@ -104,7 +105,7 @@ export const TopBar = () => {
                     />
                   )}
                   <Gamepad2 className="h-3.5 w-3.5 relative z-10" />
-                  <span className="relative z-10">Play</span>
+                  <span className="relative z-10 hidden sm:block">Play</span>
                 </button>
 
                 <button
@@ -133,7 +134,7 @@ export const TopBar = () => {
                     />
                   )}
                   <Coffee className="h-3.5 w-3.5 relative z-10" />
-                  <span className="relative z-10">Chill</span>
+                  <span className="relative z-10 hidden sm:block">Chill</span>
                 </button>
               </motion.div>
             )}
@@ -141,9 +142,11 @@ export const TopBar = () => {
         </div>
 
         {/* ================= RIGHT SIDE: OPERATORS MANAGEMENT TREE ================= */}
-        <div className="flex items-center shrink-0 pointer-events-auto">
-          {!isChillMode || isInsideGamePage ? (
-            <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center shrink-0 pointer-events-auto ml-auto">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            
+            {/* Music Button - Conditional */}
+            {showAllOperators && (
               <div className="static sm:relative">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -186,30 +189,34 @@ export const TopBar = () => {
                   )}
                 </AnimatePresence>
               </div>
+            )}
 
-              <div className="hidden md:block">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={toggleTheme}
-                  className="
-                    flex h-10 w-10 items-center justify-center
-                    rounded-xl border border-black/5 dark:border-white/5
-                    bg-white/60 dark:bg-slate-950/40
-                    text-slate-700 dark:text-slate-300
-                    hover:bg-white/80 dark:hover:bg-white/[0.06]
-                    hover:text-slate-900 dark:hover:text-white
-                    transition-all duration-200 cursor-pointer shadow-md
-                  "
-                >
-                  {theme === "dark" ? (
-                    <Sun className="h-4 w-4 text-amber-400" />
-                  ) : (
-                    <Moon className="h-4 w-4 text-slate-700" />
-                  )}
-                </motion.button>
-              </div>
+            {/* Theme Changer - Always Persistent */}
+            <div className="block">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={toggleTheme}
+                className="
+                  flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center
+                  rounded-xl border border-black/5 dark:border-white/5
+                  bg-white/60 dark:bg-slate-950/40
+                  text-slate-700 dark:text-slate-300
+                  hover:bg-white/80 dark:hover:bg-white/[0.06]
+                  hover:text-slate-900 dark:hover:text-white
+                  transition-all duration-200 cursor-pointer shadow-md
+                "
+              >
+                {theme === "dark" ? (
+                  <Sun className="h-4 w-4 text-amber-400" />
+                ) : (
+                  <Moon className="h-4 w-4 text-slate-700" />
+                )}
+              </motion.button>
+            </div>
 
+            {/* Profile Button - Conditional */}
+            {showAllOperators && (
               <div className="relative">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -293,10 +300,9 @@ export const TopBar = () => {
                   )}
                 </AnimatePresence>
               </div>
-            </div>
-          ) : (
-            <div className="w-[140px] hidden md:block" />
-          )}
+            )}
+
+          </div>
         </div>
       </div>
     </header>
