@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Music, SlidersHorizontal, Info } from "lucide-react";
+import { Info, X, Music, SlidersHorizontal } from "lucide-react";
 import { playlist } from "@/store/audio.store";
 
 export const AudioCreditsModal = () => {
@@ -36,29 +36,28 @@ export const AudioCreditsModal = () => {
   ];
 
   return (
-    <>
-      {/* Structural Header Button Trigger: Blends natively into default dark/light navigation lines */}
-      <button
+    <div className="fixed bottom-4 left-4 z-50 pointer-events-auto">
+      <button 
         onClick={() => setIsOpen(true)}
-        className="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200 bg-white/50 text-slate-600 shadow-sm transition-all hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-400 dark:hover:bg-slate-900/60 cursor-pointer flex-shrink-0"
-        title="Audio Credits"
+        className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/60 bg-white/70 text-slate-600 shadow-sm backdrop-blur-md hover:scale-105 transition-all cursor-pointer"
         aria-label="View Audio Attributions"
       >
         <Info className="h-4 w-4" />
       </button>
 
-      {/* Screen Backdrop Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-slate-950/40 backdrop-blur-sm px-4 z-[100]">
+        <div className="fixed inset-0 flex items-center justify-center bg-slate-950/20 backdrop-blur-sm px-4 z-50">
           <div className="w-full max-w-md rounded-2xl border border-white/80 bg-white/85 p-5 sm:p-6 shadow-xl dark:border-white/10 dark:bg-slate-900/90 text-slate-800 dark:text-slate-100 backdrop-blur-2xl">
             
+            {/* Header */}
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-sans text-base font-black uppercase tracking-wide">Audio Attributions</h3>
+              <h3 className="pixel-font text-base font-black uppercase tracking-wide">Audio Attributions</h3>
               <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
                 <X className="h-5 w-5" />
               </button>
             </div>
 
+            {/* Premium Tab Bar Toggle Panel */}
             <div className="grid grid-cols-2 gap-1 bg-slate-950/5 dark:bg-white/[0.04] border border-slate-950/5 dark:border-white/[0.04] rounded-xl p-0.5 mb-4">
               <button
                 onClick={() => setActiveTab("music")}
@@ -84,6 +83,7 @@ export const AudioCreditsModal = () => {
               </button>
             </div>
 
+            {/* Scrollable Content Engine Panels */}
             <div className="space-y-4 max-h-[280px] overflow-y-auto pr-1" style={{ scrollbarWidth: "thin" }}>
               {activeTab === "music" ? (
                 playlist.map((track, i) => (
@@ -126,6 +126,6 @@ export const AudioCreditsModal = () => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
