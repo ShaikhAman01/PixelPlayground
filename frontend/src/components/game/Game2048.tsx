@@ -4,6 +4,7 @@ import { useEffect, useRef, useCallback, TouchEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameShell } from "./GameShell";
 import { useGame2048Store } from "@/store/game2048.store";
+import { submitScore } from "@/lib/scoreSync";
 
 type GridType = number[][];
 
@@ -87,6 +88,10 @@ export const Game2048 = () => {
           }
         }
         if (!movesPossible) isGameOver = true;
+      }
+
+      if (isGameOver) {
+        submitScore({ gameId: "game2048", outcome: "completed", score: score + scoreGain });
       }
 
       setState({

@@ -5,12 +5,13 @@ import { motion, LayoutGroup } from "framer-motion";
 import { GameShell } from "./GameShell";
 import { useSlidePuzzleStore } from "@/store/slidePuzzle.store";
 import { useTimer } from "@/hooks/useTimer";
+import { submitScore } from "@/lib/scoreSync";
 
 const solvedBoard = [1, 2, 3, 4, 5, 6, 7, 8, 0];
 
 export const SlidePuzzle = () => {
   const { board, moves, won, setState } = useSlidePuzzleStore();
-  const { formattedTime, reset, start, pause } = useTimer({ autoStart: true });
+  const { formattedTime, seconds, reset, start, pause } = useTimer({ autoStart: true });
 
   const isSolvable = useCallback((arr: number[]) => {
     let inversions = 0;
@@ -45,9 +46,15 @@ export const SlidePuzzle = () => {
       queueMicrotask(() => {
         pause();
         setState({ won: true });
+        submitScore({
+          gameId: "slidepuzzle",
+          outcome: "win",
+          timeSecs: Math.max(1, seconds),
+          moves: Math.max(1, moves),
+        });
       });
     }
-  }, [board, won, pause, setState]);
+  }, [board, won, pause, setState, seconds, moves]);
 
   const moveTile = (index: number) => {
     if (won) return;

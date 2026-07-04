@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { GameShell } from "./GameShell";
 import { useColorMemoryStore } from "@/store/colorMemory.store";
+import { submitScore } from "@/lib/scoreSync";
 
 const tilesConfig = [
   { default: "bg-rose-500/20 border-rose-300/40 text-rose-600 dark:text-rose-400 dark:bg-rose-950/20", active: "bg-rose-400 border-transparent text-white shadow-[0_0_24px_rgba(251,113,133,0.5)]", note: 261.63 },
@@ -131,6 +132,7 @@ export const ColorMemory = () => {
     if (index !== sequence[playerSequence.length]) {
       setState({ status: "FAILED" });
       playFailureTone();
+      submitScore({ gameId: "colormemory", outcome: "completed", level });
       return;
     }
 

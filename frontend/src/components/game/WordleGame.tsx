@@ -6,6 +6,7 @@ import { GameShell } from "./GameShell";
 import { words } from "@/data/wordleWords";
 import { useWordleStore } from "@/store/wordle.store";
 import { validWords } from "@/data/validWords";
+import { localDay, submitScore } from "@/lib/scoreSync";
 
 const keyboard = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
 
@@ -69,10 +70,12 @@ export const WordleGame = () => {
       const next = [...guesses, currentGuess];
       if (currentGuess === solution) {
         setState({ guesses: next, currentGuess: "", status: "WON" });
+        submitScore({ gameId: "wordle", outcome: "win", guesses: next.length, day: localDay() });
         return;
       }
       if (next.length >= 6) {
         setState({ guesses: next, currentGuess: "", status: "LOST" });
+        submitScore({ gameId: "wordle", outcome: "loss", guesses: next.length, day: localDay() });
         return;
       }
       setState({ guesses: next, currentGuess: "" });

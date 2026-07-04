@@ -11,6 +11,7 @@ import { useConnect4Store } from "@/store/connect4.store";
 import { useGame2048Store } from "@/store/game2048.store";
 import { useSlidePuzzleStore } from "@/store/slidePuzzle.store";
 import { useColorMemoryStore } from "@/store/colorMemory.store";
+import { LeaderboardPanel } from "./LeaderboardPanel";
 
 interface GameShellProps {
   title: string;
@@ -162,6 +163,7 @@ export const GameShell: React.FC<GameShellProps> = ({
   };
 
   const game = getGameStats();
+  const gameSlug = gamesList.find((g) => g.name.toLowerCase() === title.toLowerCase())?.slug;
 
   const handleNewGameTrigger = () => {
     if (onNewGame) {
@@ -364,6 +366,8 @@ export const GameShell: React.FC<GameShellProps> = ({
               ))}
             </div>
           </div>
+
+          {gameSlug && <LeaderboardPanel gameId={gameSlug} />}
         </section>
 
       </main>

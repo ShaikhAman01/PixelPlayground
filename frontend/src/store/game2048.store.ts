@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 type GridType = number[][];
 
@@ -25,25 +26,34 @@ const generateInitialBoard = (): GridType => {
   return grid;
 };
 
-export const useGame2048Store = create<Game2048State>((set) => ({
-  board: generateInitialBoard(),
-  score: 0,
-  gameOver: false,
-  bestScore: 0,
-
-  setState: (state) =>
-    set((prev) => {
-      const updated = { ...prev, ...state };
-      if (updated.score > updated.bestScore) {
-        updated.bestScore = updated.score;
-      }
-      return updated;
-    }),
-
-  resetGame: () =>
-    set({
+export const useGame2048Store = create<Game2048State>()(
+  persist(
+    (set) => ({
       board: generateInitialBoard(),
       score: 0,
       gameOver: false,
+      bestScore: 0,
+
+      setState: (state) =>
+        set((prev) => {
+          const updated = { ...prev, ...state };
+          if (updated.score > updated.bestScore) {
+            updated.bestScore = updated.score;
+          }
+          return updated;
+        }),
+
+      resetGame: () =>
+        set({
+          board: generateInitialBoard(),
+          score: 0,
+          gameOver: false,
+        }),
     }),
-}));
+    {
+      name: "pixel-playground-2048",
+      // Only the personal best survives refreshes; the live board is per-session
+      partialize: (state) => ({ bestScore: state.bestScore }),
+    }
+  )
+);

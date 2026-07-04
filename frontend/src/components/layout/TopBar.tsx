@@ -2,6 +2,7 @@
 
 import { Moon, Sun, User, Gamepad2, Coffee, Music2 } from "lucide-react";
 import { MusicPlayer } from "../music/MusicPlayer";
+import { ProfileMenu } from "../auth/ProfileMenu";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../providers/ThemeProvider";
 import { useMode } from "../providers/ModeProvider";
@@ -258,44 +259,7 @@ export const TopBar = () => {
                         z-50
                       "
                     >
-                      <div className="px-4 py-3.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/30">
-                        <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1.5">
-                          Profile Context
-                        </p>
-                        <p className="text-sm font-black text-slate-800 dark:text-slate-200">
-                          Guest Arcade User
-                        </p>
-                        <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500 mt-0.5">
-                          Cloud saves coming soon
-                        </p>
-                      </div>
-
-                      <button
-                        onClick={toggleTheme}
-                        className="
-                          md:hidden
-                          w-full
-                          px-4 py-3.5
-                          flex
-                          items-center
-                          justify-between
-                          text-xs font-bold uppercase tracking-wider
-                          text-slate-600 dark:text-slate-300
-                          hover:bg-slate-50 dark:hover:bg-slate-800
-                          transition-colors cursor-pointer
-                        "
-                      >
-                        <span>Display Theme</span>
-                        {theme === "dark" ? (
-                          <div className="flex items-center gap-1 text-amber-500 font-mono text-[10px]">
-                            <Sun className="h-3.5 w-3.5" /> LIGHT
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1 text-slate-700 font-mono text-[10px]">
-                            <Moon className="h-3.5 w-3.5" /> DARK
-                          </div>
-                        )}
-                      </button>
+                      <ProfileMenu theme={theme} toggleTheme={toggleTheme} />
                     </motion.div>
                   )}
                 </AnimatePresence>

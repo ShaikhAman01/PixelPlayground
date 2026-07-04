@@ -3,7 +3,8 @@ import { Toaster } from "sonner";
 import { AudioRuntime } from "@/components/audio/AudioRuntime";
 import { AudioCreditsModal } from "@/components/music/AudioCreditsModal";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import { ModeProvider } from "@/components/providers/ModeProvider"; 
+import { ModeProvider } from "@/components/providers/ModeProvider";
+import { SessionBootstrap } from "@/components/providers/SessionBootstrap";
 import { TopBar } from "@/components/layout/TopBar";
 import { Inter, Pixelify_Sans } from "next/font/google";
 import "./globals.css";
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${pixelFont.variable} antialiased`}>
         <ThemeProvider>
           <ModeProvider>
+            <SessionBootstrap />
             <TopBar />
             {children}
             <AudioRuntime />

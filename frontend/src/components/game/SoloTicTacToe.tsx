@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { TicTacToeEngine } from "@/games/tictactoe.engine";
 import { getCpuMove } from "@/games/tictactoe.ai";
 import { useSoloStore } from "@/store/solo.store";
+import { submitScore } from "@/lib/scoreSync";
 
 export const SoloTicTacToe = () => {
   const engineRef = useRef(new TicTacToeEngine());
@@ -25,6 +26,20 @@ export const SoloTicTacToe = () => {
   } = useSoloStore();
 
   const { formattedTime, start, pause, reset } = useTimer({ autoStart: true });
+
+  // The store outlives this component but the engine does not: clear the
+  // round on unmount so the next visit can't desync board/engine or
+  // re-trigger the scoring effect with a stale winner.
+  useEffect(() => {
+    return () => {
+      useSoloStore.setState({
+        board: Array(9).fill(null),
+        currentTurn: "X",
+        winner: null,
+        status: "PLAYING",
+      });
+    };
+  }, []);
 
   const detectWinningCombo = useCallback((currentBoard: (string | null)[]) => {
     const lines = [
@@ -75,8 +90,17 @@ export const SoloTicTacToe = () => {
   }, [currentTurn, status, winner, difficulty, syncState]);
 
   useEffect(() => {
-    if (!winner) return;
+    // Guard on the engine too: a leftover store winner from a previous
+    // mount must not count or submit twice
+    if (!winner || !engineRef.current.winner) return;
     pause();
+
+    submitScore({
+      gameId: "tictactoe",
+      outcome: winner === "X" ? "win" : winner === "O" ? "loss" : "draw",
+      moves: engineRef.current.board.filter(Boolean).length,
+      difficulty: useSoloStore.getState().difficulty,
+    });
 
     useSoloStore.setState((prev) => ({
       playerScore: winner === "X" ? prev.playerScore + 1 : prev.playerScore,

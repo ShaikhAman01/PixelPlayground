@@ -7,6 +7,7 @@ import { Connect4Engine } from "@/games/connect4.engine";
 import { Connect4AI } from "@/games/connect4.ai";
 import { useConnect4Store } from "@/store/connect4.store";
 import { useTimer } from "@/hooks/useTimer";
+import { submitScore } from "@/lib/scoreSync";
 
 export const SoloConnect4 = () => {
   const engineRef = useRef(new Connect4Engine());
@@ -15,6 +16,20 @@ export const SoloConnect4 = () => {
 
   const { board, currentTurn, winner, matchWinner, difficulty, setState } = useConnect4Store();
   const { formattedTime, pause, reset, start } = useTimer({ autoStart: true });
+
+  // The store outlives this component but the engine does not: clear the
+  // round on unmount so the next visit can't desync board/engine or
+  // re-trigger the scoring effect with a stale winner.
+  useEffect(() => {
+    return () => {
+      useConnect4Store.setState({
+        board: Array.from({ length: 6 }).map(() => Array(7).fill(null)),
+        currentTurn: "X",
+        winner: null,
+        status: "PLAYING",
+      });
+    };
+  }, []);
 
   const syncState = useCallback(() => {
     setState({
@@ -44,8 +59,17 @@ export const SoloConnect4 = () => {
   }, [currentTurn, winner, matchWinner, difficulty, syncState]);
 
   useEffect(() => {
-    if (!winner) return;
+    // Guard on the engine too: a leftover store winner from a previous
+    // mount must not count or submit twice
+    if (!winner || !engineRef.current.winner) return;
     pause();
+
+    submitScore({
+      gameId: "connect4",
+      outcome: winner === "X" ? "win" : winner === "O" ? "loss" : "draw",
+      moves: engineRef.current.board.flat().filter(Boolean).length,
+      difficulty: useConnect4Store.getState().difficulty,
+    });
 
     useConnect4Store.setState((prev) => {
       let nextPlayerScore = prev.playerScore;
