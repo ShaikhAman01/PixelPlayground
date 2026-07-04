@@ -2,12 +2,16 @@ name = "pixel-playground-backend"
 
 main = "src/index.ts"
 
-compatibility_date = "2025-05-25"
+compatibility_date = "2026-06-01"
 
-[[durable_objects.bindings]]
-name = "GAME_ROOM"
-class_name = "GameRoom"
+[observability]
+enabled = true
 
+# Multiplayer (GameRoom Durable Object) was removed along with the room UI.
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["GameRoom"]
+
+[[migrations]]
+tag = "v2"
+deleted_classes = ["GameRoom"]
