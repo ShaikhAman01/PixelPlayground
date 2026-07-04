@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import { motion, LayoutGroup } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
+import { PartyPopper } from "lucide-react";
 import { GameShell } from "./GameShell";
 import { useSlidePuzzleStore } from "@/store/slidePuzzle.store";
 import { useTimer } from "@/hooks/useTimer";
@@ -80,7 +81,7 @@ export const SlidePuzzle = () => {
     <GameShell title="Slide Puzzle" timer={formattedTime} onRestart={shuffleBoard}>
       <div className="flex flex-col items-center justify-center w-full max-w-md px-2 select-none pb-2">
         
-        <div className="rounded-[28px] bg-white/90 border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 p-4 shadow-sm backdrop-blur-md w-full">
+        <div className="relative rounded-[28px] bg-white/90 border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 p-4 shadow-sm backdrop-blur-md w-full">
           <div className="grid grid-cols-3 gap-3">
             <LayoutGroup>
               {board.map((tile, index) => {
@@ -108,6 +109,32 @@ export const SlidePuzzle = () => {
               })}
             </LayoutGroup>
           </div>
+
+          <AnimatePresence>
+            {won && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1, transition: { delay: 0.4 } }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-zinc-950/30 backdrop-blur-[3px] rounded-[26px] flex flex-col items-center justify-center gap-3 z-20"
+              >
+                <div className="bg-white/95 dark:bg-zinc-900/95 px-6 py-3.5 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm text-center">
+                  <p className="text-xs font-black uppercase tracking-widest text-violet-500 dark:text-violet-400 flex items-center justify-center gap-1.5">
+                    <PartyPopper className="w-3.5 h-3.5" /> Solved
+                  </p>
+                  <p className="text-sm font-black text-zinc-950 dark:text-white mt-1 font-mono">
+                    {formattedTime} · {moves} moves
+                  </p>
+                </div>
+                <button
+                  onClick={shuffleBoard}
+                  className="rounded-xl bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-zinc-100 px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-sm transition-all active:scale-[0.98] cursor-pointer"
+                >
+                  Play Again
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
       </div>

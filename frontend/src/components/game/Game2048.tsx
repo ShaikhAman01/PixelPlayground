@@ -196,11 +196,22 @@ export const Game2048 = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-zinc-950/40 backdrop-blur-md rounded-[26px] flex flex-col items-center justify-center gap-2 z-20"
+              className="absolute inset-0 bg-zinc-950/40 backdrop-blur-md rounded-[26px] flex flex-col items-center justify-center gap-3 z-20"
             >
-              <p className="text-zinc-950 dark:text-white text-lg font-black uppercase tracking-wider bg-white/90 dark:bg-zinc-900/90 px-5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
-                No Moves Left
-              </p>
+              <div className="bg-white/95 dark:bg-zinc-900/95 px-6 py-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col items-center gap-1">
+                <p className="text-zinc-950 dark:text-white text-lg font-black uppercase tracking-wider">
+                  No Moves Left
+                </p>
+                <p className="text-xs font-bold text-zinc-500 dark:text-zinc-400 font-mono">
+                  Score: {score.toLocaleString()}
+                </p>
+              </div>
+              <button
+                onClick={resetGame}
+                className="rounded-xl bg-white text-zinc-950 dark:bg-white dark:text-zinc-950 hover:bg-zinc-100 px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-sm transition-all active:scale-[0.98] cursor-pointer"
+              >
+                Play Again
+              </button>
             </motion.div>
           )}
         </AnimatePresence>

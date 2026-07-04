@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Play } from "lucide-react";
 import { GameShell } from "./GameShell";
 import { useColorMemoryStore } from "@/store/colorMemory.store";
 import { submitScore } from "@/lib/scoreSync";
@@ -153,9 +154,11 @@ export const ColorMemory = () => {
   return (
     <GameShell title="Color Memory" onRestart={startGame}>
       <div className="flex flex-col items-center justify-center w-full max-w-md px-2 select-none pb-2">
-        
+
+        <div className="relative w-full">
+
         {/* Expanded, high-impact grid alignment setup */}
-        <motion.div 
+        <motion.div
           animate={status === "FAILED" ? {
             x: [0, -6, 6, -6, 6, 0],
             transition: { duration: 0.4 }
@@ -188,6 +191,56 @@ export const ColorMemory = () => {
             );
           })}
         </motion.div>
+
+        {/* First-visit start CTA — the pad alone gives no hint how to begin */}
+        <AnimatePresence>
+          {!started && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-20"
+            >
+              <button
+                onClick={startGame}
+                className="flex items-center gap-2 rounded-xl bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-zinc-100 px-7 py-3.5 text-sm font-black uppercase tracking-wider shadow-lg transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <Play className="w-4 h-4 fill-current" /> Start
+              </button>
+              <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 bg-white/80 dark:bg-zinc-900/80 px-3 py-1 rounded-full backdrop-blur-sm">
+                Watch the pattern, then repeat it
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {started && status === "FAILED" && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, transition: { delay: 0.45 } }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-20"
+            >
+              <div className="bg-white/95 dark:bg-zinc-900/95 px-6 py-3.5 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm text-center">
+                <p className="text-xs font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                  Nice run
+                </p>
+                <p className="text-lg font-black text-zinc-950 dark:text-white">
+                  Level {level} reached
+                </p>
+              </div>
+              <button
+                onClick={startGame}
+                className="rounded-xl bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-zinc-100 px-6 py-2.5 text-xs font-bold uppercase tracking-wider shadow-sm transition-all active:scale-[0.98] cursor-pointer"
+              >
+                Try Again
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        </div>
 
       </div>
     </GameShell>

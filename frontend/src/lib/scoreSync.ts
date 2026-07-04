@@ -38,7 +38,7 @@ export const submitScore = (payload: SubmitScorePayload) => {
       const result = await api.submitScore(token, payload);
       useStatsSync.getState().bump();
       if (result.newBest) {
-        toast.success("New personal best!", { duration: 2500 });
+        toast("New personal best!", { icon: "🏆", duration: 2500 });
       }
     } catch {
       // Offline or rejected — gameplay goes on, nothing to surface

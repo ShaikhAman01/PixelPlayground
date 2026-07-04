@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Toaster } from "sonner";
+import { ThemedToaster } from "@/components/providers/ThemedToaster";
 import { AudioRuntime } from "@/components/audio/AudioRuntime";
 import { AudioCreditsModal } from "@/components/music/AudioCreditsModal";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
@@ -43,7 +43,7 @@ export default function RootLayout({
               <AudioRuntime />
               <AudioCreditsModal />
 
-              <Toaster richColors position="top-center" />
+              <ThemedToaster />
             </MotionProvider>
           </ModeProvider>
         </ThemeProvider>

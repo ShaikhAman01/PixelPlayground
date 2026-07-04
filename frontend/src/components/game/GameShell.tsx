@@ -160,8 +160,18 @@ export const GameShell: React.FC<GameShellProps> = ({
           { label: "Level", value: colorMemory.level, icon: <Gamepad2 className="w-4 h-4 text-zinc-500" /> }
         ],
         statusTitle: "Status",
-        statusValue: colorMemory.status === "WATCHING" ? "Watch Closely" : "Your Turn",
-        statusColor: colorMemory.status === "WATCHING" ? "text-amber-500 font-bold animate-pulse" : "text-emerald-500 font-bold",
+        statusValue:
+          colorMemory.status === "FAILED"
+            ? "Game Over"
+            : colorMemory.status === "WATCHING"
+              ? "Watch Closely"
+              : "Your Turn",
+        statusColor:
+          colorMemory.status === "FAILED"
+            ? "text-rose-500 font-bold"
+            : colorMemory.status === "WATCHING"
+              ? "text-amber-500 font-bold animate-pulse"
+              : "text-emerald-500 font-bold",
         scoreboard: [
           { label: "Highest Level", score: colorMemory.level }
         ]
