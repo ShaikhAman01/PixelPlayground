@@ -122,7 +122,17 @@ if (typeof window !== "undefined") {
 export const ChillDashboard = () => {
   const { trackIndex, isPlaying, volume, setVolume, nextTrack, prevTrack, setIsPlaying } = useAudioStore();
 
-  const [activeWallpaper, setActiveWallpaper] = useState(CHILL_WALLPAPERS[0].url);
+  // Wallpaper choice survives visits; guard against ids removed from the list
+  const [activeWallpaper, setActiveWallpaper] = useState(() => {
+    if (typeof window === "undefined") return CHILL_WALLPAPERS[0].url;
+    const saved = localStorage.getItem("pp-chill-wallpaper");
+    return CHILL_WALLPAPERS.some((wp) => wp.url === saved) ? saved! : CHILL_WALLPAPERS[0].url;
+  });
+
+  const selectWallpaper = (url: string) => {
+    setActiveWallpaper(url);
+    localStorage.setItem("pp-chill-wallpaper", url);
+  };
   const [showPlaylistMenu, setShowPlaylistMenu] = useState(false);
   const [showEffectsMenu, setShowEffectsMenu] = useState(false);
   const [showPomodoroPanel, setShowPomodoroPanel] = useState(false);
@@ -244,7 +254,7 @@ export const ChillDashboard = () => {
   const cycleWallpaper = (dir: 1 | -1) => {
     const idx = CHILL_WALLPAPERS.findIndex((wp) => wp.url === activeWallpaper);
     const next = (idx + dir + CHILL_WALLPAPERS.length) % CHILL_WALLPAPERS.length;
-    setActiveWallpaper(CHILL_WALLPAPERS[next].url);
+    selectWallpaper(CHILL_WALLPAPERS[next].url);
   };
 
   const closeAllPanels = (except?: "playlist" | "effects") => {
@@ -293,7 +303,7 @@ export const ChillDashboard = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.97 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
-            className="absolute top-24 right-4 md:top-6 md:right-8 w-60 z-40 pointer-events-auto"
+            className="absolute top-24 right-4 md:right-8 w-60 z-40 pointer-events-auto"
           >
             <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/90 backdrop-blur-3xl p-5 text-white shadow-2xl relative">
               <div className="flex items-center justify-between mb-4">
@@ -414,6 +424,33 @@ export const ChillDashboard = () => {
               </AnimatePresence>
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Collapsed countdown chip — the timer keeps ticking with the panel
+          closed, so keep the remaining time visible at a glance */}
+      <AnimatePresence>
+        {!showPomodoroPanel && timerRunning && (
+          <motion.button
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            onClick={() => setShowPomodoroPanel(true)}
+            title="Open pomodoro timer"
+            className="absolute top-24 right-4 md:right-8 z-40 pointer-events-auto flex items-center gap-2.5 rounded-full border border-white/[0.08] bg-zinc-950/85 backdrop-blur-2xl pl-3.5 pr-4 py-2 shadow-2xl cursor-pointer hover:bg-zinc-900/90 transition-colors"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400/60" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+            </span>
+            <span className="text-xs font-black font-mono tabular-nums text-white leading-none">
+              {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
+            </span>
+            <span className="text-[9px] uppercase font-bold tracking-[0.18em] text-white/40 leading-none">
+              {activeTab}
+            </span>
+          </motion.button>
         )}
       </AnimatePresence>
 

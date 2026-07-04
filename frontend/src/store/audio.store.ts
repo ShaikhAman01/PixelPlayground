@@ -38,16 +38,6 @@ export const playlist: TrackType[] = [
     source: "Pixabay"
   },
   {
-    title: "Transcendence",
-    artist: "Alexander Nakarada",
-    src: "/music/Transcendence-chosic.com_.mp3",
-    fallbackSrc: "/music/Transcendence-chosic.com_.mp3",
-    albumArt: "https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?w=120&auto=format&fit=crop&q=60",
-    creditUrl: "https://creatorchords.com",
-    license: "Creative Commons CC BY 4.0",
-    source: "Chosic"
-  },
-  {
     title: "Bedtime After A Coffee",
     artist: "Barradeen",
     src: "/music/barradeen-bedtime-after-a-coffee(chosic.com).mp3",
@@ -165,6 +155,16 @@ export const useAudioStore = create<AudioState>()(
     }),
     {
       name: "pixel-playground-audio-sync",
+      version: 1,
+
+      // A persisted trackIndex can outlive playlist edits — clamp it
+      migrate: (persisted) => {
+        const state = persisted as { trackIndex?: number };
+        if ((state.trackIndex ?? 0) >= playlist.length) {
+          state.trackIndex = 0;
+        }
+        return persisted;
+      },
 
       onRehydrateStorage: () => {
         return (state) => {
