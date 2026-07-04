@@ -19,7 +19,6 @@ export const SoloTicTacToe = () => {
     status,
     playerScore,
     cpuScore,
-    round,
     matchWinner,
     difficulty,
     setState,
@@ -79,10 +78,12 @@ export const SoloTicTacToe = () => {
     if (!winner) return;
     pause();
 
-    if (winner === "X") setState({ playerScore: playerScore + 1, round: round + 1 });
-    else if (winner === "O") setState({ cpuScore: cpuScore + 1, round: round + 1 });
-    else if (winner === "DRAW") setState({ round: round + 1 });
-  }, [winner]);
+    useSoloStore.setState((prev) => ({
+      playerScore: winner === "X" ? prev.playerScore + 1 : prev.playerScore,
+      cpuScore: winner === "O" ? prev.cpuScore + 1 : prev.cpuScore,
+      round: prev.round + 1,
+    }));
+  }, [winner, pause]);
 
   useEffect(() => {
     if (playerScore >= 2) setState({ matchWinner: "PLAYER" });

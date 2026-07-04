@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { GameShell } from "./GameShell";
 import { useColorMemoryStore } from "@/store/colorMemory.store";
@@ -12,15 +12,36 @@ const tilesConfig = [
   { default: "bg-emerald-500/20 border-emerald-300/40 text-emerald-600 dark:text-emerald-400 dark:bg-emerald-950/20", active: "bg-emerald-400 border-transparent text-white shadow-[0_0_24px_rgba(52,211,153,0.5)]", note: 349.23 }
 ];
 
+const createAudioContext = (): AudioContext => {
+  const Ctor =
+    window.AudioContext ||
+    (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!Ctor) throw new Error("Web Audio API unavailable");
+  return new Ctor();
+};
+
 export const ColorMemory = () => {
   const { sequence, playerSequence, level, status, activeTile, setState } = useColorMemoryStore();
   const [started, setStarted] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const timeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const queueTimeout = useCallback((fn: () => void, ms: number) => {
+    timeoutsRef.current.push(setTimeout(fn, ms));
+  }, []);
+
+  useEffect(() => {
+    const timeouts = timeoutsRef.current;
+    return () => {
+      timeouts.forEach(clearTimeout);
+      audioCtxRef.current?.close().catch(() => {});
+    };
+  }, []);
 
   const playTone = (frequency: number) => {
     try {
       if (!audioCtxRef.current) {
-        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioCtxRef.current = createAudioContext();
       }
       const ctx = audioCtxRef.current;
       const osc = ctx.createOscillator();
@@ -43,7 +64,7 @@ export const ColorMemory = () => {
   const playFailureTone = () => {
     try {
       if (!audioCtxRef.current) {
-        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioCtxRef.current = createAudioContext();
       }
       const ctx = audioCtxRef.current;
       const osc = ctx.createOscillator();
@@ -64,8 +85,12 @@ export const ColorMemory = () => {
   };
 
   const startGame = () => {
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    try {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = createAudioContext();
+      }
+    } catch {
+      // Tones are a nice-to-have; the game itself works without audio
     }
     const first = Math.floor(Math.random() * 4);
     setState({ sequence: [first], playerSequence: [], level: 1, status: "WATCHING" });
@@ -81,21 +106,21 @@ export const ColorMemory = () => {
       setState({ activeTile: tileIndex });
       playTone(tilesConfig[tileIndex].note);
 
-      setTimeout(() => {
+      queueTimeout(() => {
         setState({ activeTile: null });
       }, 450);
 
       i++;
       if (i >= sequence.length) {
         clearInterval(interval);
-        setTimeout(() => {
+        queueTimeout(() => {
           setState({ status: "PLAYING" });
         }, 600);
       }
     }, 850);
 
     return () => clearInterval(interval);
-  }, [sequence, status, started, setState]);
+  }, [sequence, status, started, setState, queueTimeout]);
 
   const handleClick = (index: number) => {
     if (status !== "PLAYING") return;
@@ -113,7 +138,7 @@ export const ColorMemory = () => {
 
     if (next.length === sequence.length) {
       setState({ status: "WATCHING" });
-      setTimeout(() => {
+      queueTimeout(() => {
         setState({
           sequence: [...sequence, Math.floor(Math.random() * 4)],
           playerSequence: [],

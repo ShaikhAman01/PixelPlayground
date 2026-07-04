@@ -50,7 +50,7 @@ export class Connect4AI {
     // Diagonals
     for (let r = 0; r < this.rows - 3; r++) {
       for (let c = 0; c < this.cols - 3; c++) {
-        const window = [board[r][r + c], board[r + 1][c + 1], board[r + 2][c + 2], board[r + 3][c + 3]];
+        const window = [board[r][c], board[r + 1][c + 1], board[r + 2][c + 2], board[r + 3][c + 3]];
         score += this.evaluateWindow(window, aiPlayer);
       }
     }
@@ -62,6 +62,20 @@ export class Connect4AI {
     }
 
     return score;
+  }
+
+  // Detects a completed 4-in-a-row for terminal minimax states
+  private hasWon(board: Cell[][], player: "X" | "O"): boolean {
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.cols; c++) {
+        if (board[r][c] !== player) continue;
+        if (c <= this.cols - 4 && board[r][c + 1] === player && board[r][c + 2] === player && board[r][c + 3] === player) return true;
+        if (r <= this.rows - 4 && board[r + 1][c] === player && board[r + 2][c] === player && board[r + 3][c] === player) return true;
+        if (r <= this.rows - 4 && c <= this.cols - 4 && board[r + 1][c + 1] === player && board[r + 2][c + 2] === player && board[r + 3][c + 3] === player) return true;
+        if (r >= 3 && c <= this.cols - 4 && board[r - 1][c + 1] === player && board[r - 2][c + 2] === player && board[r - 3][c + 3] === player) return true;
+      }
+    }
+    return false;
   }
 
   private getNextAvailableRow(board: Cell[][], col: number): number | null {
@@ -87,6 +101,10 @@ export class Connect4AI {
     beta: number,
     isMaximizing: boolean
   ): { score: number; column: number | null } {
+    // Wins end the game immediately; depth-weighting prefers faster wins and slower losses
+    if (this.hasWon(board, "O")) return { score: 100000 + depth, column: null };
+    if (this.hasWon(board, "X")) return { score: -100000 - depth, column: null };
+
     const validMoves = this.getValidMoves(board);
     const isTerminal = validMoves.length === 0 || depth === 0;
 

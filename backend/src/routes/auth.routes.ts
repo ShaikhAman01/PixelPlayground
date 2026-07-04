@@ -1,19 +1,25 @@
 import { Hono } from "hono";
-import { login, signup, createGuestSession } from "../controllers/auth.controller";
+import {
+  createGuestSession,
+  login,
+  me,
+  signup,
+  upgrade,
+} from "../controllers/auth.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
-import { successResponse } from "../utils/helpers";
-import type { Env } from "../types";
+import { rateLimit } from "../middleware/rateLimit.middleware";
+import type { AuthVariables, Env } from "../types";
 
-export const authRoutes = new Hono<{ Bindings: Env }>();
+export const authRoutes = new Hono<{ Bindings: Env; Variables: AuthVariables }>();
 
-// Frictionless entry for zero-onboarding session generation
-authRoutes.post("/guest", createGuestSession);
+// Frictionless entry for zero-onboarding sessions
+authRoutes.post("/guest", rateLimit(10), createGuestSession);
 
-// Credentials-based entry for persistent storage/streaks
-authRoutes.post("/signup", signup);
-authRoutes.post("/login", login);
+// Credential flows
+authRoutes.post("/signup", rateLimit(10), signup);
+authRoutes.post("/login", rateLimit(15), login);
 
-authRoutes.get("/me", authMiddleware, async (c) => {
-  const payload = c.get("jwtPayload");
-  return c.json(successResponse(payload));
-});
+// Guest → registered account (keeps stats)
+authRoutes.post("/upgrade", authMiddleware, upgrade);
+
+authRoutes.get("/me", authMiddleware, me);

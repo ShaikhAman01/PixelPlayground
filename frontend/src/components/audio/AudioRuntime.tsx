@@ -30,7 +30,9 @@ export const AudioRuntime = () => {
         player.src = activeTrack.src;
         player.load();
 
-        if (isPlaying) {
+        // Read play state at execution time so toggling play/pause
+        // doesn't reload the current track from the start
+        if (useAudioStore.getState().isPlaying) {
           await player.play();
         }
       } catch (err) {
@@ -59,9 +61,8 @@ export const AudioRuntime = () => {
       ref={audioRef}
       preload="auto"
       crossOrigin="anonymous"
-      loop
       onEnded={() => {
-        // Auto-advance loop handling logic
+        // `loop` must stay off or this never fires and the playlist stalls
         useAudioStore.getState().nextTrack();
       }}
     />

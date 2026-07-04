@@ -13,7 +13,7 @@ export const SoloConnect4 = () => {
   const aiRef = useRef(new Connect4AI());
   const [hoveredCol, setHoveredCol] = useState<number | null>(null);
 
-  const { board, currentTurn, winner, round, matchWinner, difficulty, setState } = useConnect4Store();
+  const { board, currentTurn, winner, matchWinner, difficulty, setState } = useConnect4Store();
   const { formattedTime, pause, reset, start } = useTimer({ autoStart: true });
 
   const syncState = useCallback(() => {

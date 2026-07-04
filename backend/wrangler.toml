@@ -2,10 +2,24 @@ name = "pixel-playground-backend"
 
 main = "src/index.ts"
 
-compatibility_date = "2026-06-01"
+# Newest date supported by the pinned wrangler/workerd version
+compatibility_date = "2026-05-28"
 
 [observability]
 enabled = true
+
+[vars]
+# Public config only — JWT_SECRET lives in .dev.vars locally and
+# `wrangler secret put JWT_SECRET` in production.
+ALLOWED_ORIGIN = "http://localhost:3000"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pixel-playground-db"
+# Placeholder id: local dev (`wrangler dev`, `--local` migrations) ignores it.
+# For production run `wrangler d1 create pixel-playground-db` and paste the id.
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
 
 # Multiplayer (GameRoom Durable Object) was removed along with the room UI.
 [[migrations]]

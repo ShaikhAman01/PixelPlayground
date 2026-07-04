@@ -58,7 +58,7 @@ export const GameShell: React.FC<GameShellProps> = ({
         description: "Get three in a row before the computer!",
         rules: ["Take turns placing X marks on the 3x3 grid.", "Match 3 in a horizontal, vertical, or diagonal line to win.", "Block the computer from completing its lines."],
         difficulty: tictactoe.difficulty,
-        setDifficulty: (diff: any) => tictactoe.setState({ difficulty: diff }),
+        setDifficulty: (diff: "EASY" | "MEDIUM" | "HARD") => tictactoe.setState({ difficulty: diff }),
         metrics: [
           { label: "Played", value: tictactoe.round - 1, icon: <Gamepad2 className="w-4 h-4 text-zinc-500" /> },
           { label: "Won", value: tictactoe.playerScore, icon: <Trophy className="w-4 h-4 text-zinc-500" /> },
@@ -80,7 +80,7 @@ export const GameShell: React.FC<GameShellProps> = ({
         description: "Match four slots in a row to win.",
         rules: ["Click columns to drop tokens into the grid matrix.", "Connect 4 matching colored discs in any continuous direction.", "Keep an eye on CPU placement traps."],
         difficulty: connect4.difficulty,
-        setDifficulty: (diff: any) => connect4.setState({ difficulty: diff }),
+        setDifficulty: (diff: "EASY" | "MEDIUM" | "HARD") => connect4.setState({ difficulty: diff }),
         metrics: [
           { label: "Played", value: connect4.round - 1, icon: <Gamepad2 className="w-4 h-4 text-zinc-500" /> },
           { label: "Won", value: connect4.playerScore, icon: <Trophy className="w-4 h-4 text-zinc-500" /> },

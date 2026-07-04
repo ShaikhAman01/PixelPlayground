@@ -70,8 +70,8 @@ export const playlist: TrackType[] = [
   {
     title: "Lofi Study Calm Peaceful",
     artist: "FASSounds",
-    src: "/music/fassounds-lofi-study-calm... eful-chill-hop-112191.mp3",
-    fallbackSrc: "/music/fassounds-lofi-study-calm... eful-chill-hop-112191.mp3",
+    src: "/music/fassounds-lofi-study-calm-peaceful-chill-hop-112191.mp3",
+    fallbackSrc: "/music/fassounds-lofi-study-calm-peaceful-chill-hop-112191.mp3",
     albumArt: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=120&auto=format&fit=crop&q=60",
     creditUrl: "https://pixabay.com/users/fassounds-3433550/",
     license: "Pixabay License",
@@ -80,8 +80,8 @@ export const playlist: TrackType[] = [
   {
     title: "Coffee Lofi Ambient",
     artist: "Lofi Music Library",
-    src: "/music/lofi_music_library-coffee-l... -lofi-ambient-458901.mp3",
-    fallbackSrc: "/music/lofi_music_library-coffee-l... -lofi-ambient-458901.mp3",
+    src: "/music/lofi_music_library-coffee-lofi-chill-lofi-ambient-458901.mp3",
+    fallbackSrc: "/music/lofi_music_library-coffee-lofi-chill-lofi-ambient-458901.mp3",
     albumArt: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=120&auto=format&fit=crop&q=60",
     creditUrl: "https://pixabay.com/music/search/lofi/",
     license: "Pixabay License",

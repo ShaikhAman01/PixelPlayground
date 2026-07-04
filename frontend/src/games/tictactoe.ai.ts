@@ -8,7 +8,7 @@ const checkTerminals = (board: Cell[]): "X" | "O" | "DRAW" | null => {
     [0, 4, 8], [2, 4, 6]             // Diagonals
   ];
   for (const [a, b, c] of combos) {
-    if (board[a] && board[a] === board[b] && board[a] === board[b] && board[a] === board[c]) {
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
       return board[a] as "X" | "O";
     }
   }
@@ -59,7 +59,7 @@ const getBestMove = (board: Cell[]): number | null => {
   for (let i = 0; i < 9; i++) {
     if (board[i] === null) {
       board[i] = "O";
-      let moveVal = minimax(board, 0, false);
+      const moveVal = minimax(board, 0, false);
       board[i] = null;
       if (moveVal > bestVal) {
         bestVal = moveVal;

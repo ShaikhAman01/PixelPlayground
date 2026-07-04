@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback, TouchEvent } from "react";
+import { useEffect, useRef, useCallback, TouchEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameShell } from "./GameShell";
 import { useGame2048Store } from "@/store/game2048.store";

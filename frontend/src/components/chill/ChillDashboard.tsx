@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -32,8 +32,7 @@ import {
   ImageIcon
 } from "lucide-react";
 
-import { useAudioStore, playlist as initialPlaylist, TrackType } from "@/store/audio.store";
-import { useMode } from "@/components/providers/ModeProvider";
+import { useAudioStore, playlist as initialPlaylist } from "@/store/audio.store";
 import { CHILL_WALLPAPERS } from "@/data/chillWallpapers";
 
 const RING_R = 52;
@@ -121,7 +120,6 @@ if (typeof window !== "undefined") {
 }
 
 export const ChillDashboard = () => {
-  const { mode, setMode } = useMode();
   const { trackIndex, isPlaying, volume, setVolume, nextTrack, prevTrack, setIsPlaying } = useAudioStore();
 
   const [activeWallpaper, setActiveWallpaper] = useState(CHILL_WALLPAPERS[0].url);
@@ -194,10 +192,16 @@ export const ChillDashboard = () => {
     }
   }, [trackIndex, disabledTrackIndices, nextTrack]);
 
-  useEffect(() => {
-    setMinutes(activeTab === "focus" ? focusDuration : breakDuration);
-    setSeconds(0);
-  }, [focusDuration, breakDuration, activeTab]);
+  const updateDuration = (tab: "focus" | "break", value: number) => {
+    const clamped = Math.max(1, Math.min(60, value));
+    if (tab === "focus") setFocusDuration(clamped);
+    else setBreakDuration(clamped);
+
+    if (tab === activeTab) {
+      setMinutes(clamped);
+      setSeconds(0);
+    }
+  };
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -260,13 +264,12 @@ export const ChillDashboard = () => {
   ];
 
   const currentTrack = initialPlaylist[trackIndex];
-  const imageSrc = currentTrack?.albumArt ?? (currentTrack as any)?.coverUrl;
+  const imageSrc = currentTrack?.albumArt;
   const playableCount = initialPlaylist.length - disabledTrackIndices.length;
   const panelBase = "absolute left-0 right-0 bg-zinc-950/95 border border-white/[0.08] rounded-2xl shadow-2xl z-50 backdrop-blur-2xl";
 
   function renderVolumeIcon(): React.ReactNode {
-    const Icon = VolumeIcon as any;
-    return <Icon className="w-3.5 h-3.5" />;
+    return <VolumeIcon className="w-3.5 h-3.5" />;
   }
 
   return (
@@ -373,15 +376,15 @@ export const ChillDashboard = () => {
                   >
                     <div className="pt-4 mt-4 border-t border-white/[0.06] space-y-2.5 text-xs text-zinc-400">
                       {[
-                        { 
-                          label: "Focus Block", 
-                          value: focusDuration, 
-                          onChange: (val: number) => setFocusDuration(Math.max(1, Math.min(60, val))) 
+                        {
+                          label: "Focus Block",
+                          value: focusDuration,
+                          onChange: (val: number) => updateDuration("focus", val)
                         },
-                        { 
-                          label: "Break Window", 
-                          value: breakDuration, 
-                          onChange: (val: number) => setBreakDuration(Math.max(1, Math.min(60, val))) 
+                        {
+                          label: "Break Window",
+                          value: breakDuration,
+                          onChange: (val: number) => updateDuration("break", val)
                         },
                       ].map(({ label, value, onChange }) => (
                         <div key={label} className="flex items-center justify-between bg-white/[0.02] border border-white/[0.04] p-2 rounded-xl">

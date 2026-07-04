@@ -41,9 +41,9 @@ export const useGame2048Store = create<Game2048State>((set) => ({
     }),
 
   resetGame: () =>
-    set((prev) => ({
+    set({
       board: generateInitialBoard(),
       score: 0,
       gameOver: false,
-    })),
+    }),
 }));
