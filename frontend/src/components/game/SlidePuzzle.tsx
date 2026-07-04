@@ -26,7 +26,12 @@ export const SlidePuzzle = () => {
   const shuffleBoard = useCallback(() => {
     let shuffled: number[] = [];
     do {
-      shuffled = [...solvedBoard].sort(() => Math.random() - 0.5);
+      // Fisher-Yates: sort(() => Math.random() - 0.5) produces biased shuffles
+      shuffled = [...solvedBoard];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
     } while (shuffled.every((v, i) => v === solvedBoard[i]) || !isSolvable(shuffled));
 
     setState({ board: shuffled, moves: 0, won: false });

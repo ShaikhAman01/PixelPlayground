@@ -15,7 +15,6 @@ import { LeaderboardPanel } from "./LeaderboardPanel";
 
 interface GameShellProps {
   title: string;
-  info?: string;
   timer?: string;
   onRestart?: () => void;
   onNewGame?: () => void;
@@ -165,16 +164,19 @@ export const GameShell: React.FC<GameShellProps> = ({
   const game = getGameStats();
   const gameSlug = gamesList.find((g) => g.name.toLowerCase() === title.toLowerCase())?.slug;
 
-  const handleNewGameTrigger = () => {
-    if (onNewGame) {
-      onNewGame();
-    } else if (onRestart) {
-      onRestart();
-    }
-  };
+  const resetHandler = onNewGame ?? onRestart;
 
+  // Stop arrow keys / space from scrolling the page while playing, but only
+  // for games that consume them, and never when focus is on an interactive
+  // element (space/enter must keep activating buttons and inputs).
+  const usesArrowKeys = title === "2048";
   React.useEffect(() => {
+    if (!usesArrowKeys) return;
+
     const preventDefaultScrollKeys = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target?.closest("button, input, select, textarea, a")) return;
+
       const blockKeys = ["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
       if (blockKeys.includes(e.code)) {
         e.preventDefault();
@@ -182,7 +184,7 @@ export const GameShell: React.FC<GameShellProps> = ({
     };
     window.addEventListener("keydown", preventDefaultScrollKeys, { passive: false });
     return () => window.removeEventListener("keydown", preventDefaultScrollKeys);
-  }, []);
+  }, [usesArrowKeys]);
 
   return (
     <div className="w-full max-w-[1280px] mx-auto px-3 sm:px-6 md:px-8 py-2 md:py-4 flex flex-col flex-1 select-none text-zinc-800 dark:text-zinc-200">
@@ -325,11 +327,12 @@ export const GameShell: React.FC<GameShellProps> = ({
               {children}
             </div>
 
-            {/* FIXED UX: Collapsed duplicate actions down into one gorgeous, clean primary action anchor */}
             <div className="w-full mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
-              <button 
-                onClick={handleNewGameTrigger}
-                className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-slate-800 dark:hover:bg-zinc-100 font-bold text-xs py-3.5 shadow-sm transition-all active:scale-[0.99] cursor-pointer"
+              <button
+                onClick={resetHandler}
+                disabled={!resetHandler}
+                title={resetHandler ? undefined : "Come back tomorrow for a new round"}
+                className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 hover:bg-slate-800 dark:hover:bg-zinc-100 font-bold text-xs py-3.5 shadow-sm transition-all active:scale-[0.99] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100"
               >
                 <Play className="w-3.5 h-3.5 fill-current" /> Clear & Reset Board
               </button>

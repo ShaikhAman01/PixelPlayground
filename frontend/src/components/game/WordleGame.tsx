@@ -10,6 +10,30 @@ import { localDay, submitScore } from "@/lib/scoreSync";
 
 const keyboard = ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"];
 
+type LetterStatus = "correct" | "present" | "absent";
+
+// Two-pass scoring so duplicate letters are only marked as many times as
+// they occur in the solution (greens claim their letter first)
+export const scoreGuess = (guess: string, solution: string): LetterStatus[] => {
+  const result: LetterStatus[] = Array(5).fill("absent");
+  const remaining: Record<string, number> = {};
+
+  for (let i = 0; i < 5; i++) {
+    if (guess[i] === solution[i]) {
+      result[i] = "correct";
+    } else {
+      remaining[solution[i]] = (remaining[solution[i]] ?? 0) + 1;
+    }
+  }
+  for (let i = 0; i < 5; i++) {
+    if (result[i] !== "correct" && (remaining[guess[i]] ?? 0) > 0) {
+      result[i] = "present";
+      remaining[guess[i]]--;
+    }
+  }
+  return result;
+};
+
 export const WordleGame = () => {
   const { solution, guesses, currentGuess, status, setState } = useWordleStore();
   const [isShaking, setIsShaking] = useState(false);
@@ -101,21 +125,19 @@ export const WordleGame = () => {
     return () => window.removeEventListener("keydown", handlePhysicalKey);
   }, [handleKeyInput]);
 
-  const getTileClass = (letter: string, index: number) => {
-    if (!solution) return "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 border-transparent";
-    
-    if (solution[index] === letter) {
-      return "bg-emerald-500 text-white border-transparent font-black shadow-md";
-    }
-    if (solution.includes(letter)) {
-      return "bg-amber-500 text-white border-transparent font-bold";
-    }
-    return "bg-zinc-300 border-transparent text-white dark:bg-zinc-800 dark:text-zinc-500 opacity-70";
+  const statusClass: Record<LetterStatus, string> = {
+    correct: "bg-emerald-500 text-white border-transparent font-black shadow-md",
+    present: "bg-amber-500 text-white border-transparent font-bold",
+    absent: "bg-zinc-300 border-transparent text-white dark:bg-zinc-800 dark:text-zinc-500 opacity-70",
+  };
+
+  const resetBoard = () => {
+    setState({ guesses: [], currentGuess: "" });
   };
 
   return (
     // Pass undefined to onRestart when finished to natively disable GameShell's reset hooks
-    <GameShell title="Wordle" onRestart={status === "PLAYING" ? () => {} : undefined}>
+    <GameShell title="Wordle" onRestart={status === "PLAYING" ? resetBoard : undefined}>
       <div className="flex flex-col items-center justify-center w-full max-w-sm px-2 select-none voices-flat pb-2">
         
         {/* Core Matrix Board Wrapper */}
@@ -123,6 +145,8 @@ export const WordleGame = () => {
           {Array.from({ length: 6 }).map((_, rowIndex) => {
             const isCurrentRow = rowIndex === guesses.length;
             const guess = guesses[rowIndex] ?? (isCurrentRow ? currentGuess : "");
+            const rowStatuses =
+              rowIndex < guesses.length && solution ? scoreGuess(guess, solution) : null;
 
             return (
               <motion.div 
@@ -132,14 +156,13 @@ export const WordleGame = () => {
               >
                 {Array.from({ length: 5 }).map((_, colIndex) => {
                   const letter = guess[colIndex];
-                  const submitted = rowIndex < guesses.length;
 
                   return (
                     <div
                       key={colIndex}
                       className={`flex w-14 h-14 sm:w-16 sm:h-16 items-center justify-center rounded-2xl border text-xl font-black transition-all duration-300 shadow-sm ${
-                        submitted
-                          ? getTileClass(letter, colIndex)
+                        rowStatuses
+                          ? statusClass[rowStatuses[colIndex]]
                           : letter
                             ? "border-zinc-400 bg-white text-zinc-900 dark:border-zinc-600 dark:bg-zinc-900 dark:text-white scale-[1.02]"
                             : "border-zinc-200/80 bg-white/40 dark:border-zinc-800/80 dark:bg-zinc-900/20 text-zinc-800 dark:text-zinc-100"
