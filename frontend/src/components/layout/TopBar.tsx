@@ -156,6 +156,8 @@ export const TopBar = () => {
                     setMusicExpanded(!musicExpanded);
                     setProfileExpanded(false);
                   }}
+                  aria-label="Music player"
+                  aria-expanded={musicExpanded}
                   className={`
                     flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center
                     rounded-xl border transition-all duration-200 cursor-pointer shadow-md
@@ -198,6 +200,7 @@ export const TopBar = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.96 }}
                 onClick={toggleTheme}
+                aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
                 className="
                   flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center
                   rounded-xl border border-black/5 dark:border-white/5
@@ -226,6 +229,8 @@ export const TopBar = () => {
                     setProfileExpanded(!profileExpanded);
                     setMusicExpanded(false);
                   }}
+                  aria-label="Player profile"
+                  aria-expanded={profileExpanded}
                   className={`
                     flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center
                     rounded-xl border transition-all duration-200 cursor-pointer shadow-md

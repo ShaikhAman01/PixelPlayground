@@ -125,6 +125,38 @@ export const WordleGame = () => {
     return () => window.removeEventListener("keydown", handlePhysicalKey);
   }, [handleKeyInput]);
 
+  // Best-known status per letter across all submitted guesses, for keyboard hints
+  const keyStatuses = useMemo(() => {
+    const map: Record<string, LetterStatus> = {};
+    if (!solution) return map;
+    const priority: Record<LetterStatus, number> = { correct: 3, present: 2, absent: 1 };
+    for (const submitted of guesses) {
+      const rowResult = scoreGuess(submitted, solution);
+      for (let i = 0; i < 5; i++) {
+        const letter = submitted[i];
+        if (!map[letter] || priority[rowResult[i]] > priority[map[letter]]) {
+          map[letter] = rowResult[i];
+        }
+      }
+    }
+    return map;
+  }, [guesses, solution]);
+
+  const keyClass = (letter: string) => {
+    const base =
+      "flex-1 max-w-[36px] min-h-11 rounded-xl border py-3 text-xs font-black uppercase tracking-wide shadow-sm transition-all duration-150 active:scale-95 cursor-pointer";
+    switch (keyStatuses[letter]) {
+      case "correct":
+        return `${base} bg-emerald-500 border-transparent text-white`;
+      case "present":
+        return `${base} bg-amber-500 border-transparent text-white`;
+      case "absent":
+        return `${base} bg-zinc-200 border-transparent text-zinc-400 dark:bg-zinc-800/60 dark:text-zinc-600`;
+      default:
+        return `${base} bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-800`;
+    }
+  };
+
   const statusClass: Record<LetterStatus, string> = {
     correct: "bg-emerald-500 text-white border-transparent font-black shadow-md",
     present: "bg-amber-500 text-white border-transparent font-bold",
@@ -207,7 +239,8 @@ export const WordleGame = () => {
               {rIdx === 2 && (
                 <button
                   onClick={() => handleKeyInput("ENTER")}
-                  className="rounded-xl bg-white border border-zinc-200 text-zinc-700 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-300 px-2.5 py-3 text-[10px] font-black uppercase tracking-wider shadow-sm transition-all"
+                  aria-label="Submit guess"
+                  className="min-h-11 rounded-xl bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800 px-2.5 py-3 text-[10px] font-black uppercase tracking-wider shadow-sm transition-all duration-150 active:scale-95 cursor-pointer"
                 >
                   Enter
                 </button>
@@ -216,7 +249,7 @@ export const WordleGame = () => {
                 <button
                   key={key}
                   onClick={() => handleKeyInput(key)}
-                  className="flex-1 max-w-[36px] rounded-xl bg-white border border-zinc-200 text-zinc-700 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200 py-3 text-xs font-black uppercase tracking-wide shadow-sm transition-all"
+                  className={keyClass(key)}
                 >
                   {key}
                 </button>
@@ -224,7 +257,8 @@ export const WordleGame = () => {
               {rIdx === 2 && (
                 <button
                   onClick={() => handleKeyInput("BACKSPACE")}
-                  className="rounded-xl bg-white border border-zinc-200 text-zinc-700 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-300 px-2.5 py-3 text-[10px] font-black uppercase tracking-wider shadow-sm transition-all"
+                  aria-label="Delete letter"
+                  className="min-h-11 rounded-xl bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800 px-2.5 py-3 text-[10px] font-black uppercase tracking-wider shadow-sm transition-all duration-150 active:scale-95 cursor-pointer"
                 >
                   Del
                 </button>

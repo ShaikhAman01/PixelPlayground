@@ -5,6 +5,7 @@ import { AudioCreditsModal } from "@/components/music/AudioCreditsModal";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { ModeProvider } from "@/components/providers/ModeProvider";
 import { SessionBootstrap } from "@/components/providers/SessionBootstrap";
+import { MotionProvider } from "@/components/providers/MotionProvider";
 import { TopBar } from "@/components/layout/TopBar";
 import { Inter, Pixelify_Sans } from "next/font/google";
 import "./globals.css";
@@ -35,13 +36,15 @@ export default function RootLayout({
       <body className={`${inter.variable} ${pixelFont.variable} antialiased`}>
         <ThemeProvider>
           <ModeProvider>
-            <SessionBootstrap />
-            <TopBar />
-            {children}
-            <AudioRuntime />
-            <AudioCreditsModal />
+            <MotionProvider>
+              <SessionBootstrap />
+              <TopBar />
+              {children}
+              <AudioRuntime />
+              <AudioCreditsModal />
 
-            <Toaster richColors position="top-center" />
+              <Toaster richColors position="top-center" />
+            </MotionProvider>
           </ModeProvider>
         </ThemeProvider>
       </body>

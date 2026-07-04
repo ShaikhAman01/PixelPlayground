@@ -31,6 +31,25 @@ export const GameShell: React.FC<GameShellProps> = ({
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  // Close the games dropdown on outside click or Escape
+  React.useEffect(() => {
+    if (!dropdownOpen) return;
+
+    const onPointerDown = (e: MouseEvent) => {
+      if (!dropdownRef.current?.contains(e.target as Node)) setDropdownOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setDropdownOpen(false);
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [dropdownOpen]);
 
   const tictactoe = useSoloStore();
   const connect4 = useConnect4Store();
@@ -220,10 +239,13 @@ export const GameShell: React.FC<GameShellProps> = ({
             </div>
             
             <div className="flex items-center gap-2 w-full">
-              <div className="relative flex-1">
-                <button 
+              <div className="relative flex-1" ref={dropdownRef}>
+                <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="w-full flex items-center justify-between rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 px-4 py-2.5 text-xs font-bold shadow-sm text-zinc-800 dark:text-zinc-100 cursor-pointer"
+                  aria-expanded={dropdownOpen}
+                  aria-haspopup="menu"
+                  aria-label="Switch game"
+                  className="w-full flex items-center justify-between rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 px-4 py-2.5 text-xs font-bold shadow-sm text-zinc-800 dark:text-zinc-100 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors cursor-pointer"
                 >
                   <span>{title}</span>
                   <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
@@ -235,16 +257,23 @@ export const GameShell: React.FC<GameShellProps> = ({
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 4 }}
+                      role="menu"
                       className="absolute left-0 right-0 mt-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-2xl z-50 max-h-[240px] overflow-y-auto"
                     >
                       {gamesList.map((g) => (
                         <button
                           key={g.slug}
+                          role="menuitem"
+                          aria-current={g.slug === gameSlug ? "page" : undefined}
                           onClick={() => {
                             setDropdownOpen(false);
                             router.push(`/game/${g.slug}`);
                           }}
-                          className="w-full text-left px-4 py-2.5 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+                          className={`w-full text-left px-4 py-2.5 text-xs font-bold hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-black dark:hover:text-white transition-colors cursor-pointer ${
+                            g.slug === gameSlug
+                              ? "text-zinc-950 dark:text-white bg-zinc-50 dark:bg-zinc-900/60"
+                              : "text-zinc-700 dark:text-zinc-300"
+                          }`}
                         >
                           {g.name}
                         </button>
@@ -256,6 +285,8 @@ export const GameShell: React.FC<GameShellProps> = ({
 
               <button
                 onClick={() => setRulesOpen(!rulesOpen)}
+                aria-expanded={rulesOpen}
+                aria-label="How to play"
                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border font-bold transition-all duration-200 cursor-pointer ${
                   rulesOpen 
                     ? "border-zinc-400 bg-white text-zinc-955 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
