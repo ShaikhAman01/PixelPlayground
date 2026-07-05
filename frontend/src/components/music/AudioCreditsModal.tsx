@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Info, X, Music, SlidersHorizontal } from "lucide-react";
+import { Info, X, Music, SlidersHorizontal, Image as ImageIcon } from "lucide-react";
 import { playlist } from "@/store/audio.store";
+import { CHILL_WALLPAPERS } from "@/data/chillWallpapers";
 
 export const AudioCreditsModal = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"music" | "ambient">("music");
+  const [activeTab, setActiveTab] = useState<"music" | "ambient" | "visuals">("music");
 
   const ambientCredits = [
     {
@@ -40,7 +41,7 @@ export const AudioCreditsModal = () => {
       <button 
         onClick={() => setIsOpen(true)}
         className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/60 bg-white/70 text-slate-600 shadow-sm backdrop-blur-md hover:scale-105 transition-all cursor-pointer"
-        aria-label="View Audio Attributions"
+        aria-label="View Attributions"
       >
         <Info className="h-4 w-4" />
       </button>
@@ -51,14 +52,14 @@ export const AudioCreditsModal = () => {
             
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
-              <h3 className="pixel-font text-base font-black uppercase tracking-wide">Audio Attributions</h3>
+              <h3 className="pixel-font text-base font-black uppercase tracking-wide">Attributions</h3>
               <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer">
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             {/* Premium Tab Bar Toggle Panel */}
-            <div className="grid grid-cols-2 gap-1 bg-slate-950/5 dark:bg-white/[0.04] border border-slate-950/5 dark:border-white/[0.04] rounded-xl p-0.5 mb-4">
+            <div className="grid grid-cols-3 gap-1 bg-slate-950/5 dark:bg-white/[0.04] border border-slate-950/5 dark:border-white/[0.04] rounded-xl p-0.5 mb-4">
               <button
                 onClick={() => setActiveTab("music")}
                 className={`flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all cursor-pointer ${
@@ -81,6 +82,17 @@ export const AudioCreditsModal = () => {
                 <SlidersHorizontal className="w-3.5 h-3.5" />
                 <span>Ambient</span>
               </button>
+              <button
+                onClick={() => setActiveTab("visuals")}
+                className={`flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all cursor-pointer ${
+                  activeTab === "visuals"
+                    ? "bg-white dark:bg-white/10 text-slate-950 dark:text-white shadow-sm"
+                    : "text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-zinc-200"
+                }`}
+              >
+                <ImageIcon className="w-3.5 h-3.5" />
+                <span>Visuals</span>
+              </button>
             </div>
 
             {/* Scrollable Content Engine Panels */}
@@ -96,30 +108,43 @@ export const AudioCreditsModal = () => {
                       </a>
                     </p>
                     <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
-                      Licensed via <span className="font-medium">{track.source ?? "Radio Hub"}</span>
-                      {track.license && (
-                        <>
-                          {" "}under{" "}
-                          <a href={track.license} target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-500">
-                            License
-                          </a>
-                        </>
-                      )}
+                      Licensed via <span className="font-medium">{track.source}</span>
+                      {track.license && <> under <span className="font-medium">{track.license}</span></>}
                     </p>
                   </div>
                 ))
-              ) : (
+              ) : activeTab === "ambient" ? (
                 ambientCredits.map((effect, i) => (
                   <div key={i} className="border-b border-slate-200/50 dark:border-slate-800/60 pb-3 last:border-0 last:pb-0">
                     <p className="text-xs font-bold uppercase tracking-wide text-slate-900 dark:text-zinc-100 mb-1">
                       {effect.name} Element
                     </p>
-                    <p 
+                    <p
                       className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-sans"
                       dangerouslySetInnerHTML={{ __html: effect.html }}
                     />
                   </div>
                 ))
+              ) : (
+                <>
+                  {CHILL_WALLPAPERS.map((wp) => (
+                    <div key={wp.id} className="border-b border-slate-200/50 dark:border-slate-800/60 pb-3 last:border-0 last:pb-0">
+                      <p className="text-xs font-bold uppercase tracking-wide text-slate-900 dark:text-zinc-100">{wp.name}</p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        Photo from{" "}
+                        <a href="https://unsplash.com" target="_blank" rel="noopener noreferrer" className="text-violet-500 hover:underline font-medium">
+                          Unsplash
+                        </a>
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                        Free to use under the{" "}
+                        <a href="https://unsplash.com/license" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-500">
+                          Unsplash License
+                        </a>
+                      </p>
+                    </div>
+                  ))}
+                </>
               )}
             </div>
 

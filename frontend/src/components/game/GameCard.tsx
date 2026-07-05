@@ -12,11 +12,12 @@ interface GameCardProps {
   iconName?: string;
 }
 
-export const GameCard: React.FC<GameCardProps> = ({
+// Memoized: all props are primitives, so home-page re-renders skip the cards.
+export const GameCard: React.FC<GameCardProps> = React.memo(function GameCard({
   id,
   title,
   description,
-}) => {
+}) {
   const cleanId = id.toLowerCase().trim();
   const gameSlug = cleanId === "2048" ? "game2048" : cleanId.replace(/\s+/g, "-");
 
@@ -197,4 +198,4 @@ export const GameCard: React.FC<GameCardProps> = ({
       </Link>
     </motion.article>
   );
-};
+});

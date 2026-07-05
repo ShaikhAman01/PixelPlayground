@@ -116,6 +116,46 @@ export const playlist: TrackType[] = [
     creditUrl: "https://pixabay.com/users/prettyjohn1-41221191/",
     license: "Pixabay License",
     source: "Pixabay"
+  },
+  {
+    title: "Sugar and Coffee",
+    artist: "Loyalty Freak Music",
+    src: "/music/lfm-sugar-and-coffee.mp3",
+    fallbackSrc: "/music/lfm-sugar-and-coffee.mp3",
+    albumArt: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=120&auto=format&fit=crop&q=60",
+    creditUrl: "https://archive.org/details/loyalty-freak-music-lofi-ambient-songs",
+    license: "CC0 1.0 (Public Domain)",
+    source: "Internet Archive"
+  },
+  {
+    title: "I Hope You're Happy",
+    artist: "Loyalty Freak Music",
+    src: "/music/lfm-i-hope-youre-happy.mp3",
+    fallbackSrc: "/music/lfm-i-hope-youre-happy.mp3",
+    albumArt: "https://images.unsplash.com/photo-1499002238440-d264edd596ec?w=120&auto=format&fit=crop&q=60",
+    creditUrl: "https://archive.org/details/loyalty-freak-music-lofi-ambient-songs",
+    license: "CC0 1.0 (Public Domain)",
+    source: "Internet Archive"
+  },
+  {
+    title: "Drowning in Your Smile",
+    artist: "Loyalty Freak Music",
+    src: "/music/lfm-drowning-in-your-smile.mp3",
+    fallbackSrc: "/music/lfm-drowning-in-your-smile.mp3",
+    albumArt: "https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=120&auto=format&fit=crop&q=60",
+    creditUrl: "https://archive.org/details/loyalty-freak-music-lofi-ambient-songs",
+    license: "CC0 1.0 (Public Domain)",
+    source: "Internet Archive"
+  },
+  {
+    title: "Everything Is Okay",
+    artist: "OE Beats",
+    src: "/music/oe-everything-is-okay.mp3",
+    fallbackSrc: "/music/oe-everything-is-okay.mp3",
+    albumArt: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=120&auto=format&fit=crop&q=60",
+    creditUrl: "https://archive.org/details/oe-beats-everything-is-okay",
+    license: "CC0 1.0 (Public Domain)",
+    source: "Internet Archive"
   }
 ];
 
