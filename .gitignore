@@ -3,3 +3,6 @@ node_modules
 dist
 .env
 .DS_Store
+
+# personal interview prep — keep out of the public repo
+docs/INTERVIEW_PREP.md
