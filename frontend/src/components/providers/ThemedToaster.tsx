@@ -13,7 +13,7 @@ export const ThemedToaster = () => {
 
   return (
     <Toaster
-      position="bottom-center"
+      position="top-center"
       theme={theme}
       gap={10}
       icons={{
