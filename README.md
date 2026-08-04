@@ -1,6 +1,6 @@
 # PixelPlayground
 
-A cozy lofi mini-game arcade for the browser — play, chill, and climb the leaderboards.
+A cozy lofi mini-game arcade for the browser - play, chill, and climb the leaderboards.
 
 **[Live Demo](https://pixelplayground.shaikhaman.dev)**
 
