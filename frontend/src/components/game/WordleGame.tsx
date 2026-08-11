@@ -163,13 +163,8 @@ export const WordleGame = () => {
     absent: "bg-zinc-300 border-transparent text-white dark:bg-zinc-800 dark:text-zinc-500 opacity-70",
   };
 
-  const resetBoard = () => {
-    setState({ guesses: [], currentGuess: "" });
-  };
-
   return (
-    // Pass undefined to onRestart when finished to natively disable GameShell's reset hooks
-    <GameShell title="Wordle" onRestart={status === "PLAYING" ? resetBoard : undefined}>
+    <GameShell title="Wordle" onRestart={undefined}>
       <div className="flex flex-col items-center justify-center w-full max-w-sm px-2 select-none voices-flat pb-2">
         
         {/* Core Matrix Board Wrapper */}
