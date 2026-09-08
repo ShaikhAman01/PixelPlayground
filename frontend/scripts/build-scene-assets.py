@@ -8,10 +8,12 @@ Output: public/scene/<theme>/base.png     the painting with only the moving part
         public/scene/<theme>/cat-ear.png  the ear again, drawn on top so it can twitch
         public/scene/<theme>/plant-N.png  leaf/flower clusters of the foreground plants
         public/scene/<theme>/star-N.png   painted sparkles, re-drawn on top to brighten
-        public/scene/<theme>/cloud-N.png  hand-built pixel clouds in the painting's cloud palette
+        public/scene/<theme>/cloud-N.png  clouds shaded along the painting's own cloud gradient
         public/scene/<theme>/lake.png     the water plate the canvas ripples
-        public/scene/<theme>/steam.png    a 3-frame vertical strip of pixel wisps
         public/scene/manifest.json + src/data/sceneManifest.json
+
+Steam has no asset: it is a particle plume simulated at runtime in
+components/scene/SteamCanvas.tsx, and only its region is recorded here.
 
 Design rules learned the hard way:
   * Only things that MOVE ACROSS the artwork are cut out of the base. Stars and
@@ -496,35 +498,11 @@ for poly, k in PLANT_POLYS:
         pid += 1
 
 # --------------------------------------------------------------- 5. steam ---
-# A curling ribbon rather than a stack of blocks: the wisp follows an S-curve
-# whose phase advances frame to frame, and thins and fades toward the top, so it
-# looks like vapour breaking up instead of a shape sliding upward.
-SW, SH, SN = 16, 34, 6
-FEATHER = 1.8
-strip = Image.new("RGBA", (SW, SH * SN), (0, 0, 0, 0))
-sq = strip.load()
-for f in range(SN):
-    phase = 2 * math.pi * f / SN
-    for y in range(SH):
-        v = y / (SH - 1)                      # 0 at the rim, 1 at the top
-        cx = (SW - 1) / 2 + math.sin(v * 3.4 + phase) * (1.0 + 3.4 * v)
-        halfw = 1.9 * (1.0 + 0.5 * v)         # spreads as it rises
-        strength = (1.0 - v) ** 1.5           # and thins away
-        if v < 0.1:
-            strength *= v / 0.1               # eases up off the surface of the drink
-        for x in range(SW):
-            d = abs(x - cx)
-            if d > halfw + FEATHER:
-                continue
-            edge = 1.0 if d <= halfw else max(0.0, 1.0 - (d - halfw) / FEATHER)
-            a = int(205 * strength * edge * edge)
-            if a > 4:
-                sq[x, f * SH + y] = (255, 255, 255, min(255, a))
-for theme in ("light", "dark"):
-    strip.save(os.path.join(OUT, theme, "steam.png"))
-# The cup body spans x 219..268 in the painting (the handle is further right), so
-# the steam column is centred on 244, rising off the drink surface at y 449.
-manifest["steam"] = {"x": 244, "y": 449, "spread": 22, "frame": {"w": SW, "h": SH, "n": SN}}
+# Steam is simulated at runtime (components/scene/SteamCanvas.tsx), so only the
+# region is recorded here. The cup body spans x 219..268 in the painting (the
+# handle is further right), so the plume is centred on 244 and rises off the
+# drink surface at y 449.
+manifest["steam"] = {"x": 244, "y": 449, "w": 46, "h": 62}
 
 # -------------------------------------------------------------- 6. petals ---
 PETAL_PATTERN = [".XX.", "XXXX", "XXXX", ".XX."]

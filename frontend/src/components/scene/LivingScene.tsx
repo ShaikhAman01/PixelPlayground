@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import manifest from "@/data/sceneManifest.json";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import { LakeCanvas } from "./LakeCanvas";
+import { SteamCanvas } from "./SteamCanvas";
 
 /**
  * The home-page painting, rebuilt as a living scene.
@@ -29,14 +30,6 @@ const IMG_H = manifest.image.h;
 const THEMES = ["light", "dark"] as const;
 const themed = (t: "light" | "dark") => (t === "light" ? "dark:hidden" : "hidden dark:block");
 
-const WISPS = [
-  { left: 30, sway: 4, dur: 5.2, delay: 0, fdelay: 0 },
-  { left: 48, sway: -3, dur: 6.4, delay: 1.6, fdelay: 0.3 },
-  { left: 62, sway: 3, dur: 4.7, delay: 3.2, fdelay: 0.6 },
-  { left: 38, sway: -4.5, dur: 7.4, delay: 4.6, fdelay: 0.15 },
-  { left: 55, sway: 2.5, dur: 5.9, delay: 2.4, fdelay: 0.45 },
-  { left: 44, sway: -2, dur: 6.7, delay: 6.1, fdelay: 0.7 }
-];
 
 const PETALS = [
   { src: 0, dx: 8, dur: 46, delay: -12, sway: 26, fall: 170, spin: 3.1 },
@@ -54,7 +47,6 @@ const FIREFLIES = [
   { x: 984, y: 468, dur: 19, delay: -13 }
 ];
 
-const STEAM_SCALE = 0.72;
 
 // Painting pixels -> percentages of the stage
 const X = (v: number) => `${(v / IMG_W) * 100}%`;
@@ -142,28 +134,8 @@ export function LivingScene() {
             );
           })}
 
-          {/* Steam: pixel wisps on their own clocks, three frames so each deforms as it rises */}
-          <div className="absolute" style={box(steam.x - steam.spread / 2, steam.y - 52, steam.spread, 52)}>
-            {WISPS.map((wsp, i) => (
-              <span
-                key={`wisp-${i}`}
-                className="sc-wisp"
-                style={{
-                  left: `${wsp.left}%`,
-                  width: u(steam.frame.w * STEAM_SCALE),
-                  height: u(steam.frame.h * STEAM_SCALE),
-                  backgroundSize: `100% ${steam.frame.n * 100}%`,
-                  ["--fh" as string]: u(steam.frame.h * STEAM_SCALE),
-                  ["--fn" as string]: steam.frame.n,
-                  ["--sway" as string]: u(wsp.sway),
-                  ["--rise" as string]: u(40),
-                  animationDuration: `${wsp.dur}s, ${wsp.dur * 0.36}s`,
-                  animationTimingFunction: `ease-out, steps(${steam.frame.n})`,
-                  animationDelay: `${wsp.delay}s, ${wsp.fdelay}s`
-                }}
-              />
-            ))}
-          </div>
+          {/* Steam: a particle plume, simulated on its own small canvas */}
+          <SteamCanvas w={steam.w} h={steam.h} theme={theme} style={box(steam.x - steam.w / 2, steam.y - steam.h, steam.w, steam.h)} />
 
           {/* The cat: the whole animal breathes from the paws; the ear is drawn a
               second time on top so its twitch never opens a hole underneath. */}
