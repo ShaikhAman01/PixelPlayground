@@ -202,7 +202,7 @@ export const Game2048 = () => {
                 <p className="text-zinc-950 dark:text-white text-lg font-black uppercase tracking-wider">
                   No Moves Left
                 </p>
-                <p className="text-xs font-bold text-zinc-500 dark:text-zinc-400 font-mono">
+                <p className="text-xs font-bold text-zinc-600 dark:text-zinc-300 font-mono">
                   Score: {score.toLocaleString()}
                 </p>
               </div>

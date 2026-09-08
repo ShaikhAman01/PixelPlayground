@@ -8,10 +8,10 @@ import { useColorMemoryStore } from "@/store/colorMemory.store";
 import { submitScore } from "@/lib/scoreSync";
 
 const tilesConfig = [
-  { default: "bg-rose-500/20 border-rose-300/40 text-rose-600 dark:text-rose-400 dark:bg-rose-950/20", active: "bg-rose-400 border-transparent text-white shadow-[0_0_24px_rgba(251,113,133,0.5)]", note: 261.63 },
-  { default: "bg-sky-500/20 border-sky-300/40 text-sky-600 dark:text-sky-400 dark:bg-sky-950/20", active: "bg-sky-400 border-transparent text-white shadow-[0_0_24px_rgba(56,189,248,0.5)]", note: 293.66 },
-  { default: "bg-amber-500/20 border-amber-300/40 text-amber-600 dark:text-amber-400 dark:bg-amber-950/20", active: "bg-amber-400 border-transparent text-white shadow-[0_0_24px_rgba(251,191,36,0.5)]", note: 329.63 },
-  { default: "bg-emerald-500/20 border-emerald-300/40 text-emerald-600 dark:text-emerald-400 dark:bg-emerald-950/20", active: "bg-emerald-400 border-transparent text-white shadow-[0_0_24px_rgba(52,211,153,0.5)]", note: 349.23 }
+  { default: "bg-rose-500/20 border-rose-300/40 text-rose-800 dark:text-rose-200 dark:bg-rose-950/20", active: "bg-rose-400 border-transparent text-white shadow-[0_0_24px_rgba(251,113,133,0.5)]", note: 261.63 },
+  { default: "bg-sky-500/20 border-sky-300/40 text-sky-800 dark:text-sky-200 dark:bg-sky-950/20", active: "bg-sky-400 border-transparent text-white shadow-[0_0_24px_rgba(56,189,248,0.5)]", note: 293.66 },
+  { default: "bg-amber-500/20 border-amber-300/40 text-amber-800 dark:text-amber-200 dark:bg-amber-950/20", active: "bg-amber-400 border-transparent text-white shadow-[0_0_24px_rgba(251,191,36,0.5)]", note: 329.63 },
+  { default: "bg-emerald-500/20 border-emerald-300/40 text-emerald-800 dark:text-emerald-200 dark:bg-emerald-950/20", active: "bg-emerald-400 border-transparent text-white shadow-[0_0_24px_rgba(52,211,153,0.5)]", note: 349.23 }
 ];
 
 const createAudioContext = (): AudioContext => {
@@ -207,7 +207,7 @@ export const ColorMemory = () => {
               >
                 <Play className="w-4 h-4 fill-current" /> Start
               </button>
-              <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 bg-white/80 dark:bg-zinc-900/80 px-3 py-1 rounded-full backdrop-blur-sm">
+              <p className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 bg-white/80 dark:bg-zinc-900/80 px-3 py-1 rounded-full backdrop-blur-sm">
                 Watch the pattern, then repeat it
               </p>
             </motion.div>
@@ -223,7 +223,7 @@ export const ColorMemory = () => {
               className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-20"
             >
               <div className="bg-white/95 dark:bg-zinc-900/95 px-6 py-3.5 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-sm text-center">
-                <p className="text-xs font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                <p className="text-xs font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400">
                   Nice run
                 </p>
                 <p className="text-lg font-black text-zinc-950 dark:text-white">

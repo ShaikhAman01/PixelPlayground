@@ -45,25 +45,25 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="sc-hero-glow relative w-full rounded-[28px] border border-white/15 dark:border-white/5 bg-white/[0.04] dark:bg-slate-950/[0.06] backdrop-blur-xl p-8 pt-16 flex flex-col items-center z-10 shadow-[0_8px_32px_rgba(15,23,42,0.02)]">
+            <div className="sc-hero-glow relative w-full rounded-[28px] border border-white/15 dark:border-white/5 bg-white/25 dark:bg-slate-950/35 backdrop-blur-xl p-8 pt-16 flex flex-col items-center z-10 shadow-[0_8px_32px_rgba(15,23,42,0.02)]">
               <h1 className="pixel-font text-4xl sm:text-5xl font-black tracking-normal text-slate-800 dark:text-slate-100 uppercase leading-none">
                 PIXEL
                 <br />
                 PLAYGROUND
               </h1>
 
-              <p className="mx-auto mt-5 max-w-sm text-xs sm:text-sm font-sans font-medium text-slate-600/90 dark:text-slate-300/90 tracking-wide leading-relaxed">
+              <p className="mx-auto mt-5 max-w-sm text-xs sm:text-sm font-sans font-medium text-slate-800 dark:text-slate-100 tracking-wide leading-relaxed">
                 Cozy games for peaceful breaks and late-night gaming sessions.
               </p>
 
               <div className="mt-6 flex flex-wrap justify-center gap-2.5 font-sans">
-                <div className="rounded-xl border border-white/30 dark:border-white/10 bg-white/20 dark:bg-slate-900/20 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
+                <div className="rounded-xl border border-white/30 dark:border-white/10 bg-white/35 dark:bg-slate-900/40 px-3 py-1.5 text-xs font-bold text-slate-800 dark:text-slate-100">
                   {games.length} Games
                 </div>
-                <div className="rounded-xl border border-white/30 dark:border-white/10 bg-white/20 dark:bg-slate-900/20 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
+                <div className="rounded-xl border border-white/30 dark:border-white/10 bg-white/35 dark:bg-slate-900/40 px-3 py-1.5 text-xs font-bold text-slate-800 dark:text-slate-100">
                   Chill Music
                 </div>
-                <div className="rounded-xl border border-white/30 dark:border-white/10 bg-white/20 dark:bg-slate-900/20 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-300">
+                <div className="rounded-xl border border-white/30 dark:border-white/10 bg-white/35 dark:bg-slate-900/40 px-3 py-1.5 text-xs font-bold text-slate-800 dark:text-slate-100">
                   Cozy Arcade
                 </div>
               </div>

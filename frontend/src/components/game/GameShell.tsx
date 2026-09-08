@@ -79,13 +79,13 @@ export const GameShell: React.FC<GameShellProps> = ({
         difficulty: tictactoe.difficulty,
         setDifficulty: (diff: "EASY" | "MEDIUM" | "HARD") => tictactoe.setState({ difficulty: diff }),
         metrics: [
-          { label: "Played", value: tictactoe.round - 1, icon: <Gamepad2 className="w-4 h-4 text-zinc-500" /> },
-          { label: "Won", value: tictactoe.playerScore, icon: <Trophy className="w-4 h-4 text-zinc-500" /> },
-          { label: "Win Rate", value: `${winRate}%`, icon: <Sparkles className="w-4 h-4 text-zinc-500" /> }
+          { label: "Played", value: tictactoe.round - 1, icon: <Gamepad2 className="w-4 h-4 text-zinc-600 dark:text-zinc-400" /> },
+          { label: "Won", value: tictactoe.playerScore, icon: <Trophy className="w-4 h-4 text-zinc-600 dark:text-zinc-400" /> },
+          { label: "Win Rate", value: `${winRate}%`, icon: <Sparkles className="w-4 h-4 text-zinc-600 dark:text-zinc-400" /> }
         ],
         statusTitle: "Turn",
         statusValue: tictactoe.currentTurn === "X" ? "Your Turn" : "CPU Thinking",
-        statusColor: tictactoe.currentTurn === "X" ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-500 dark:text-zinc-400",
+        statusColor: tictactoe.currentTurn === "X" ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-300",
         scoreboard: [
           { label: "You", score: tictactoe.playerScore },
           { label: "Computer", score: tictactoe.cpuScore }
@@ -101,13 +101,13 @@ export const GameShell: React.FC<GameShellProps> = ({
         difficulty: connect4.difficulty,
         setDifficulty: (diff: "EASY" | "MEDIUM" | "HARD") => connect4.setState({ difficulty: diff }),
         metrics: [
-          { label: "Played", value: connect4.round - 1, icon: <Gamepad2 className="w-4 h-4 text-zinc-500" /> },
-          { label: "Won", value: connect4.playerScore, icon: <Trophy className="w-4 h-4 text-zinc-500" /> },
-          { label: "Win Rate", value: `${winRate}%`, icon: <Sparkles className="w-4 h-4 text-zinc-500" /> }
+          { label: "Played", value: connect4.round - 1, icon: <Gamepad2 className="w-4 h-4 text-zinc-600 dark:text-zinc-400" /> },
+          { label: "Won", value: connect4.playerScore, icon: <Trophy className="w-4 h-4 text-zinc-600 dark:text-zinc-400" /> },
+          { label: "Win Rate", value: `${winRate}%`, icon: <Sparkles className="w-4 h-4 text-zinc-600 dark:text-zinc-400" /> }
         ],
         statusTitle: "Turn",
         statusValue: connect4.currentTurn === "X" ? "Your Turn" : "CPU Thinking",
-        statusColor: connect4.currentTurn === "X" ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-500 dark:text-zinc-400",
+        statusColor: connect4.currentTurn === "X" ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-300",
         scoreboard: [
           { label: "You", score: connect4.playerScore },
           { label: "Computer", score: connect4.cpuScore }
@@ -121,12 +121,12 @@ export const GameShell: React.FC<GameShellProps> = ({
         rules: ["Use keyboard arrow keys to move all board tiles at once.", "Identical numbers fuse into their sum when slammed together.", "Keep the grid from locking up completely."],
         difficulty: null,
         metrics: [
-          { label: "Score", value: game2048.score, icon: <Gamepad2 className="w-4 h-4 text-zinc-500" /> },
-          { label: "Best", value: game2048.bestScore, icon: <Trophy className="w-4 h-4 text-zinc-500" /> }
+          { label: "Score", value: game2048.score, icon: <Gamepad2 className="w-4 h-4 text-zinc-600 dark:text-zinc-400" /> },
+          { label: "Best", value: game2048.bestScore, icon: <Trophy className="w-4 h-4 text-zinc-600 dark:text-zinc-400" /> }
         ],
         statusTitle: "Status",
         statusValue: game2048.gameOver ? "Game Over" : "Playing",
-        statusColor: game2048.gameOver ? "text-rose-500 font-bold" : "text-zinc-900 dark:text-zinc-100",
+        statusColor: game2048.gameOver ? "text-rose-700 dark:text-rose-300 font-bold" : "text-zinc-900 dark:text-zinc-100",
         scoreboard: [
           { label: "Current Score", score: game2048.score },
           { label: "Best Score", score: game2048.bestScore }
@@ -140,11 +140,11 @@ export const GameShell: React.FC<GameShellProps> = ({
         rules: ["Click blocks neighboring the lone empty spacer to shift them.", "Arrange numbers into an ascending sequence from left to right.", "Try completing the matrix in the fewest moves possible."],
         difficulty: null,
         metrics: [
-          { label: "Moves", value: slidePuzzle.moves, icon: <Gamepad2 className="w-4 h-4 text-zinc-500" /> }
+          { label: "Moves", value: slidePuzzle.moves, icon: <Gamepad2 className="w-4 h-4 text-zinc-600 dark:text-zinc-400" /> }
         ],
         statusTitle: "Status",
         statusValue: slidePuzzle.won ? "Solved!" : "Playing",
-        statusColor: slidePuzzle.won ? "text-emerald-500 font-bold" : "text-zinc-900 dark:text-zinc-100",
+        statusColor: slidePuzzle.won ? "text-emerald-700 dark:text-emerald-300 font-bold" : "text-zinc-900 dark:text-zinc-100",
         scoreboard: [
           { label: "Moves Made", score: slidePuzzle.moves }
         ]
@@ -157,7 +157,7 @@ export const GameShell: React.FC<GameShellProps> = ({
         rules: ["Study the luminous pad flash sequences attentively.", "Click blocks to repeat the track back without making a mistake.", "Every cleared stage stacks an extra tile step onto the loop."],
         difficulty: null,
         metrics: [
-          { label: "Level", value: colorMemory.level, icon: <Gamepad2 className="w-4 h-4 text-zinc-500" /> }
+          { label: "Level", value: colorMemory.level, icon: <Gamepad2 className="w-4 h-4 text-zinc-600 dark:text-zinc-400" /> }
         ],
         statusTitle: "Status",
         statusValue:
@@ -168,10 +168,10 @@ export const GameShell: React.FC<GameShellProps> = ({
               : "Your Turn",
         statusColor:
           colorMemory.status === "FAILED"
-            ? "text-rose-500 font-bold"
+            ? "text-rose-700 dark:text-rose-300 font-bold"
             : colorMemory.status === "WATCHING"
-              ? "text-amber-500 font-bold animate-pulse"
-              : "text-emerald-500 font-bold",
+              ? "text-amber-800 dark:text-amber-300 font-bold animate-pulse"
+              : "text-emerald-700 dark:text-emerald-300 font-bold",
         scoreboard: [
           { label: "Highest Level", score: colorMemory.level }
         ]
@@ -182,7 +182,7 @@ export const GameShell: React.FC<GameShellProps> = ({
       description: "Find the hidden letters to guess the word.",
       rules: ["Type valid words into rows to reveal layout match insights.", "Green indicates a perfect placement match.", "Yellow means the letter lives elsewhere inside the word puzzle."],
       difficulty: null,
-      metrics: [{ label: "Status", value: "Active", icon: <Gamepad2 className="w-4 h-4 text-zinc-500" /> }],
+      metrics: [{ label: "Status", value: "Active", icon: <Gamepad2 className="w-4 h-4 text-zinc-600 dark:text-zinc-400" /> }],
       statusTitle: "Status",
       statusValue: "Playing",
       statusColor: "text-zinc-950 dark:text-white",
@@ -221,7 +221,7 @@ export const GameShell: React.FC<GameShellProps> = ({
       {/* Top Status Badges Wrap */}
       <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-2 mb-4 md:mb-6">
         <div className="rounded-full bg-amber-50/80 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800/80 px-4 py-1.5 shadow-sm flex items-center gap-2 backdrop-blur-xl">
-          <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-zinc-500">Mode:</p>
+          <p className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">Mode:</p>
           <span className="text-[10px] sm:text-xs font-black text-zinc-900 dark:text-zinc-100 uppercase font-mono bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded-md border border-zinc-200/40 dark:border-zinc-700/40">
             {isCpuGame ? "Versus CPU" : "Playing Solo"}
           </span>
@@ -233,7 +233,7 @@ export const GameShell: React.FC<GameShellProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             className="rounded-full bg-amber-50/80 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800/80 px-4 py-1.5 shadow-sm flex items-center gap-1.5 backdrop-blur-xl"
           >
-            <Clock className="w-3.5 h-3.5 text-zinc-500" />
+            <Clock className="w-3.5 h-3.5 text-zinc-600 dark:text-zinc-400" />
             <span className="text-xs font-black font-mono text-zinc-800 dark:text-zinc-200">{timer}</span>
           </motion.div>
         )}
@@ -244,7 +244,7 @@ export const GameShell: React.FC<GameShellProps> = ({
         {/* Left Side: Games Index (FIXED LAYER STACK FOR MOBILE) */}
         <section className="w-full lg:col-span-3 order-1 relative z-30">
           <div className="rounded-[24px] border border-zinc-200 dark:border-zinc-800/80 bg-amber-50/70 dark:bg-zinc-900/90 p-4 md:p-5 shadow-sm flex flex-col backdrop-blur-xl">
-            <div className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 flex items-center gap-2 mb-2">
+            <div className="text-[11px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400 flex items-center gap-2 mb-2">
               <Gamepad2 className="w-3.5 h-3.5" /> Games
             </div>
             
@@ -299,8 +299,8 @@ export const GameShell: React.FC<GameShellProps> = ({
                 aria-label="How to play"
                 className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border font-bold transition-all duration-200 cursor-pointer ${
                   rulesOpen 
-                    ? "border-zinc-400 bg-white text-zinc-955 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
-                    : "border-zinc-200 bg-white/40 text-zinc-500 hover:bg-white dark:border-zinc-800 dark:bg-zinc-955/40 dark:text-zinc-400 dark:hover:bg-zinc-900"
+                    ? "border-zinc-400 bg-white text-zinc-950 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                    : "border-zinc-200 bg-white/40 text-zinc-700 hover:bg-white dark:border-zinc-800 dark:bg-zinc-950/60 dark:text-zinc-400 dark:hover:bg-zinc-900"
                 }`}
               >
                 <HelpCircle className="h-4 w-4" />
@@ -317,11 +317,11 @@ export const GameShell: React.FC<GameShellProps> = ({
                   className="overflow-hidden"
                 >
                   <div className="mt-3.5 pt-3.5 border-t border-zinc-200/60 dark:border-zinc-800/60">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-2">How To Play</p>
+                    <p className="text-[11px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mb-2">How To Play</p>
                     <ul className="space-y-1.5">
                       {game.rules.map((rule, index) => (
                         <li key={index} className="text-[11px] font-medium text-zinc-600 dark:text-zinc-300 flex items-start gap-2 leading-relaxed">
-                          <span className="text-zinc-400 mt-0.5">•</span>
+                          <span className="text-zinc-500 dark:text-zinc-400 mt-0.5">•</span>
                           <span>{rule}</span>
                         </li>
                       ))}
@@ -331,13 +331,13 @@ export const GameShell: React.FC<GameShellProps> = ({
               )}
             </AnimatePresence>
 
-            <p className="hidden md:block text-xs font-semibold text-zinc-500 dark:text-zinc-400 leading-relaxed mt-3.5">
+            <p className="hidden md:block text-xs font-semibold text-zinc-600 dark:text-zinc-300 leading-relaxed mt-3.5">
               {game.description}
             </p>
 
             {isCpuGame && game.difficulty && (
               <>
-                <div className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 flex items-center gap-2 mt-4 mb-2">
+                <div className="text-[11px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400 flex items-center gap-2 mt-4 mb-2">
                   Difficulty
                 </div>
                 <div className="grid grid-cols-3 gap-1 p-1 bg-white/50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800">
@@ -345,10 +345,10 @@ export const GameShell: React.FC<GameShellProps> = ({
                     <button
                       key={mode}
                       onClick={() => game.setDifficulty(mode)}
-                      className={`text-[9px] md:text-[10px] font-bold py-1.5 rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
+                      className={`text-[11px] font-bold py-2 rounded-lg uppercase tracking-wider transition-all cursor-pointer ${
                         game.difficulty === mode
                           ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 shadow-sm"
-                          : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-white"
+                          : "text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white"
                       }`}
                     >
                       {mode.toLowerCase()}
@@ -384,22 +384,29 @@ export const GameShell: React.FC<GameShellProps> = ({
         {/* Right Side: Scoreboard Status Tracker Only */}
         <section className="w-full lg:col-span-3 order-3 flex flex-col gap-4 relative z-10">
           <div className="rounded-[24px] border border-zinc-200 dark:border-zinc-800/80 bg-amber-50/70 dark:bg-zinc-900/90 p-4 shadow-sm flex flex-col backdrop-blur-xl w-full">
-            <div className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-2">
+            <div className="text-[11px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mb-2">
               Match Status
             </div>
-            <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-955/40 p-2.5 flex justify-between items-center">
-              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wide">{game.statusTitle}</span>
+            {/* Turn changes and game-over are announced: without this the state of
+                play exists only visually. */}
+            <div
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+              className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/60 p-2.5 flex justify-between items-center"
+            >
+              <span className="text-[11px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wide">{game.statusTitle}</span>
               <span className={`text-xs font-extrabold uppercase font-mono ${game.statusColor}`}>
                 {game.statusValue}
               </span>
             </div>
 
-            <div className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mt-4 mb-2">
+            <div className="text-[11px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mt-4 mb-2">
               Scoreboard
             </div>
-            <div className="space-y-1.5">
+            <div className="space-y-1.5" role="status" aria-live="polite">
               {game.scoreboard.map((scoreCard, idx) => (
-                <div key={idx} className="flex justify-between items-center bg-white/50 dark:bg-zinc-955/40 border border-zinc-200 dark:border-zinc-800/40 p-2.5 rounded-xl">
+                <div key={idx} className="flex justify-between items-center bg-white/50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800/40 p-2.5 rounded-xl">
                   <span className="text-xs font-bold text-zinc-600 dark:text-zinc-300">
                     {scoreCard.label}
                   </span>

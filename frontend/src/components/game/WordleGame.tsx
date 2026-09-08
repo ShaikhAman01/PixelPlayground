@@ -147,9 +147,9 @@ export const WordleGame = () => {
       "flex-1 max-w-[36px] min-h-11 rounded-xl border py-3 text-xs font-black uppercase tracking-wide shadow-sm transition-all duration-150 active:scale-95 cursor-pointer";
     switch (keyStatuses[letter]) {
       case "correct":
-        return `${base} bg-emerald-500 border-transparent text-white`;
+        return `${base} bg-emerald-600 border-transparent text-white`;
       case "present":
-        return `${base} bg-amber-500 border-transparent text-white`;
+        return `${base} bg-amber-500 border-transparent text-zinc-950`;
       case "absent":
         return `${base} bg-zinc-200 border-transparent text-zinc-400 dark:bg-zinc-800/60 dark:text-zinc-600`;
       default:
@@ -158,8 +158,8 @@ export const WordleGame = () => {
   };
 
   const statusClass: Record<LetterStatus, string> = {
-    correct: "bg-emerald-500 text-white border-transparent font-black shadow-md",
-    present: "bg-amber-500 text-white border-transparent font-bold",
+    correct: "bg-emerald-600 text-white border-transparent font-black shadow-md",
+    present: "bg-amber-500 text-zinc-950 border-transparent font-bold",
     absent: "bg-zinc-300 border-transparent text-white dark:bg-zinc-800 dark:text-zinc-500 opacity-70",
   };
 

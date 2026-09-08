@@ -31,13 +31,13 @@ export const GameCard: React.FC<GameCardProps> = React.memo(function GameCard({
           <div className="grid grid-cols-3 gap-2 w-36 h-36 p-3 rounded-[22px] bg-white/90 dark:bg-zinc-950/50 border border-violet-100/80 dark:border-violet-900/30 shadow-inner">
             <div className="flex items-center justify-center rounded-xl text-violet-500 dark:text-violet-400 font-black text-3xl">X</div>
             <div className="bg-zinc-100/60 dark:bg-zinc-900/30 rounded-xl" />
-            <div className="flex items-center justify-center rounded-xl text-rose-400 dark:text-rose-400 font-black text-3xl">O</div>
+            <div className="flex items-center justify-center rounded-xl text-rose-500 dark:text-rose-300 font-black text-3xl">O</div>
             <div className="bg-zinc-100/60 dark:bg-zinc-900/30 rounded-xl" />
             <div className="flex items-center justify-center rounded-xl text-violet-500 dark:text-violet-400 font-black text-3xl">X</div>
             <div className="bg-zinc-100/60 dark:bg-zinc-900/30 rounded-xl" />
             <div className="bg-zinc-100/60 dark:bg-zinc-900/30 rounded-xl" />
             <div className="bg-zinc-100/60 dark:bg-zinc-900/30 rounded-xl" />
-            <div className="flex items-center justify-center rounded-xl text-rose-400 dark:text-rose-400 font-black text-3xl">O</div>
+            <div className="flex items-center justify-center rounded-xl text-rose-500 dark:text-rose-300 font-black text-3xl">O</div>
           </div>
         );
 
@@ -60,11 +60,11 @@ export const GameCard: React.FC<GameCardProps> = React.memo(function GameCard({
       case "game2048":
         return (
           <div className="grid grid-cols-3 gap-3 w-36 h-36 p-3.5 rounded-[22px] bg-white/80 dark:bg-zinc-950/40 border border-amber-100 dark:border-amber-900/30 shadow-inner">
-            <div className="bg-zinc-100/90 dark:bg-zinc-800 text-sm font-black text-zinc-500 dark:text-zinc-400 flex items-center justify-center rounded-xl">2</div>
+            <div className="bg-zinc-100/90 dark:bg-zinc-800 text-sm font-black text-zinc-600 dark:text-zinc-300 flex items-center justify-center rounded-xl">2</div>
             <div className="bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-300 text-sm font-black flex items-center justify-center rounded-xl">4</div>
             <div className="bg-zinc-100/50 dark:bg-zinc-900/40 rounded-xl" />
             <div className="bg-zinc-100/50 dark:bg-zinc-900/40 rounded-xl" />
-            <div className="bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-300 text-xs font-black flex items-center justify-center rounded-xl scale-105 shadow-sm">16</div>
+            <div className="bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-200 text-xs font-black flex items-center justify-center rounded-xl scale-105 shadow-sm">16</div>
             <div className="bg-zinc-100/50 dark:bg-zinc-900/40 rounded-xl" />
             <div className="bg-zinc-100/50 dark:bg-zinc-900/40 rounded-xl" />
             <div className="bg-zinc-100/50 dark:bg-zinc-900/40 rounded-xl" />
@@ -104,11 +104,11 @@ export const GameCard: React.FC<GameCardProps> = React.memo(function GameCard({
         return (
           <div className="flex flex-col gap-2.5 w-40 p-3 rounded-[22px] bg-white/80 dark:bg-zinc-950/40 border border-teal-100 dark:border-teal-900/30 shadow-inner">
             <div className="flex gap-1.5 justify-center">
-              <div className="w-6 h-6 rounded-md bg-emerald-500 text-xs text-white font-black flex items-center justify-center">W</div>
-              <div className="w-6 h-6 rounded-md bg-zinc-300 dark:bg-zinc-800 text-xs text-white font-black flex items-center justify-center">O</div>
-              <div className="w-6 h-6 rounded-md bg-amber-500 text-xs text-white font-black flex items-center justify-center">R</div>
-              <div className="w-6 h-6 rounded-md bg-zinc-300 dark:bg-zinc-800 text-xs text-white font-black flex items-center justify-center">D</div>
-              <div className="w-6 h-6 rounded-md bg-zinc-300 dark:bg-zinc-800 text-xs text-white font-black flex items-center justify-center">S</div>
+              <div className="w-6 h-6 rounded-md bg-emerald-700 text-xs text-white font-black flex items-center justify-center">W</div>
+              <div className="w-6 h-6 rounded-md bg-zinc-300 dark:bg-zinc-800 text-xs text-zinc-700 dark:text-zinc-200 font-black flex items-center justify-center">O</div>
+              <div className="w-6 h-6 rounded-md bg-amber-500 text-xs text-zinc-950 font-black flex items-center justify-center">R</div>
+              <div className="w-6 h-6 rounded-md bg-zinc-300 dark:bg-zinc-800 text-xs text-zinc-700 dark:text-zinc-200 font-black flex items-center justify-center">D</div>
+              <div className="w-6 h-6 rounded-md bg-zinc-300 dark:bg-zinc-800 text-xs text-zinc-700 dark:text-zinc-200 font-black flex items-center justify-center">S</div>
             </div>
             <div className="flex gap-1.5 justify-center opacity-40">
               <div className="w-6 h-6 rounded-md bg-zinc-200 dark:bg-zinc-900" />
@@ -184,7 +184,7 @@ export const GameCard: React.FC<GameCardProps> = React.memo(function GameCard({
           <h3 className="pixel-font text-base font-black uppercase tracking-wide text-slate-900 dark:text-slate-50 transition-colors duration-200 group-hover:text-black dark:group-hover:text-white">
             {title}
           </h3>
-          <p className="mt-2 text-[11px] font-sans font-semibold text-slate-500 dark:text-slate-400 tracking-wide leading-relaxed">
+          <p className="mt-2 text-[11px] font-sans font-semibold text-slate-600 dark:text-slate-300 tracking-wide leading-relaxed">
             {description}
           </p>
         </div>

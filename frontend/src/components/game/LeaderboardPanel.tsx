@@ -61,9 +61,9 @@ export const LeaderboardPanel = ({ gameId }: { gameId: string }) => {
 
   return (
     <div className="rounded-[24px] border border-zinc-200 dark:border-zinc-800/80 bg-amber-50/70 dark:bg-zinc-900/90 p-4 shadow-sm flex flex-col backdrop-blur-xl w-full">
-      <div className="text-[10px] md:text-[11px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-2 flex items-center gap-1.5">
+      <div className="text-[11px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mb-2 flex items-center gap-1.5">
         <Trophy className="w-3.5 h-3.5" /> Leaderboard
-        <span className="ml-auto font-bold normal-case tracking-normal text-zinc-400 dark:text-zinc-600">
+        <span className="ml-auto font-bold normal-case tracking-normal text-zinc-600 dark:text-zinc-400">
           {VALUE_LABELS[gameId]}
         </span>
       </div>
@@ -80,13 +80,13 @@ export const LeaderboardPanel = ({ gameId }: { gameId: string }) => {
       )}
 
       {state === "offline" && (
-        <p className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 py-2 text-center">
+        <p className="text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 py-2 text-center">
           Leaderboard unavailable offline
         </p>
       )}
 
       {state === "ready" && data && data.entries.length === 0 && (
-        <p className="text-[11px] font-semibold text-zinc-400 dark:text-zinc-500 py-2 text-center">
+        <p className="text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 py-2 text-center">
           No scores yet — set the first one!
         </p>
       )}
@@ -101,15 +101,15 @@ export const LeaderboardPanel = ({ gameId }: { gameId: string }) => {
                 className={`flex items-center gap-2 border p-2 rounded-xl text-xs ${
                   isMe
                     ? "bg-violet-100/60 border-violet-200 dark:bg-violet-950/40 dark:border-violet-900/60"
-                    : "bg-white/50 dark:bg-zinc-955/40 border-zinc-200 dark:border-zinc-800/40"
+                    : "bg-white/50 dark:bg-zinc-950/60 border-zinc-200 dark:border-zinc-800/40"
                 }`}
               >
-                <span className="w-5 text-center font-black font-mono text-zinc-400 dark:text-zinc-500">
+                <span className="w-5 text-center font-black font-mono text-zinc-600 dark:text-zinc-400">
                   {entry.rank}
                 </span>
                 <span className="flex-1 font-bold text-zinc-700 dark:text-zinc-300 truncate">
                   {entry.username}
-                  {isMe && <span className="text-violet-500 dark:text-violet-400 ml-1">(you)</span>}
+                  {isMe && <span className="text-violet-700 dark:text-violet-300 ml-1">(you)</span>}
                 </span>
                 <span className="font-black font-mono text-zinc-950 dark:text-white">
                   {formatValue(gameId, entry.value)}
@@ -119,12 +119,12 @@ export const LeaderboardPanel = ({ gameId }: { gameId: string }) => {
           })}
           {meOutsideTop && (
             <li className="flex items-center gap-2 border p-2 rounded-xl text-xs bg-violet-100/60 border-violet-200 dark:bg-violet-950/40 dark:border-violet-900/60">
-              <span className="w-5 text-center font-black font-mono text-zinc-400 dark:text-zinc-500">
+              <span className="w-5 text-center font-black font-mono text-zinc-600 dark:text-zinc-400">
                 {meOutsideTop.rank}
               </span>
               <span className="flex-1 font-bold text-zinc-700 dark:text-zinc-300 truncate">
                 {meOutsideTop.username}
-                <span className="text-violet-500 dark:text-violet-400 ml-1">(you)</span>
+                <span className="text-violet-700 dark:text-violet-300 ml-1">(you)</span>
               </span>
               <span className="font-black font-mono text-zinc-950 dark:text-white">
                 {formatValue(gameId, meOutsideTop.value)}
