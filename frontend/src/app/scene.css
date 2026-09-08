@@ -1,0 +1,256 @@
+/* ================================
+LIVING SCENE (components/scene/LivingScene.tsx)
+The home-page painting split into layers that move on their own.
+Rules: transform/opacity only; slow, low-contrast, staggered; stillness
+first, subtle motion second, occasional events last.
+================================ */
+.scene {
+  contain: layout paint;
+}
+
+.scene-layer {
+  position: absolute;
+  inset: 0;
+}
+
+/* The stage reproduces `background-size: cover; background-position: top center`
+   for a 1024x1536 painting with plain CSS, so sprites sit at percentage
+   coordinates and the scene is complete before any script runs. */
+.scene-stage {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 100%;
+  min-height: 100%;
+  aspect-ratio: 1024 / 1536;
+  --u: 1.4px;
+}
+
+/* Day and night are two paintings, not a filter */
+.scene-base {
+  position: absolute;
+  inset: 0;
+  background-image: url("/scene/light/base.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.dark .scene-base {
+  background-image: url("/scene/dark/base.png");
+}
+
+/* ---------- Sky ---------- */
+@keyframes scCloud {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(var(--run, 1400px), 0, 0); }
+}
+.sc-cloud {
+  animation: scCloud 240s linear infinite;
+  opacity: var(--op-light, 0.45);
+  will-change: transform;
+}
+.dark .sc-cloud {
+  opacity: var(--op-dark, 0.58);
+}
+
+/* Painted stars, redrawn on top of themselves: the twinkle is the star getting
+   brighter, so nothing is ever cut out of the sky. */
+@keyframes scTwinkle {
+  0%, 100% { opacity: 0; }
+  50%      { opacity: var(--tmax, 0.55); }
+}
+@keyframes scFlash {
+  0%, 74%, 100% { opacity: 0; }
+  80%           { opacity: var(--tmax, 0.55); }
+  86%           { opacity: calc(var(--tmax, 0.55) * 0.35); }
+}
+.sc-star       { --tmax: 0.5; animation: scTwinkle 4s ease-in-out infinite; }
+.sc-star-flash { --tmax: 0.6; animation: scFlash 6s ease-in-out infinite; }
+.dark .sc-star       { --tmax: 0.85; }
+.dark .sc-star-flash { --tmax: 0.95; }
+
+/* ---------- Atmosphere ---------- */
+@keyframes scHaze {
+  0%, 100% { opacity: 0.04; transform: translate3d(0, 0, 0); }
+  50%      { opacity: 0.09; transform: translate3d(6px, 0, 0); }
+}
+.sc-haze {
+  background: linear-gradient(to bottom, rgba(255,240,250,0) 0%, rgba(255,236,246,0.9) 45%, rgba(255,236,246,0) 100%);
+  animation: scHaze 26s ease-in-out infinite;
+}
+.dark .sc-haze {
+  background: linear-gradient(to bottom, rgba(150,160,255,0) 0%, rgba(150,160,255,0.7) 45%, rgba(150,160,255,0) 100%);
+}
+
+@keyframes scHeroLight {
+  0%, 100% { transform: translate3d(-50%, -50%, 0); opacity: 0.24; }
+  50%      { transform: translate3d(calc(-50% + 14px), calc(-50% + 8px), 0); opacity: 0.34; }
+}
+.sc-hero-light {
+  background: radial-gradient(ellipse at center, rgba(255,222,236,0.7) 0%, rgba(255,200,225,0.25) 45%, rgba(255,200,225,0) 70%);
+  animation: scHeroLight 16s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+.dark .sc-hero-light {
+  background: radial-gradient(ellipse at center, rgba(170,150,255,0.5) 0%, rgba(140,120,230,0.18) 45%, rgba(140,120,230,0) 70%);
+}
+
+@keyframes scGlassGlow {
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 1; }
+}
+.sc-hero-glow::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.22), 0 0 42px rgba(255,255,255,0.14);
+  animation: scGlassGlow 7s ease-in-out infinite;
+}
+.dark .sc-hero-glow::after {
+  box-shadow: 0 0 0 1px rgba(200,180,255,0.14), 0 0 48px rgba(150,120,255,0.2);
+}
+
+/* ---------- Lantern (night only): flame and halo are soft radials, so the
+     flicker never shows an edge ---------- */
+@keyframes scLantern {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  22%      { opacity: 0.82; transform: scale(1.03); }
+  41%      { opacity: 0.6;  transform: scale(1.01); }
+  63%      { opacity: 0.95; transform: scale(1.05); }
+  80%      { opacity: 0.68; transform: scale(1.02); }
+}
+.sc-lantern-halo {
+  background: radial-gradient(circle closest-side, rgba(255,186,104,0.30) 0%, rgba(255,166,86,0.14) 38%, rgba(255,150,70,0.05) 60%, rgba(255,150,70,0) 78%);
+  animation: scLantern 5.6s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+.sc-lantern-flame {
+  background: radial-gradient(circle closest-side, rgba(255,236,190,0.55) 0%, rgba(255,205,130,0.3) 42%, rgba(255,190,110,0) 72%);
+  animation: scLantern 5.6s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* ---------- Plants: a slow lean from the stem, plus a stronger gust now and then ---------- */
+@keyframes scSway {
+  0%, 100% { transform: rotate(-0.75deg); }
+  50%      { transform: rotate(0.75deg); }
+}
+.sc-sway {
+  animation: scSway 7s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes scGust {
+  0%, 86%, 100% { transform: rotate(0deg); }
+  89%           { transform: rotate(1.9deg); }
+  93%           { transform: rotate(-1deg); }
+  97%           { transform: rotate(0.4deg); }
+}
+.sc-gust {
+  animation: scGust 25s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ---------- Steam: rise, drift, thin out; frames flip so each wisp deforms ---------- */
+@keyframes scWispRise {
+  0%   { transform: translate3d(0, 0, 0) scale(0.75); opacity: 0; }
+  10%  { opacity: 0.85; }
+  40%  { transform: translate3d(var(--sway, 3px), calc(var(--rise, 44px) * -0.4), 0) scale(1); opacity: 0.62; }
+  70%  { transform: translate3d(calc(var(--sway, 3px) * -0.6), calc(var(--rise, 44px) * -0.74), 0) scale(1.2); opacity: 0.3; }
+  86%  { transform: translate3d(calc(var(--sway, 3px) * -0.2), calc(var(--rise, 44px) * -1), 0) scale(1.35); opacity: 0; }
+  100% { transform: translate3d(calc(var(--sway, 3px) * -0.2), calc(var(--rise, 44px) * -1), 0) scale(1.35); opacity: 0; }
+}
+@keyframes scWispFrames {
+  from { background-position: 0 0; }
+  to   { background-position: 0 calc(var(--fh, 6px) * -1 * var(--fn, 3)); }
+}
+.sc-wisp {
+  position: absolute;
+  bottom: 0;
+  opacity: 0;
+  background-image: url("/scene/light/steam.png");
+  background-repeat: no-repeat;
+  transform-origin: 50% 100%;
+  animation-name: scWispRise, scWispFrames;
+  animation-iteration-count: infinite, infinite;
+  will-change: transform, opacity;
+}
+
+/* ---------- Cat ---------- */
+/* Inhale a little quicker than the exhale; the paws stay put */
+@keyframes scBreathe {
+  0%   { transform: scaleY(1); }
+  38%  { transform: scaleY(1.017); }
+  52%  { transform: scaleY(1.014); }
+  100% { transform: scaleY(1); }
+}
+.sc-breathe {
+  animation: scBreathe 5.2s ease-in-out infinite;
+  transform-origin: 50% 100%;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+@keyframes scEar {
+  0%, 91%, 100% { transform: rotate(0deg); }
+  92.5%         { transform: rotate(-7deg); }
+  94%           { transform: rotate(4deg); }
+  95.5%         { transform: rotate(-2deg); }
+  97%           { transform: rotate(0deg); }
+}
+.sc-ear {
+  animation: scEar 13s ease-in-out infinite;
+}
+@keyframes scZzz {
+  0%   { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  20%  { opacity: 0.9; }
+  100% { transform: translate(1.4em, -2.6em) scale(1.2); opacity: 0; }
+}
+.sc-zzz { animation: scZzz 3.9s ease-out infinite; }
+
+/* ---------- Petals: a short fall, then a long quiet stretch ---------- */
+@keyframes scPetal {
+  0%   { transform: translate3d(0, 0, 0) scale(0.9); opacity: 0; }
+  2%   { opacity: 0.95; }
+  11%  { transform: translate3d(calc(var(--sway, 26px) * 0.6), calc(var(--fall, 170px) * 0.28), 0) scale(1.1); }
+  22%  { transform: translate3d(calc(var(--sway, 26px) * -0.45), calc(var(--fall, 170px) * 0.58), 0) scale(0.95); }
+  32%  { transform: translate3d(calc(var(--sway, 26px) * 0.5), calc(var(--fall, 170px) * 0.88), 0) scale(1.05); opacity: 0.85; }
+  36%  { transform: translate3d(calc(var(--sway, 26px) * 0.3), var(--fall, 170px), 0) scale(1); opacity: 0; }
+  100% { transform: translate3d(calc(var(--sway, 26px) * 0.3), var(--fall, 170px), 0) scale(1); opacity: 0; }
+}
+.sc-petal {
+  animation: scPetal 50s linear infinite;
+  will-change: transform, opacity;
+}
+@keyframes scPetalSpin {
+  to { transform: rotate(360deg); }
+}
+.sc-petal-spin {
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+  animation: scPetalSpin 3s steps(4) infinite;
+}
+
+/* ---------- Fireflies (night) ---------- */
+@keyframes scFirefly {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0; }
+  12%      { opacity: 0.9; }
+  30%      { transform: translate3d(8px, -10px, 0); opacity: 0.5; }
+  46%      { transform: translate3d(-4px, -18px, 0); opacity: 0.85; }
+  58%      { opacity: 0; }
+  70%      { transform: translate3d(6px, -26px, 0); opacity: 0; }
+}
+.sc-firefly {
+  background: #ffe9b0;
+  animation: scFirefly 15s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene,
+  .scene *,
+  .sc-hero-glow::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

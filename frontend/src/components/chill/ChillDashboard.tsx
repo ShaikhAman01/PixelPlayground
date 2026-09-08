@@ -100,8 +100,8 @@ const Divider = ({ className }: { className?: string }) => (
   <div className={`h-4 w-px bg-white/10 shrink-0 ${className ?? ""}`} />
 );
 
-const AMBIENT_AUDIO_INSTANCES: Record<string, HTMLAudioElement> = 
-  typeof window !== "undefined" 
+const AMBIENT_AUDIO_INSTANCES: Record<string, HTMLAudioElement> =
+  typeof window !== "undefined"
     ? {
         rain: new Audio("/audio/effects/rain.mp3"),
         wind: new Audio("/audio/effects/wind.mp3"),
@@ -113,7 +113,7 @@ const AMBIENT_AUDIO_INSTANCES: Record<string, HTMLAudioElement> =
     : {};
 
 if (typeof window !== "undefined") {
-  Object.values(AMBIENT_AUDIO_INSTANCES).forEach(audio => {
+  Object.values(AMBIENT_AUDIO_INSTANCES).forEach((audio) => {
     audio.loop = true;
     audio.preload = "auto";
   });

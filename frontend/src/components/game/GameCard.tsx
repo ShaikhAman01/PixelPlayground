@@ -145,7 +145,7 @@ export const GameCard: React.FC<GameCardProps> = React.memo(function GameCard({
   return (
     <motion.article
       whileHover={{ scale: 1 }}
-      className="group relative overflow-hidden rounded-[28px] border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/85 backdrop-blur-xl p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] hover:shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:shadow-[0_16px_32px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_24px_48px_rgba(0,0,0,0.35)] hover:border-slate-400 dark:hover:border-slate-600 transition-all duration-200 flex flex-col justify-between"
+      className="group relative overflow-hidden rounded-[28px] border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/85 backdrop-blur-xl p-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] hover:-translate-y-1.5 hover:shadow-[0_18px_40px_rgba(139,92,246,0.14)] dark:shadow-[0_16px_32px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_24px_48px_rgba(139,92,246,0.22)] hover:border-violet-300/80 dark:hover:border-violet-500/50 transition-all duration-300 ease-out flex flex-col justify-between"
     >
       <div>
         {/* Monitor screen window frame layout with the custom retro scanline layer overlay */}
