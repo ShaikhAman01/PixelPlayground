@@ -39,6 +39,30 @@ first, subtle motion second, occasional events last.
   background-image: url("/scene/dark/base.webp");
 }
 
+/* The game-page painting is landscape and sits behind a board the player is
+   reading, so it is centred both ways like the `bg-cover bg-center` it replaces.
+   Same sprite vocabulary as above; no lake and no clouds. */
+.scene-stage-game {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%;
+  min-height: 100%;
+  aspect-ratio: 1672 / 941;
+  --u: 1.08px;
+}
+.scene-base-game {
+  position: absolute;
+  inset: 0;
+  background-image: url("/scene-game/light/base.webp");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.dark .scene-base-game {
+  background-image: url("/scene-game/dark/base.webp");
+}
+
 /* ---------- Sky ---------- */
 @keyframes scCloud {
   from { transform: translate3d(0, 0, 0); }

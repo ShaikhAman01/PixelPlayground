@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { TopBar } from "@/components/layout/TopBar";
 import { GameHost } from "@/games/GameHost";
+import { GameScene } from "@/components/scene/GameScene";
 import { isGameId } from "@/games/gameIds";
 
 interface Props {
@@ -17,7 +18,10 @@ export default async function GamePage({ params }: Props) {
   }
 
   return (
-    <main className="relative min-h-screen lg:h-dvh lg:max-h-dvh w-full overflow-x-hidden lg:overflow-hidden flex flex-col bg-cover bg-center bg-no-repeat transition-all duration-500 bg-[url('/background/bg2.png')] dark:bg-[url('/background/bg3.png')]">
+    <main className="relative min-h-screen lg:h-dvh lg:max-h-dvh w-full overflow-x-hidden lg:overflow-hidden flex flex-col transition-all duration-500">
+
+      {/* The painting, split into layers that move on their own */}
+      <GameScene />
 
       {/* Background Overlay Layer */}
       <div className="absolute inset-0 bg-indigo-950/5 dark:bg-indigo-950/20 pointer-events-none z-10" />

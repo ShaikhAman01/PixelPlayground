@@ -48,196 +48,22 @@ for t in ("light", "dark"):
 
 
 # ---------------------------------------------------------------- helpers ---
-def l1(a, b):
-    return abs(a[0] - b[0]) + abs(a[1] - b[1]) + abs(a[2] - b[2])
-
-
-def lum(c):
-    return 0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]
-
-
-def hsv(c):
-    r, g, b = [v / 255 for v in c]
-    mx, mn = max(r, g, b), min(r, g, b)
-    d = mx - mn
-    if d == 0:
-        h = 0
-    elif mx == r:
-        h = (60 * ((g - b) / d) + 360) % 360
-    elif mx == g:
-        h = 60 * ((b - r) / d) + 120
-    else:
-        h = 60 * ((r - g) / d) + 240
-    return h, (0 if mx == 0 else d / mx), mx
-
-
-def components(pred, x0, y0, x1, y1):
-    seen = set()
-    comps = []
-    for y in range(y0, y1):
-        for x in range(x0, x1):
-            if (x, y) in seen or not pred(x, y):
-                continue
-            q = collections.deque([(x, y)])
-            seen.add((x, y))
-            pts = []
-            while q:
-                cx, cy = q.popleft()
-                pts.append((cx, cy))
-                for nx, ny in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
-                    if x0 <= nx < x1 and y0 <= ny < y1 and (nx, ny) not in seen and pred(nx, ny):
-                        seen.add((nx, ny))
-                        q.append((nx, ny))
-            comps.append(pts)
-    return comps
-
-
-def bbox(pts):
-    xs = [p[0] for p in pts]
-    ys = [p[1] for p in pts]
-    return min(xs), min(ys), max(xs) + 1, max(ys) + 1
-
-
-def disc(r):
-    return [(dx, dy) for dx in range(-r, r + 1) for dy in range(-r, r + 1) if dx * dx + dy * dy <= r * r]
-
-
-def dilate(pts, r=1):
-    if r <= 0:
-        return set(pts)
-    k = disc(r)
-    out = set()
-    for x, y in pts:
-        for dx, dy in k:
-            out.add((x + dx, y + dy))
-    return out
-
-
-def erode(pts, r=1):
-    if r <= 0:
-        return set(pts)
-    s = set(pts)
-    k = disc(r)
-    return {p for p in s if all((p[0] + dx, p[1] + dy) in s for dx, dy in k)}
-
-
-def close(pts, r=3):
-    """Morphological closing: fills pinholes and hairline gaps so a cut-out is solid."""
-    return erode(dilate(pts, r), r)
-
-
-def edge_falloff(core2, steps):
-    """Feather the outward edge at output resolution.
-
-    The shape is decided on the 1x painting, but a 1x edge pixel upscaled becomes
-    a flat SCALE-wide slab of half-transparent background colour, which at 2x
-    reads as a chewed halo and hollows out the painting's dark outlines. Instead
-    walk out from the shape one output pixel at a time and fade linearly, so the
-    edge is a real sub-pixel feather.
-    """
-    out = {}
-    frontier = core2
-    seen = set(core2)
-    for n in range(1, steps + 1):
-        nxt = set()
-        for x, y in frontier:
-            for dy in (-1, 0, 1):
-                for dx in (-1, 0, 1):
-                    p = (x + dx, y + dy)
-                    if p not in seen:
-                        nxt.add(p)
-        for p in nxt:
-            seen.add(p)
-            out[p] = 1.0 - n / (steps + 1.0)
-        frontier = nxt
-    return out
-
-
-def sprite_from(img, pts, alpha_fn=None, ring=0, keep2=None):
-    """Cut pts (1x coordinates) out of img, emitting the sprite at SCALE. With
-    ring=1 the edge travels with the sprite at partial alpha, so no halo is left
-    behind on the base. The returned x/y stay in 1x space because the manifest is
-    authored there.
-
-    keep2 decides single output pixels in that edge ring. The shape is settled on
-    the 1x painting, but upscaling put the artwork's dark outlines half in the
-    ring, where a blanket fade hollows them out; asking the same colour test that
-    drew the mask, at output resolution, keeps the line and drops only the
-    background it sits against."""
-    core = set(pts)
-    allpts = dilate(core, ring) if ring else core
-    x0, y0, x1, y1 = bbox(allpts)
-    sp = Image.new("RGBA", ((x1 - x0) * SCALE, (y1 - y0) * SCALE), (0, 0, 0, 0))
-    src = HI_OF[id(img)].load()
-    dst = sp.load()
-
-    core2 = upscale_mask(core)
-    fade = edge_falloff(core2, ring * SCALE) if ring else {}
-
-    for x, y in allpts:
-        if not (0 <= x < W and 0 <= y < H):
-            continue
-        a0 = 255 if alpha_fn is None else alpha_fn(x, y)
-        if a0 <= 0:
-            continue
-        # one mask pixel covers a SCALE x SCALE block of real pixels
-        for sy in range(SCALE):
-            for sx in range(SCALE):
-                px, py = x * SCALE + sx, y * SCALE + sy
-                if (px, py) in core2 or (keep2 is not None and keep2(px, py)):
-                    a = a0
-                else:
-                    a = int(a0 * fade.get((px, py), 0.0))
-                if a > 0:
-                    dst[(x - x0) * SCALE + sx, (y - y0) * SCALE + sy] = src[px, py] + (a,)
-    return sp, x0, y0
-
-
-def fill_interp(px, pts, width):
-    """Inpaint by interpolating across each masked run from the pixels on both
-    sides of it. Smoother and less streaky than copying one neighbour. Operates
-    at whatever resolution `px` is; `pts` must already match it."""
-    rows = collections.defaultdict(list)
-    for x, y in pts:
-        if 0 <= x < width:
-            rows[y].append(x)
-    for y, xs in rows.items():
-        xs.sort()
-        run = [xs[0]]
-        for x in xs[1:]:
-            if x == run[-1] + 1:
-                run.append(x)
-            else:
-                _fill_run(px, y, run, width)
-                run = [x]
-        _fill_run(px, y, run, width)
-
-
-def _fill_run(px, y, run, width):
-    a, b = run[0] - 1, run[-1] + 1
-    ca = px[a, y] if a >= 0 else None
-    cb = px[b, y] if b < width else None
-    if ca is None and cb is None:
-        return
-    if ca is None:
-        ca = cb
-    if cb is None:
-        cb = ca
-    n = len(run) + 1
-    for i, x in enumerate(run, start=1):
-        t = i / n
-        n_ = random.randint(-2, 2)
-        px[x, y] = tuple(max(0, min(255, round(ca[c] + (cb[c] - ca[c]) * t) + n_)) for c in range(3))
+# Segmentation and compositing are shared with the game-page scene.
+from scene_lib import (  # noqa: E402
+    Painting, bbox, close, components, cut_fade, dilate, disc, hsv, kmeans, l1, lum,
+)
+from scene_lib import upscale_mask as _upscale_mask  # noqa: E402
+from scene_lib import fill_interp  # noqa: E402
 
 
 def upscale_mask(pts):
     """A 1x mask -> the equivalent set of 2x pixels."""
-    out = set()
-    for x, y in pts:
-        for sy in range(SCALE):
-            for sx in range(SCALE):
-                out.add((x * SCALE + sx, y * SCALE + sy))
-    return out
+    return _upscale_mask(pts, SCALE)
+
+
+def sprite_from(img, pts, alpha_fn=None, ring=0, keep2=None):
+    """Cut pts out of whichever theme's painting `img` is, at SCALE."""
+    return PAINT[id(img)].sprite_from(pts, alpha_fn=alpha_fn, ring=ring, keep2=keep2)
 
 
 # ---------------------------------------------------------------- sources ---
@@ -262,6 +88,7 @@ for _im in (day_hi, night_hi):
         raise SystemExit(f"2x source must be {W*SCALE}x{H*SCALE}, got {_im.size}")
 HI_OF = {id(day): day_hi, id(night): night_hi}
 dphi = day_hi.load()   # 2x day pixels; masks are decided on the day painting
+PAINT = {id(day): Painting(day, day_hi, SCALE), id(night): Painting(night, night_hi, SCALE)}
 THEMES = (("light", day), ("dark", night))
 dp = day.load()
 
@@ -518,13 +345,18 @@ cat_pts = sorted(cat_all)
 # The ear is drawn twice: once inside the body sprite, once on top so it can twitch
 # without opening a hole underneath.
 ear_pts = [(x, y) for (x, y) in cat_pts if 782 <= x <= 804 and y <= 429]
+# Ramp the alpha away along the line where the ear was sliced off the skull, so
+# the twitch never swings a straight edge into view.
+ear_fade = cut_fade(ear_pts, cat_pts, 7)
 if not cat_pts or not ear_pts:
     raise SystemExit("cat segmentation failed: body %d ear %d" % (len(cat_pts), len(ear_pts)))
 
 for theme, img in THEMES:
     for name, pts in (("cat", cat_pts), ("cat-ear", ear_pts)):
+        fade = ear_fade if name == "cat-ear" else None
         sp, sx, sy = sprite_from(img, pts, ring=1,
-                                 keep2=lambda px, py: not is_cat_background(dphi[px, py]))
+                                 keep2=lambda px, py: not is_cat_background(dphi[px, py]),
+                                 alpha_fn=None if fade is None else (lambda x, y: int(255 * fade.get((x, y), 1.0))))
         sp.save(os.path.join(OUT, theme, f"{name}.png"), optimize=True)
         manifest["cat"][name] = {"x": sx, "y": sy, "w": sp.width // SCALE, "h": sp.height // SCALE}
 manifest["cat"]["earPivot"] = {"x": 797, "y": 429}
@@ -559,18 +391,6 @@ PLANT_POLYS = [
 ]
 
 
-def kmeans(pts, k, iters=14):
-    cents = [pts[int(i * len(pts) / k)] for i in range(k)]
-    groups = []
-    for _ in range(iters):
-        groups = [[] for _ in range(k)]
-        for p in pts:
-            j = min(range(k), key=lambda i: (p[0] - cents[i][0]) ** 2 + (p[1] - cents[i][1]) ** 2)
-            groups[j].append(p)
-        cents = [(sum(p[0] for p in g) / len(g), sum(p[1] for p in g) / len(g)) if g else cents[i] for i, g in enumerate(groups)]
-    return [g for g in groups if len(g) > 40]
-
-
 plant_pts_all = set()
 pid = 0
 for poly, k in PLANT_POLYS:
@@ -580,7 +400,7 @@ for poly, k in PLANT_POLYS:
     x0, y0, x1, y1 = bbox(poly)
     raw = {(x, y) for y in range(y0, y1) for x in range(x0, x1) if pp[x, y] and is_foliage(x, y)}
     pts = [p for blob in components(lambda x, y: (x, y) in raw, x0, y0, x1, y1) if len(blob) >= 24 for p in blob]
-    for g in kmeans(pts, k):
+    for g in kmeans(pts, k, min_size=40):
         g = sorted(close(set(g), 2) & raw)
         plant_pts_all |= set(g)
         ax = sum(p[0] for p in g) / len(g)

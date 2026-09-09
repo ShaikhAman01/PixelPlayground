@@ -13,8 +13,13 @@ import { useEffect, useRef } from "react";
  * diffuse, and fade out. They are drawn additively at very low alpha, so dozens
  * of overlapping puffs accumulate into a continuous, always-changing plume.
  *
- * ~46 particles on a canvas of a few thousand pixels, 30fps, and only while
- * on screen and the tab is visible.
+ * Every size below is a fraction of the plume's own width, not a pixel count.
+ * The two paintings are 1024 and 1672 pixels across, so a puff radius fixed in
+ * painting pixels comes out proportionally smaller on the wider one, and the
+ * plume thins into separate hard strands instead of reading as steam.
+ *
+ * Roughly 46 to 80 particles on a canvas of a few thousand pixels, 30fps, and
+ * only while on screen and the tab is visible.
  */
 interface Props {
   w: number;               // region size in painting pixels
@@ -24,7 +29,10 @@ interface Props {
 }
 
 const SS = 2;              // canvas supersample
-const N = 46;              // particles
+// Puffs per painting pixel of column height. Held constant so a taller plume is
+// a longer column of the same steam, not the same handful of puffs stretched
+// thinner: 46 over the home page's 62px is what this was tuned at.
+const DENSITY = 46 / 62;
 
 interface P {
   x0: number;
@@ -56,17 +64,18 @@ export function SteamCanvas({ w, h, theme, style }: Props) {
     const rnd = () => ((s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
 
     const spawn = (p: P, stagger: boolean) => {
-      p.x0 = (rnd() - 0.5) * 3.2;                  // the column starts tight at the rim
+      p.x0 = (rnd() - 0.5) * 0.070 * w;            // the column starts tight at the rim
       p.life = 2.6 + rnd() * 2.8;
       p.age = stagger ? rnd() * p.life : 0;
       p.seed = rnd() * Math.PI * 2;
-      p.r0 = 1.1 + rnd() * 1.0;
-      p.rMax = 7.5 + rnd() * 6.5;
+      p.r0 = (0.024 + rnd() * 0.022) * w;
+      p.rMax = (0.163 + rnd() * 0.141) * w;
       p.amp = 0.75 + rnd() * 0.6;                  // how much this puff wanders
       p.bright = 0.75 + rnd() * 0.5;
     };
 
-    const ps: P[] = Array.from({ length: N }, () => {
+    const n = Math.max(24, Math.min(96, Math.round(h * DENSITY)));
+    const ps: P[] = Array.from({ length: n }, () => {
       const p = { x0: 0, age: 0, life: 1, seed: 0, r0: 1, rMax: 8, amp: 1, bright: 1 } as P;
       spawn(p, true);
       return p;
@@ -75,7 +84,10 @@ export function SteamCanvas({ w, h, theme, style }: Props) {
     const cx = w / 2;
     const rim = h;                                  // bottom edge of the region = the drink surface
     const rise = h * 0.98;
-    const ALPHA = theme === "dark" ? 0.056 : 0.05;
+    const ALPHA = theme === "dark" ? 0.060 : 0.058;
+    // Additive pure white over a deep indigo sky reads as chimney smoke. At night
+    // the steam takes the colour of the moonlight it is lit by.
+    const TINT = theme === "dark" ? "202,214,255" : "255,255,255";
 
     const draw = (t: number, dt: number) => {
       ctx.clearRect(0, 0, CW, CH);
@@ -89,8 +101,8 @@ export function SteamCanvas({ w, h, theme, style }: Props) {
         const hh = climb;                           // normalised height, for the drift field
         // Two slow frequencies that vary with height: a coherent snaking column.
         const drift =
-          (1.6 + 6.2 * hh) * Math.sin(hh * 3.1 + t * 0.85 + p.seed) +
-          (0.7 + 2.6 * hh) * Math.sin(hh * 5.9 - t * 1.35 + p.seed * 2.3);
+          (0.035 + 0.135 * hh) * w * Math.sin(hh * 3.1 + t * 0.85 + p.seed) +
+          (0.015 + 0.057 * hh) * w * Math.sin(hh * 5.9 - t * 1.35 + p.seed * 2.3);
         const x = cx + p.x0 + drift * p.amp;
         const r = p.r0 + (p.rMax - p.r0) * Math.pow(u, 0.7);
         // fade in off the surface, fade out as it disperses, and thin with height
@@ -99,9 +111,9 @@ export function SteamCanvas({ w, h, theme, style }: Props) {
         if (a <= 0.0015) continue;
 
         const g = ctx.createRadialGradient(x * SS, y * SS, 0, x * SS, y * SS, r * SS);
-        g.addColorStop(0, `rgba(255,255,255,${a})`);
-        g.addColorStop(0.45, `rgba(255,255,255,${a * 0.5})`);
-        g.addColorStop(1, "rgba(255,255,255,0)");
+        g.addColorStop(0, `rgba(${TINT},${a})`);
+        g.addColorStop(0.45, `rgba(${TINT},${a * 0.5})`);
+        g.addColorStop(1, `rgba(${TINT},0)`);
         ctx.fillStyle = g;
         ctx.beginPath();
         ctx.arc(x * SS, y * SS, r * SS, 0, Math.PI * 2);
