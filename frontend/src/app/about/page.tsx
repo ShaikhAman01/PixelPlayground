@@ -24,10 +24,10 @@ export default function AboutPage() {
         {/* Informational Prose Stage Layout */}
         <div className="space-y-6 font-sans text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-300">
           <p>
-            Welcome to a minimalist hub crafted for lovers of classic web gaming. This space was engineered to strip away the clutter of modern web platforms—no flashing banner advertisements, no forced account signups, and no heavy asset tracking scripts. 
+            Welcome to a minimalist hub crafted for lovers of classic web gaming. This space was engineered to strip away the clutter of modern web platforms: no flashing banner advertisements, no forced account signups, and no heavy asset tracking scripts. 
           </p>
           <p>
-            Every single application here—from <span className="text-violet-500 font-bold">Tic Tac Toe</span> to <span className="text-teal-500 font-bold">Wordle</span>—runs completely on lightweight, Client-side state engines. By rendering boards using pure native web code instead of image frameworks, these games scale infinitely sharp and run with blistering hardware efficiency.
+            Every single application here, from <span className="text-violet-500 font-bold">Tic Tac Toe</span> to <span className="text-teal-500 font-bold">Wordle</span>, runs completely on lightweight, Client-side state engines. By rendering boards using pure native web code instead of image frameworks, these games scale infinitely sharp and run with blistering hardware efficiency.
           </p>
 
           <div className="border-t border-b border-slate-100 dark:border-slate-800/60 py-4 my-6 grid grid-cols-3 gap-4 text-center">

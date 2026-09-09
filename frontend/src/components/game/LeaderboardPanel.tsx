@@ -87,7 +87,7 @@ export const LeaderboardPanel = ({ gameId }: { gameId: string }) => {
 
       {state === "ready" && data && data.entries.length === 0 && (
         <p className="text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 py-2 text-center">
-          No scores yet — set the first one!
+          No scores yet, set the first one!
         </p>
       )}
 

@@ -73,7 +73,7 @@ export const useAuthStore = create<AuthState>()(
         } catch (err) {
           return {
             ok: false,
-            message: err instanceof ApiError ? err.message : "Network error — try again later",
+            message: err instanceof ApiError ? err.message : "Network error, try again later",
           };
         }
       },
@@ -86,7 +86,7 @@ export const useAuthStore = create<AuthState>()(
         } catch (err) {
           return {
             ok: false,
-            message: err instanceof ApiError ? err.message : "Network error — try again later",
+            message: err instanceof ApiError ? err.message : "Network error, try again later",
           };
         }
       },
@@ -101,7 +101,7 @@ export const useAuthStore = create<AuthState>()(
         } catch (err) {
           return {
             ok: false,
-            message: err instanceof ApiError ? err.message : "Network error — try again later",
+            message: err instanceof ApiError ? err.message : "Network error, try again later",
           };
         }
       },

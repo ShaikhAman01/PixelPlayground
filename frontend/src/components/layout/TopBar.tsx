@@ -19,6 +19,8 @@ export const TopBar = () => {
   const [profileExpanded, setProfileExpanded] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const musicBtnRef = useRef<HTMLButtonElement>(null);
+  const profileBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -33,6 +35,26 @@ export const TopBar = () => {
     document.addEventListener("mousedown", handleOutsideClick);
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
+
+  // Escape closes an open panel and hands focus back to the button that opened
+  // it, so keyboard users are not stranded inside the menu.
+  useEffect(() => {
+    if (!musicExpanded && !profileExpanded) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (profileExpanded) {
+        setProfileExpanded(false);
+        profileBtnRef.current?.focus();
+      }
+      if (musicExpanded) {
+        setMusicExpanded(false);
+        musicBtnRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [musicExpanded, profileExpanded]);
 
   const isInsideGamePage = pathname?.startsWith("/game/");
   const isChillMode = mode === "chill";
@@ -150,6 +172,7 @@ export const TopBar = () => {
             {showAllOperators && (
               <div className="static sm:relative">
                 <motion.button
+                  ref={musicBtnRef}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={() => {
@@ -223,6 +246,7 @@ export const TopBar = () => {
             {showAllOperators && (
               <div className="relative">
                 <motion.button
+                  ref={profileBtnRef}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={() => {
