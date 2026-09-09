@@ -23,12 +23,12 @@ interface Props {
   skipLeftBelow: number;   // from this row down, leave the first `skipLeftX` px alone (the pillow)
   skipLeftX: number;
   reflection: { x: number; w: number };
+  /** Resolution of lake.webp relative to painting pixels (assets are built at 2x). */
+  srcScale?: number;
   style?: React.CSSProperties;
 }
 
-const SS = 2; // supersample factor
-
-export function LakeCanvas({ src, w, h, skipLeftBelow, skipLeftX, reflection, style }: Props) {
+export function LakeCanvas({ src, w, h, skipLeftBelow, skipLeftX, reflection, srcScale = 1, style }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -36,6 +36,8 @@ export function LakeCanvas({ src, w, h, skipLeftBelow, skipLeftX, reflection, st
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    // Render at the plate's own resolution so no detail is thrown away.
+    const SS = srcScale;
     canvas.width = w * SS;
     canvas.height = h * SS;
 
@@ -70,7 +72,9 @@ export function LakeCanvas({ src, w, h, skipLeftBelow, skipLeftX, reflection, st
         const p = rows[r];
         const dx = p.a1 * Math.sin(t * p.f1 + p.p1) + p.a2 * Math.sin(t * p.f2 + p.p2);
         const x0 = r >= skipLeftBelow ? skipLeftX : 0;
-        ctx.drawImage(img, x0, r, w - x0, 1, (x0 + dx) * SS, r * SS, (w - x0) * SS, SS);
+        // source rect is in plate pixels (painting px * srcScale), dest in canvas px
+        ctx.drawImage(img, x0 * srcScale, r * srcScale, (w - x0) * srcScale, srcScale,
+                      (x0 + dx) * SS, r * SS, (w - x0) * SS, SS);
       }
       // Shimmer: patches of the reflection column brighten and fade out of step.
       ctx.globalCompositeOperation = "lighter";
@@ -79,7 +83,8 @@ export function LakeCanvas({ src, w, h, skipLeftBelow, skipLeftX, reflection, st
         if (a <= 0.006) continue;
         ctx.globalAlpha = a;
         const sx = 1.6 * Math.sin(t * 0.45 + r * 0.31);
-        ctx.drawImage(img, reflection.x, r, reflection.w, 2, (reflection.x + sx) * SS, r * SS, reflection.w * SS, 2 * SS);
+        ctx.drawImage(img, reflection.x * srcScale, r * srcScale, reflection.w * srcScale, 2 * srcScale,
+                      (reflection.x + sx) * SS, r * SS, reflection.w * SS, 2 * SS);
       }
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = "source-over";
@@ -124,7 +129,7 @@ export function LakeCanvas({ src, w, h, skipLeftBelow, skipLeftX, reflection, st
       document.removeEventListener("visibilitychange", sync);
       io.disconnect();
     };
-  }, [src, w, h, skipLeftBelow, skipLeftX, reflection.x, reflection.w]);
+  }, [src, w, h, skipLeftBelow, skipLeftX, reflection.x, reflection.w, srcScale]);
 
   return <canvas ref={ref} className="absolute" style={style} />;
 }

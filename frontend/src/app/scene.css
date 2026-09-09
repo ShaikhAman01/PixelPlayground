@@ -31,12 +31,12 @@ first, subtle motion second, occasional events last.
 .scene-base {
   position: absolute;
   inset: 0;
-  background-image: url("/scene/light/base.png");
+  background-image: url("/scene/light/base.webp");
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
 .dark .scene-base {
-  background-image: url("/scene/dark/base.png");
+  background-image: url("/scene/dark/base.webp");
 }
 
 /* ---------- Sky ---------- */

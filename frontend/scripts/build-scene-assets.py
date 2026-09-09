@@ -3,13 +3,13 @@
 Splits the home-page painting into animatable layers.
 
 Input:  public/background/bg-long2.png (day) and bg-long-dark2.png (night)
-Output: public/scene/<theme>/base.png     the painting with only the moving parts inpainted out
+Output: public/scene/<theme>/base.webp    the painting with only the moving parts inpainted out
         public/scene/<theme>/cat.png      the whole cat (ear included) as one solid sprite
         public/scene/<theme>/cat-ear.png  the ear again, drawn on top so it can twitch
         public/scene/<theme>/plant-N.png  leaf/flower clusters of the foreground plants
         public/scene/<theme>/star-N.png   painted sparkles, re-drawn on top to brighten
         public/scene/<theme>/cloud-N.png  clouds shaded along the painting's own cloud gradient
-        public/scene/<theme>/lake.png     the water plate the canvas ripples
+        public/scene/<theme>/lake.webp    the water plate the canvas ripples
         public/scene/manifest.json + src/data/sceneManifest.json
 
 Steam has no asset: it is a particle plume simulated at runtime in
@@ -126,31 +126,80 @@ def close(pts, r=3):
     return erode(dilate(pts, r), r)
 
 
-def sprite_from(img, pts, alpha_fn=None, ring=0):
-    """Cut pts out of img. With ring=1 the one-pixel anti-aliased edge travels with
-    the sprite at partial alpha, so no halo is left behind on the base."""
+def edge_falloff(core2, steps):
+    """Feather the outward edge at output resolution.
+
+    The shape is decided on the 1x painting, but a 1x edge pixel upscaled becomes
+    a flat SCALE-wide slab of half-transparent background colour, which at 2x
+    reads as a chewed halo and hollows out the painting's dark outlines. Instead
+    walk out from the shape one output pixel at a time and fade linearly, so the
+    edge is a real sub-pixel feather.
+    """
+    out = {}
+    frontier = core2
+    seen = set(core2)
+    for n in range(1, steps + 1):
+        nxt = set()
+        for x, y in frontier:
+            for dy in (-1, 0, 1):
+                for dx in (-1, 0, 1):
+                    p = (x + dx, y + dy)
+                    if p not in seen:
+                        nxt.add(p)
+        for p in nxt:
+            seen.add(p)
+            out[p] = 1.0 - n / (steps + 1.0)
+        frontier = nxt
+    return out
+
+
+def sprite_from(img, pts, alpha_fn=None, ring=0, keep2=None):
+    """Cut pts (1x coordinates) out of img, emitting the sprite at SCALE. With
+    ring=1 the edge travels with the sprite at partial alpha, so no halo is left
+    behind on the base. The returned x/y stay in 1x space because the manifest is
+    authored there.
+
+    keep2 decides single output pixels in that edge ring. The shape is settled on
+    the 1x painting, but upscaling put the artwork's dark outlines half in the
+    ring, where a blanket fade hollows them out; asking the same colour test that
+    drew the mask, at output resolution, keeps the line and drops only the
+    background it sits against."""
     core = set(pts)
     allpts = dilate(core, ring) if ring else core
     x0, y0, x1, y1 = bbox(allpts)
-    sp = Image.new("RGBA", (x1 - x0, y1 - y0), (0, 0, 0, 0))
-    src = img.load()
+    sp = Image.new("RGBA", ((x1 - x0) * SCALE, (y1 - y0) * SCALE), (0, 0, 0, 0))
+    src = HI_OF[id(img)].load()
     dst = sp.load()
+
+    core2 = upscale_mask(core)
+    fade = edge_falloff(core2, ring * SCALE) if ring else {}
+
     for x, y in allpts:
-        if 0 <= x < W and 0 <= y < H:
-            a = 255 if alpha_fn is None else alpha_fn(x, y)
-            if (x, y) not in core:
-                a = min(a, 170)
-            if a > 0:
-                dst[x - x0, y - y0] = src[x, y] + (a,)
+        if not (0 <= x < W and 0 <= y < H):
+            continue
+        a0 = 255 if alpha_fn is None else alpha_fn(x, y)
+        if a0 <= 0:
+            continue
+        # one mask pixel covers a SCALE x SCALE block of real pixels
+        for sy in range(SCALE):
+            for sx in range(SCALE):
+                px, py = x * SCALE + sx, y * SCALE + sy
+                if (px, py) in core2 or (keep2 is not None and keep2(px, py)):
+                    a = a0
+                else:
+                    a = int(a0 * fade.get((px, py), 0.0))
+                if a > 0:
+                    dst[(x - x0) * SCALE + sx, (y - y0) * SCALE + sy] = src[px, py] + (a,)
     return sp, x0, y0
 
 
-def fill_interp(px, pts):
+def fill_interp(px, pts, width):
     """Inpaint by interpolating across each masked run from the pixels on both
-    sides of it. Smoother and less streaky than copying one neighbour."""
+    sides of it. Smoother and less streaky than copying one neighbour. Operates
+    at whatever resolution `px` is; `pts` must already match it."""
     rows = collections.defaultdict(list)
     for x, y in pts:
-        if 0 <= x < W and 0 <= y < H:
+        if 0 <= x < width:
             rows[y].append(x)
     for y, xs in rows.items():
         xs.sort()
@@ -159,15 +208,15 @@ def fill_interp(px, pts):
             if x == run[-1] + 1:
                 run.append(x)
             else:
-                _fill_run(px, y, run)
+                _fill_run(px, y, run, width)
                 run = [x]
-        _fill_run(px, y, run)
+        _fill_run(px, y, run, width)
 
 
-def _fill_run(px, y, run):
+def _fill_run(px, y, run, width):
     a, b = run[0] - 1, run[-1] + 1
     ca = px[a, y] if a >= 0 else None
-    cb = px[b, y] if b < W else None
+    cb = px[b, y] if b < width else None
     if ca is None and cb is None:
         return
     if ca is None:
@@ -181,9 +230,38 @@ def _fill_run(px, y, run):
         px[x, y] = tuple(max(0, min(255, round(ca[c] + (cb[c] - ca[c]) * t) + n_)) for c in range(3))
 
 
+def upscale_mask(pts):
+    """A 1x mask -> the equivalent set of 2x pixels."""
+    out = set()
+    for x, y in pts:
+        for sy in range(SCALE):
+            for sx in range(SCALE):
+                out.add((x * SCALE + sx, y * SCALE + sy))
+    return out
+
+
 # ---------------------------------------------------------------- sources ---
+# Detection (masks, polygons, thresholds) runs on the 1x painting so every
+# coordinate in this file stays in 1024x1536 space. Pixels are then sampled from
+# a 2x copy, so the emitted images carry twice the detail while the manifest, and
+# therefore the React side's percentage maths, is unchanged.
+#
+# The 2x copies were produced with Real-ESRGAN (realesrgan-x4plus-anime at 4x,
+# resampled down to 2x). The originals were only 1024px wide but the scene is
+# painted across a ~1440px-wide page, so the artwork was being stretched to 140%
+# and looked soft next to the game pages, which show their art near 1:1.
+SCALE = 2
+WEBP_Q = 94
 day = Image.open(os.path.join(ROOT, SRC["light"])).convert("RGB")
 night = Image.open(os.path.join(ROOT, SRC["dark"])).convert("RGB")
+HI = {"light": "public/background/bg-long2@2x.png", "dark": "public/background/bg-long-dark2@2x.png"}
+day_hi = Image.open(os.path.join(ROOT, HI["light"])).convert("RGB")
+night_hi = Image.open(os.path.join(ROOT, HI["dark"])).convert("RGB")
+for _im in (day_hi, night_hi):
+    if _im.size != (W * SCALE, H * SCALE):
+        raise SystemExit(f"2x source must be {W*SCALE}x{H*SCALE}, got {_im.size}")
+HI_OF = {id(day): day_hi, id(night): night_hi}
+dphi = day_hi.load()   # 2x day pixels; masks are decided on the day painting
 THEMES = (("light", day), ("dark", night))
 dp = day.load()
 
@@ -237,7 +315,7 @@ for theme, img in THEMES:
 
         sp, sx, sy = sprite_from(img, d, alpha)
         sp.save(os.path.join(OUT, theme, f"star-{k}.png"), optimize=True)
-        manifest["stars"][theme].append({"id": k, "x": sx, "y": sy, "w": sp.width, "h": sp.height})
+        manifest["stars"][theme].append({"id": k, "x": sx, "y": sy, "w": sp.width // SCALE, "h": sp.height // SCALE})
         k += 1
 
 # ----------------------------------------------------- 2. drifting clouds ---
@@ -325,7 +403,11 @@ def build_cloud(shape, ramp, path):
     far down its own lobe it sits, so every bump gets a rounded crown and shaded
     underside the way the painted clouds do. No dithering: the artwork is smooth."""
     w, h, discs = shape
-    FEATHER = 2.6
+    # The geometry is scaled up rather than the finished pixels, so the clouds are
+    # genuinely smooth at 2x and match the density of the upscaled base painting.
+    w, h = w * SCALE, h * SCALE
+    discs = [(cx * SCALE, cy * SCALE, r * SCALE) for cx, cy, r in discs]
+    FEATHER = 2.6 * SCALE
     n = len(ramp)
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     dst = img.load()
@@ -368,7 +450,7 @@ def build_cloud(shape, ramp, path):
             glob = min(1.0, max(0.0, (y - top[x]) / thickness))
             t = 0.34 * glob + 0.66 * lobe[y][x]
             t += 0.20 * max(0.0, crease[y][x] - 0.62)      # shaded fold between bubbles
-            if y - top[x] <= 1:
+            if y - top[x] <= SCALE:
                 t -= 0.16                                   # sunlit rim along the crown
             t = min(1.0, max(0.0, t))
             col = ramp[max(0, min(n - 1, int(round(t * (n - 1)))))]
@@ -441,9 +523,10 @@ if not cat_pts or not ear_pts:
 
 for theme, img in THEMES:
     for name, pts in (("cat", cat_pts), ("cat-ear", ear_pts)):
-        sp, sx, sy = sprite_from(img, pts, ring=1)
+        sp, sx, sy = sprite_from(img, pts, ring=1,
+                                 keep2=lambda px, py: not is_cat_background(dphi[px, py]))
         sp.save(os.path.join(OUT, theme, f"{name}.png"), optimize=True)
-        manifest["cat"][name] = {"x": sx, "y": sy, "w": sp.width, "h": sp.height}
+        manifest["cat"][name] = {"x": sx, "y": sy, "w": sp.width // SCALE, "h": sp.height // SCALE}
 manifest["cat"]["earPivot"] = {"x": 797, "y": 429}
 
 # -------------------------------------------------------------- 4. plants ---
@@ -454,6 +537,18 @@ def is_foliage(x, y):
     if 212 <= h <= 258 and v > 0.5 and s < 0.75:           # sky / water
         return False
     if s < 0.12 and v > 0.7:                               # pale pot highlight
+        return False
+    return True
+
+
+def is_foliage2(px, py):
+    """is_foliage, asked of one output pixel."""
+    h, s, v = hsv(dphi[px, py])
+    if 250 <= h <= 285 and s > 0.4 and v > 0.5:
+        return False
+    if 212 <= h <= 258 and v > 0.5 and s < 0.75:
+        return False
+    if s < 0.12 and v > 0.7:
         return False
     return True
 
@@ -491,7 +586,7 @@ for poly, k in PLANT_POLYS:
         ax = sum(p[0] for p in g) / len(g)
         ay = max(p[1] for p in g)
         for theme, img in THEMES:
-            sp, sx, sy = sprite_from(img, g, ring=1)
+            sp, sx, sy = sprite_from(img, g, ring=1, keep2=is_foliage2)
             sp.save(os.path.join(OUT, theme, f"plant-{pid}.png"), optimize=True)
         bx0, by0, bx1, by1 = bbox(dilate(g, 1))
         manifest["plants"].append({"id": pid, "x": bx0, "y": by0, "w": bx1 - bx0, "h": by1 - by0, "ax": round(ax), "ay": ay})
@@ -523,17 +618,24 @@ LAKE = (120, 335, 905, 432)
 ERASE = {"light": [((970, 271), 11)], "dark": []}
 
 for theme, img in THEMES:
-    base = img.copy()
+    # The base is built from the 2x painting; masks detected at 1x are scaled up.
+    base = HI_OF[id(img)].copy()
     bp = base.load()
+    WH = W * SCALE
     for (cx, cy), r in ERASE[theme]:
-        fill_interp(bp, sorted((cx + dx, cy + dy) for dx, dy in disc(r)))
-    fill_interp(bp, sorted(dilate(cat_pts, 1)))
-    fill_interp(bp, sorted(dilate(plant_pts_all, 1)))
-    base.save(os.path.join(OUT, theme, "base.png"), optimize=True)
+        fill_interp(bp, sorted(upscale_mask((cx + dx, cy + dy) for dx, dy in disc(r))), WH)
+    fill_interp(bp, sorted(upscale_mask(dilate(cat_pts, 1))), WH)
+    fill_interp(bp, sorted(upscale_mask(dilate(plant_pts_all, 1))), WH)
+    # The two full-resolution plates go out as WebP: at 2x they are 2.7 MB each
+    # as PNG, and q94 WebP is 6x smaller while keeping the edge energy (3.06 ->
+    # 3.04). The small sprites stay PNG, where hard alpha edges matter more than
+    # the few KB.
+    base.save(os.path.join(OUT, theme, "base.webp"), quality=WEBP_Q, method=6)
     # The lake plate is a copy, not a hole: the canvas draws it back over identical
     # pixels, so at rest it is invisible and only the displacement shows.
-    img.crop(LAKE).save(os.path.join(OUT, theme, "lake.png"), optimize=True)
+    HI_OF[id(img)].crop(tuple(v * SCALE for v in LAKE)).save(os.path.join(OUT, theme, "lake.webp"), quality=WEBP_Q, method=6)
 
+manifest["assetScale"] = SCALE
 manifest["lake"] = {
     "x": LAKE[0], "y": LAKE[1], "w": LAKE[2] - LAKE[0], "h": LAKE[3] - LAKE[1],
     "skipLeftBelow": 402 - LAKE[1], "skipLeftX": 215 - LAKE[0],

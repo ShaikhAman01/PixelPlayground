@@ -99,12 +99,13 @@ export function LivingScene() {
           <div className="scene-base" />
 
           <LakeCanvas
-            src={`/scene/${theme}/lake.png`}
+            src={`/scene/${theme}/lake.webp`}
             w={lake.w}
             h={lake.h}
             skipLeftBelow={lake.skipLeftBelow}
             skipLeftX={lake.skipLeftX}
             reflection={lake.reflection}
+            srcScale={manifest.assetScale}
             style={box(lake.x, lake.y, lake.w, lake.h)}
           />
 
