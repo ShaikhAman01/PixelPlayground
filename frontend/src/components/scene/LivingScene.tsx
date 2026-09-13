@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import manifest from "@/data/sceneManifest.json";
 import { useTheme } from "@/components/providers/ThemeProvider";
-import { LakeCanvas } from "./LakeCanvas";
 import { SteamCanvas } from "./SteamCanvas";
 
 /**
@@ -23,7 +22,7 @@ import { SteamCanvas } from "./SteamCanvas";
  * drawn on top of themselves and just brighten, and the drifting clouds are new
  * sprites, so the sky never shows a hole where something used to be.
  *
- * Motion is CSS transform/opacity everywhere except the lake canvas.
+ * Motion is CSS transform/opacity everywhere except the steam canvas.
  */
 const IMG_W = manifest.image.w;
 const IMG_H = manifest.image.h;
@@ -88,7 +87,6 @@ export function LivingScene() {
   const { theme } = useTheme();
 
   const cat = manifest.cat;
-  const lake = manifest.lake;
   const steam = manifest.steam;
 
   return (
@@ -97,17 +95,6 @@ export function LivingScene() {
         {/* ---------- GROUND: the painting, the water, and everything resting on it ---------- */}
         <div className="scene-layer">
           <div className="scene-base" />
-
-          <LakeCanvas
-            src={`/scene/${theme}/lake.webp`}
-            w={lake.w}
-            h={lake.h}
-            skipLeftBelow={lake.skipLeftBelow}
-            skipLeftX={lake.skipLeftX}
-            reflection={lake.reflection}
-            srcScale={manifest.assetScale}
-            style={box(lake.x, lake.y, lake.w, lake.h)}
-          />
 
           {/* Atmospheric haze over the far shore, barely there */}
           <div className="sc-haze absolute" style={box(0, 222, IMG_W, 130)} />

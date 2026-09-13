@@ -9,7 +9,6 @@ Output: public/scene/<theme>/base.webp    the painting with only the moving part
         public/scene/<theme>/plant-N.png  leaf/flower clusters of the foreground plants
         public/scene/<theme>/star-N.png   painted sparkles, re-drawn on top to brighten
         public/scene/<theme>/cloud-N.png  clouds shaded along the painting's own cloud gradient
-        public/scene/<theme>/lake.webp    the water plate the canvas ripples
         public/scene/manifest.json + src/data/sceneManifest.json
 
 Steam has no asset: it is a particle plume simulated at runtime in
@@ -98,7 +97,6 @@ manifest = {
     "stars": {"light": [], "dark": []},
     "plants": [],
     "cat": {},
-    "lake": {},
     "steam": {},
     "lanterns": [],
     "petalSources": [],
@@ -431,8 +429,7 @@ for i, (col, hi) in enumerate((((228, 138, 182), (250, 190, 214)), ((251, 173, 1
     for theme in ("light", "dark"):
         im.save(os.path.join(OUT, theme, f"petal-{i}.png"))
 
-# ---------------------------------------------------- 7. base + lake plate ---
-LAKE = (120, 335, 905, 432)
+# ----------------------------------------------------------------- 7. base ---
 # Painted sparkles that sit on the mountains rather than in the sky: they read as
 # a stray glare rather than a star, so they are erased from the artwork.
 ERASE = {"light": [((970, 271), 11)], "dark": []}
@@ -446,21 +443,12 @@ for theme, img in THEMES:
         fill_interp(bp, sorted(upscale_mask((cx + dx, cy + dy) for dx, dy in disc(r))), WH)
     fill_interp(bp, sorted(upscale_mask(dilate(cat_pts, 1))), WH)
     fill_interp(bp, sorted(upscale_mask(dilate(plant_pts_all, 1))), WH)
-    # The two full-resolution plates go out as WebP: at 2x they are 2.7 MB each
-    # as PNG, and q94 WebP is 6x smaller while keeping the edge energy (3.06 ->
-    # 3.04). The small sprites stay PNG, where hard alpha edges matter more than
-    # the few KB.
+    # The base goes out as WebP: at 2x it is 2.7 MB as PNG, and q94 WebP is 6x
+    # smaller while keeping the edge energy (3.06 -> 3.04). The small sprites stay
+    # PNG, where hard alpha edges matter more than the few KB.
     base.save(os.path.join(OUT, theme, "base.webp"), quality=WEBP_Q, method=6)
-    # The lake plate is a copy, not a hole: the canvas draws it back over identical
-    # pixels, so at rest it is invisible and only the displacement shows.
-    HI_OF[id(img)].crop(tuple(v * SCALE for v in LAKE)).save(os.path.join(OUT, theme, "lake.webp"), quality=WEBP_Q, method=6)
 
 manifest["assetScale"] = SCALE
-manifest["lake"] = {
-    "x": LAKE[0], "y": LAKE[1], "w": LAKE[2] - LAKE[0], "h": LAKE[3] - LAKE[1],
-    "skipLeftBelow": 402 - LAKE[1], "skipLeftX": 215 - LAKE[0],
-    "reflection": {"x": 350, "w": 92},
-}
 manifest["lanterns"] = [
     {"flame": {"x": 77, "y": 381}, "r": 22, "halo": 88},
     {"flame": {"x": 914, "y": 1424}, "r": 18, "halo": 70},
