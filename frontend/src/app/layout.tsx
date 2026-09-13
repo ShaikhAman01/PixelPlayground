@@ -33,6 +33,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Must run before first paint, or dark-mode users get a light frame.
+            Preloads in JS, not a <link media>, because a saved theme beats the
+            OS preference and only this script knows which won. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');if(t==='dark')document.documentElement.classList.add('dark');var l=document.createElement('link');l.rel='preload';l.as='image';l.href='/scene/'+t+'/base.webp';document.head.appendChild(l);}catch(e){}`,
+          }}
+        />
+      </head>
       <body className={`${inter.variable} ${pixelFont.variable} antialiased`}>
         <ThemeProvider>
           <ModeProvider>
