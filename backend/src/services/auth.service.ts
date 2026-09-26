@@ -1,7 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { sign } from "hono/jwt";
 import type { Database } from "../db/client";
-import { users, type User } from "../db/schema";
+import { gameStats, scores, users, type User } from "../db/schema";
 import { hashPassword, verifyPassword } from "../lib/password";
 import type { AuthTokenPayload } from "../types";
 
@@ -154,4 +154,37 @@ export const renameUser = async (
 
   await db.update(users).set({ username }).where(eq(users.id, userId));
   return { ok: true, user: { ...user, username } };
+};
+
+export type DeleteAccountResult =
+  | { ok: true }
+  | { ok: false; status: 401 | 404; message: string };
+
+/**
+ * Wipes the account and every row hanging off it. The child deletes are
+ * explicit rather than leaning on ON DELETE CASCADE so the cleanup holds
+ * even if foreign key enforcement is ever off on the D1 instance.
+ */
+export const deleteAccount = async (
+  db: Database,
+  userId: string,
+  password?: string
+): Promise<DeleteAccountResult> => {
+  const user = await findById(db, userId);
+  if (!user) return { ok: false, status: 404, message: "Account not found" };
+
+  if (user.passwordHash) {
+    const valid = password ? await verifyPassword(password, user.passwordHash) : false;
+    if (!valid) {
+      return { ok: false, status: 401, message: "That password is not right" };
+    }
+  }
+
+  await db.batch([
+    db.delete(scores).where(eq(scores.userId, userId)),
+    db.delete(gameStats).where(eq(gameStats.userId, userId)),
+    db.delete(users).where(eq(users.id, userId)),
+  ]);
+
+  return { ok: true };
 };

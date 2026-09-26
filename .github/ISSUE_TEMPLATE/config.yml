@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Play the arcade
+    url: https://pixelplayground.shaikhaman.in
+    about: The live site. Please confirm the problem there before opening an issue.
+  - name: Questions, privacy requests and account deletion by hand
+    url: mailto:shaikhaman.0020@gmail.com
+    about: Email the maintainer directly for anything that does not belong in a public issue.
+  - name: Security issue
+    url: mailto:shaikhaman.0020@gmail.com
+    about: Please report anything security related privately by email rather than in a public issue.

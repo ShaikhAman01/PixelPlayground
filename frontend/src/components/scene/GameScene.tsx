@@ -105,7 +105,7 @@ export function GameScene() {
                 className="sc-gust absolute"
                 style={{ ...box(p.x, p.y, p.w, p.h), transformOrigin: o, animationDuration: `${27 + ((i * 5) % 7)}s`, animationDelay: `${-((i * 6.3) % 23)}s` }}
               >
-                <Sprite file={`plant-${p.id}.png`} className="sc-sway block w-full h-full" style={{ transformOrigin: o, animationDuration: `${6 + ((i * 1.3) % 3)}s`, animationDelay: `${-((i * 2.1) % 6)}s` }} />
+                <Sprite file={`plant-${p.id}.webp`} className="sc-sway block w-full h-full" style={{ transformOrigin: o, animationDuration: `${6 + ((i * 1.3) % 3)}s`, animationDelay: `${-((i * 2.1) % 6)}s` }} />
               </div>
             );
           })}
@@ -115,9 +115,9 @@ export function GameScene() {
 
           {/* The cat: the whole animal breathes from the paws; the ear is drawn a
               second time on top so its twitch never opens a hole underneath. */}
-          <Sprite file="cat.png" className="sc-breathe absolute" style={box(cat.cat.x, cat.cat.y, cat.cat.w, cat.cat.h)} />
+          <Sprite file="cat.webp" className="sc-breathe absolute" style={box(cat.cat.x, cat.cat.y, cat.cat.w, cat.cat.h)} />
           <Sprite
-            file="cat-ear.png"
+            file="cat-ear.webp"
             className="sc-ear absolute"
             style={{ ...box(cat["cat-ear"].x, cat["cat-ear"].y, cat["cat-ear"].w, cat["cat-ear"].h), transformOrigin: origin(cat["cat-ear"], cat.earPivot.x, cat.earPivot.y) }}
           />
@@ -144,7 +144,7 @@ export function GameScene() {
                 className="sc-petal absolute"
                 style={{ ...box(srcPt.x + p.dx, srcPt.y, 5, 5), ["--sway" as string]: u(p.sway), ["--fall" as string]: u(p.fall), animationDuration: `${p.dur}s`, animationDelay: `${p.delay}s` }}
               >
-                <span className="sc-petal-spin block w-full h-full" style={{ backgroundImage: `url(/scene-game/light/petal-${i % 3}.png)`, animationDuration: `${p.spin}s` }} />
+                <span className="sc-petal-spin block w-full h-full" style={{ backgroundImage: `url(/scene-game/light/petal-${i % 3}.webp)`, animationDuration: `${p.spin}s` }} />
               </span>
             );
           })}

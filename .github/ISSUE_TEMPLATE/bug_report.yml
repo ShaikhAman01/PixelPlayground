@@ -1,0 +1,109 @@
+name: Bug report
+description: Something in the arcade is broken or behaving oddly
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this. The more precise the steps, the faster it gets fixed.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where did it happen?
+      options:
+        - 2048
+        - Wordle
+        - Connect 4
+        - Tic Tac Toe
+        - Slide Puzzle
+        - Color Memory
+        - Leaderboards
+        - Accounts and sign in
+        - Chill mode (music, ambience, wallpapers, timer)
+        - Home page or navigation
+        - Somewhere else
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you see, and what did you expect instead?
+      placeholder: The board froze after my third move and the timer kept running.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Number them if you can. A link to the exact page helps a lot.
+      placeholder: |
+        1. Open /game/slidepuzzle
+        2. Set difficulty to hard
+        3. Slide any tile twice
+        4. The tile snaps back
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Brave
+        - Samsung Internet
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device and OS
+      options:
+        - Windows desktop or laptop
+        - macOS desktop or laptop
+        - Linux desktop or laptop
+        - Android phone or tablet
+        - iPhone or iPad
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: account
+    attributes:
+      label: Were you playing as a guest or a registered account?
+      options:
+        - Guest (the name the site gave me)
+        - Registered account
+        - Not sure
+    validations:
+      required: false
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Console errors or screenshots
+      description: Open devtools, check the Console tab, and paste anything red. Screenshots and screen recordings are welcome.
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you send
+      options:
+        - label: I searched the existing issues and this is not already reported
+          required: true
+        - label: I tried a hard refresh and it still happens
+          required: false

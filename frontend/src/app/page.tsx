@@ -35,7 +35,7 @@ export default function HomePage() {
             <div className="absolute top-0 left-0 right-0 z-20 flex justify-center -translate-y-[44%] pointer-events-none">
               <div className="animate-breathing">
                 <Image
-                  src="/hero/cat.png"
+                  src="/hero/cat.webp"
                   alt="Peeking Cat"
                   width={110}
                   height={110}

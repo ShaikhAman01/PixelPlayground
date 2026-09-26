@@ -29,3 +29,7 @@ export const LoginSchema = z.object({
 export const RenameSchema = z.object({
   username,
 });
+
+export const DeleteAccountSchema = z.object({
+  password: z.string().max(100).optional(),
+});

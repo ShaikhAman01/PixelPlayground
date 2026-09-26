@@ -2,7 +2,11 @@
 """
 Splits the home-page painting into animatable layers.
 
-Input:  public/background/bg-long2.png (day) and bg-long-dark2.png (night)
+Input:  assets/background/bg-long2.webp (day) and bg-long-dark2.webp (night)
+
+NOTE: the app now loads these sprites as .webp. After running this script,
+re-encode the .png sprites it writes to .webp or the scene will 404.
+
 Output: public/scene/<theme>/base.webp    the painting with only the moving parts inpainted out
         public/scene/<theme>/cat.png      the whole cat (ear included) as one solid sprite
         public/scene/<theme>/cat-ear.png  the ear again, drawn on top so it can twitch
@@ -36,7 +40,7 @@ import statistics
 from PIL import Image, ImageDraw
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = {"light": "public/background/bg-long2.png", "dark": "public/background/bg-long-dark2.png"}
+SRC = {"light": "assets/background/bg-long2.webp", "dark": "assets/background/bg-long-dark2.webp"}
 OUT = os.path.join(ROOT, "public", "scene")
 W, H = 1024, 1536
 SKY_H = 236
@@ -79,7 +83,7 @@ SCALE = 2
 WEBP_Q = 94
 day = Image.open(os.path.join(ROOT, SRC["light"])).convert("RGB")
 night = Image.open(os.path.join(ROOT, SRC["dark"])).convert("RGB")
-HI = {"light": "public/background/bg-long2@2x.png", "dark": "public/background/bg-long-dark2@2x.png"}
+HI = {"light": "assets/background/bg-long2@2x.webp", "dark": "assets/background/bg-long-dark2@2x.webp"}
 day_hi = Image.open(os.path.join(ROOT, HI["light"])).convert("RGB")
 night_hi = Image.open(os.path.join(ROOT, HI["dark"])).convert("RGB")
 for _im in (day_hi, night_hi):

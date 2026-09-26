@@ -2,8 +2,12 @@
 """
 Splits the game-page painting into animatable layers.
 
-Input:  public/background/bg2.png + bg2@2x.webp   (day)
-        public/background/bg3.png + bg3@2x.webp   (night)
+Input:  assets/background/bg2.webp + bg2@2x.webp   (day)
+        assets/background/bg3.webp + bg3@2x.webp   (night)
+
+NOTE: the app now loads these sprites as .webp. After running this script,
+re-encode the .png sprites it writes to .webp or the scene will 404.
+
 Output: public/scene-game/<theme>/base.webp     painting with the moving parts inpainted out
         public/scene-game/<theme>/cat.png       the cat as one solid sprite
         public/scene-game/<theme>/cat-ear.png   the ear again, on top, so it can twitch
@@ -36,8 +40,8 @@ from scene_lib import (  # noqa: E402
 )
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LO = {"light": "public/background/bg2.png", "dark": "public/background/bg3.png"}
-HI = {"light": "public/background/bg2@2x.webp", "dark": "public/background/bg3@2x.webp"}
+LO = {"light": "assets/background/bg2.webp", "dark": "assets/background/bg3.webp"}
+HI = {"light": "assets/background/bg2@2x.webp", "dark": "assets/background/bg3@2x.webp"}
 OUT = os.path.join(ROOT, "public", "scene-game")
 W, H = 1672, 941
 SCALE = 2

@@ -1,0 +1,63 @@
+name: Feature request
+description: Suggest a new game, a new mode, or an improvement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ideas are welcome. This is a portfolio project maintained by one person, so small and well shaped beats large and vague.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: What would this touch?
+      options:
+        - A brand new game
+        - 2048
+        - Wordle
+        - Connect 4
+        - Tic Tac Toe
+        - Slide Puzzle
+        - Color Memory
+        - Leaderboards and stats
+        - Accounts and sign in
+        - Chill mode (music, ambience, wallpapers, timer)
+        - Accessibility
+        - Performance
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What do you want to be able to do?
+      description: Describe it from a player's point of view rather than as an implementation.
+      placeholder: I would like Wordle to show me my streak history for the last month.
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why would it make the arcade better?
+      placeholder: Right now the streak is just a number, so there is no reason to come back after breaking it.
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Anything you have already tried, or prior art you like
+      description: Links to other sites that do this well are genuinely useful.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you send
+      options:
+        - label: I searched the existing issues and this is not already suggested
+          required: true
