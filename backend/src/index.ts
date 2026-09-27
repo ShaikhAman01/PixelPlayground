@@ -6,6 +6,7 @@ import { leaderboardRoutes } from "./routes/leaderboard.routes";
 import { scoresRoutes, statsRoutes } from "./routes/scores.routes";
 import { usersRoutes } from "./routes/users.routes";
 import type { AuthVariables, Env } from "./types";
+import { errorResponse } from "./utils/helpers";
 
 import { errorMiddleware } from "./middleware/error.middleware";
 import { loggerMiddleware } from "./middleware/logger.middleware";
@@ -32,6 +33,11 @@ app.get("/", (c) => {
     success: true,
     message: "PixelPlayground API running",
   });
+});
+
+app.onError((error, c) => {
+  console.error("[GLOBAL_ERROR]", error);
+  return c.json(errorResponse("Internal server error"), 500);
 });
 
 app.route("/api/v1/auth", authRoutes);
