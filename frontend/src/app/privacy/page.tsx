@@ -12,12 +12,12 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen w-full py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-      <main className="pp-rise w-full max-w-2xl rounded-[32px] border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/85 backdrop-blur-xl p-6 sm:p-10 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+      <main id="main-content" tabIndex={-1} className="pp-rise w-full max-w-2xl rounded-[32px] border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/85 backdrop-blur-xl p-6 sm:p-10 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
         <div className="text-center select-none mb-8">
           <h1 className="pixel-font text-2xl font-black uppercase tracking-wide text-slate-900 dark:text-slate-50">
             Privacy Policy
           </h1>
-          <p className="mt-2 text-xs font-sans font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+          <p className="mt-2 text-xs font-sans font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
             Last Updated: September 2026
           </p>
         </div>
@@ -94,7 +94,7 @@ export default function PrivacyPage() {
               accounts, individual scores and per game stats. The site itself is served from Vercel. Both of them see
               ordinary web traffic on our behalf, which includes your IP address at the moment of the request. We do not
               copy IP addresses into the database. The Worker holds one in memory only long enough to rate limit the
-              sign in, sign up and delete endpoints, and it is dropped within the minute.
+              account and score endpoints, and it is dropped within the minute.
             </p>
           </section>
 

@@ -51,7 +51,27 @@ KEYBOARD FOCUS VISIBILITY
 REDUCED MOTION
 ================================ */
 /* Framer Motion honors this via MotionConfig; cover the CSS animations too */
+@keyframes pp-cat-peek {
+  0%, 100% { transform: translateY(6px); }
+  45%, 60% { transform: translateY(-2px); }
+}
+
+.pp-cat-peek {
+  animation: pp-cat-peek 1.8s ease-in-out infinite;
+}
+
+@keyframes pp-paw {
+  0%, 100% { opacity: 0.2; transform: scale(0.85); }
+  30%, 55% { opacity: 1; transform: scale(1); }
+}
+
+.pp-paw {
+  animation: pp-paw 1.3s ease-in-out infinite both;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .pp-cat-peek,
+  .pp-paw,
   .animate-sparkle,
   .animate-breathing,
   .animate-lantern,

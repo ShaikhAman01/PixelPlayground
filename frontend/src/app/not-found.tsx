@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <div className="min-h-screen w-full py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-      <main className="pp-rise w-full max-w-2xl rounded-[32px] border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/85 backdrop-blur-xl p-6 sm:p-10 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+      <main id="main-content" tabIndex={-1} className="pp-rise w-full max-w-2xl rounded-[32px] border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/85 backdrop-blur-xl p-6 sm:p-10 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
         <div className="text-center select-none mb-8">
           <p className="pixel-font text-6xl sm:text-7xl font-black text-slate-900 dark:text-slate-50 leading-none">
             404
@@ -32,7 +32,7 @@ export default function NotFound() {
               className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-950/40 px-3 py-3 text-center hover:border-slate-400 dark:hover:border-slate-600 hover:-translate-y-0.5 transition-all"
             >
               <span className="block text-xs font-bold text-slate-800 dark:text-slate-100">{game.title}</span>
-              <span className="block mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <span className="block mt-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                 {game.description}
               </span>
             </Link>

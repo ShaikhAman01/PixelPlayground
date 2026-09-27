@@ -2,17 +2,9 @@
 
 import dynamic from "next/dynamic";
 import type { GameId } from "./gameIds";
+import { CatLoader } from "@/components/ui/CatLoader";
 
-const GameLoading = () => (
-  <div className="flex min-h-[320px] w-full items-center justify-center">
-    <div className="flex items-center gap-2.5 rounded-full border border-slate-200/80 bg-white/70 px-5 py-3 backdrop-blur-md dark:border-white/10 dark:bg-slate-900/70">
-      <span className="h-2 w-2 animate-pulse rounded-full bg-violet-400" />
-      <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
-        Loading game…
-      </span>
-    </div>
-  </div>
-);
+const GameLoading = () => <CatLoader />;
 
 // Each game loads in its own chunk so e.g. Wordle's 14k-line word list
 // never ships to players of the other games.

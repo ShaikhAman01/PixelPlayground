@@ -109,7 +109,18 @@ export const SoloConnect4 = () => {
           
           <div className="absolute -top-12 left-4 right-4 grid grid-cols-7 gap-2.5 sm:gap-3.5 justify-items-center">
             {Array.from({ length: 7 }).map((_, colIdx) => (
-              <div key={colIdx} className="relative flex h-10 w-10 sm:h-12 sm:w-12 justify-center items-center">
+              <button
+                key={colIdx}
+                type="button"
+                aria-label={`Drop a piece in column ${colIdx + 1}`}
+                disabled={Boolean(winner || matchWinner)}
+                onClick={() => makeMove(colIdx)}
+                onFocus={() => setHoveredCol(colIdx)}
+                onBlur={() => setHoveredCol(null)}
+                onMouseEnter={() => setHoveredCol(colIdx)}
+                onMouseLeave={() => setHoveredCol(null)}
+                className="relative flex h-10 w-10 sm:h-12 sm:w-12 justify-center items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 disabled:cursor-default"
+              >
                 <AnimatePresence>
                   {hoveredCol === colIdx && currentTurn === "X" && !winner && !matchWinner && (
                     <motion.div
@@ -120,7 +131,7 @@ export const SoloConnect4 = () => {
                     />
                   )}
                 </AnimatePresence>
-              </div>
+              </button>
             ))}
           </div>
 

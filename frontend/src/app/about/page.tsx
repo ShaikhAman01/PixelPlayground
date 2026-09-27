@@ -12,12 +12,12 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <div className="min-h-screen w-full py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-      <main className="pp-rise w-full max-w-2xl rounded-[32px] border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/85 backdrop-blur-xl p-6 sm:p-10 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+      <main id="main-content" tabIndex={-1} className="pp-rise w-full max-w-2xl rounded-[32px] border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/85 backdrop-blur-xl p-6 sm:p-10 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
         <div className="text-center select-none mb-8">
           <h1 className="pixel-font text-2xl font-black uppercase tracking-wide text-slate-900 dark:text-slate-50">
             About The Arcade
           </h1>
-          <p className="mt-2 text-xs font-sans font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+          <p className="mt-2 text-xs font-sans font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
             Pure gameplay, zero distractions
           </p>
         </div>
@@ -30,8 +30,8 @@ export default function AboutPage() {
             name the second you arrive and you can start playing.
           </p>
           <p>
-            Every board here, from <span className="text-violet-500 font-bold">Tic Tac Toe</span> to{" "}
-            <span className="text-teal-500 font-bold">Wordle</span>, is drawn with plain web elements rather than
+            Every board here, from <span className="text-violet-600 dark:text-violet-300 font-bold">Tic Tac Toe</span> to{" "}
+            <span className="text-teal-700 dark:text-teal-300 font-bold">Wordle</span>, is drawn with plain web elements rather than
             images, so it stays sharp at any size and runs well on a tired laptop. The games themselves play out
             entirely in your browser. When a round ends, the result travels to a small Cloudflare Worker so streaks and
             leaderboards have somewhere to live, and if that server is unreachable the games carry on regardless.
@@ -40,15 +40,15 @@ export default function AboutPage() {
           <div className="border-t border-b border-slate-100 dark:border-slate-800/60 py-4 my-6 grid grid-cols-3 gap-4 text-center">
             <div>
               <p className="text-base font-black text-slate-900 dark:text-white">6</p>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Games Available</p>
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">Games Available</p>
             </div>
             <div>
               <p className="text-base font-black text-slate-900 dark:text-white">0</p>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Ads Ever</p>
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">Ads Ever</p>
             </div>
             <div>
               <p className="text-base font-black text-slate-900 dark:text-white">1</p>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Developer</p>
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">Developer</p>
             </div>
           </div>
 

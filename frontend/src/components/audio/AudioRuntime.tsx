@@ -28,7 +28,6 @@ export const AudioRuntime = () => {
       try {
         player.pause();
         player.src = activeTrack.src;
-        player.load();
 
         // Read play state at execution time so toggling play/pause
         // doesn't reload the current track from the start
@@ -59,7 +58,7 @@ export const AudioRuntime = () => {
   return (
     <audio
       ref={audioRef}
-      preload="auto"
+      preload="none"
       crossOrigin="anonymous"
       onEnded={() => {
         // `loop` must stay off or this never fires and the playlist stalls
