@@ -102,7 +102,7 @@ export const submitScore = async (
     case "wordle": {
       scoreValue = payload.guesses;
 
-      if (prev.lastPlayedDay === payload.day) {
+      if (prev.lastPlayedDay !== null && payload.day <= prev.lastPlayedDay) {
         // Already recorded today's puzzle: keep history but leave
         // plays/streak untouched so refresh-resubmits can't farm streaks.
         next.plays = prev.plays;

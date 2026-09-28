@@ -91,6 +91,12 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} ${pixelFont.variable} antialiased`}>
+        <a
+          href="#main-content"
+          className="sr-only bg-slate-900 text-white focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-xl focus:px-4 focus:py-2 focus:text-sm focus:font-bold"
+        >
+          Skip to content
+        </a>
         <ThemeProvider>
           <ModeProvider>
             <MotionProvider>

@@ -104,6 +104,8 @@ export const TopBar = () => {
               >
                 <button
                   onClick={() => setMode("play")}
+                  aria-label="Play mode"
+                  aria-pressed={mode === "play"}
                   className={`
                     relative
                     flex items-center gap-2
@@ -133,6 +135,8 @@ export const TopBar = () => {
 
                 <button
                   onClick={() => setMode("chill")}
+                  aria-label="Chill mode"
+                  aria-pressed={mode === "chill"}
                   className={`
                     relative
                     flex items-center gap-2

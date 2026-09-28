@@ -87,6 +87,7 @@ const EffectCard = ({ id, name, icon, value, disabled, onChange }: EffectCardPro
       </div>
       <input
         type="range" min="0" max="1" step="0.05"
+        aria-label={`${name} volume`}
         value={value}
         disabled={disabled}
         onChange={(e) => onChange(id, parseFloat(e.target.value))}
@@ -100,24 +101,29 @@ const Divider = ({ className }: { className?: string }) => (
   <div className={`h-4 w-px bg-white/10 shrink-0 ${className ?? ""}`} />
 );
 
-const AMBIENT_AUDIO_INSTANCES: Record<string, HTMLAudioElement> =
-  typeof window !== "undefined"
-    ? {
-        rain: new Audio("/audio/effects/rain.mp3"),
-        wind: new Audio("/audio/effects/wind.mp3"),
-        fire: new Audio("/audio/effects/fire.mp3"),
-        cafe: new Audio("/audio/effects/cafe.mp3"),
-        birds: new Audio("/audio/effects/birds.mp3"),
-        waves: new Audio("/audio/effects/waves.mp3")
-      }
-    : {};
+const AMBIENT_SOURCES: Record<string, string> = {
+  rain: "/audio/effects/rain.mp3",
+  wind: "/audio/effects/wind.mp3",
+  fire: "/audio/effects/fire.mp3",
+  cafe: "/audio/effects/cafe.mp3",
+  birds: "/audio/effects/birds.mp3",
+  waves: "/audio/effects/waves.mp3",
+};
 
-if (typeof window !== "undefined") {
-  Object.values(AMBIENT_AUDIO_INSTANCES).forEach((audio) => {
+// Created on first use. This module is imported by the home page, so building
+// these eagerly started ~20 MB of downloads for visitors who never opened Chill.
+const ambientInstances: Record<string, HTMLAudioElement> = {};
+
+const getAmbient = (id: string): HTMLAudioElement | undefined => {
+  if (typeof window === "undefined" || !AMBIENT_SOURCES[id]) return undefined;
+  if (!ambientInstances[id]) {
+    const audio = new Audio(AMBIENT_SOURCES[id]);
     audio.loop = true;
     audio.preload = "auto";
-  });
-}
+    ambientInstances[id] = audio;
+  }
+  return ambientInstances[id];
+};
 
 export const ChillDashboard = () => {
   const { trackIndex, isPlaying, volume, setVolume, nextTrack, prevTrack, setIsPlaying } = useAudioStore();
@@ -166,7 +172,8 @@ export const ChillDashboard = () => {
     if (typeof window === "undefined") return;
 
     Object.keys(activeEffects).forEach((id) => {
-      const audio = AMBIENT_AUDIO_INSTANCES[id];
+      const wanted = ambientEnabled && activeEffects[id] * masterAmbientVol > 0;
+      const audio = wanted ? getAmbient(id) : ambientInstances[id];
       if (audio) {
         const targetVolume = Math.max(0, Math.min(1, activeEffects[id] * masterAmbientVol));
         audio.volume = targetVolume;
@@ -190,7 +197,7 @@ export const ChillDashboard = () => {
     });
 
     return () => {
-      Object.values(AMBIENT_AUDIO_INSTANCES).forEach((audio) => {
+      Object.values(ambientInstances).forEach((audio) => {
         if (!audio.paused) audio.pause();
       });
     };
@@ -329,6 +336,7 @@ export const ChillDashboard = () => {
                 </div>
                 <button
                   onClick={() => setShowPomodoroPanel(false)}
+                  aria-label="Close timer"
                   className="w-5 h-5 rounded-full bg-white/[0.05] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
                 >
                   <X className="w-3 h-3" />
@@ -350,12 +358,15 @@ export const ChillDashboard = () => {
               <div className="flex items-center justify-center gap-5 text-zinc-400">
                 <button
                   onClick={() => setShowTimerSettings(!showTimerSettings)}
+                  aria-label="Timer settings"
+                  aria-expanded={showTimerSettings}
                   className={`transition-colors cursor-pointer ${showTimerSettings ? "text-white" : "hover:text-white"}`}
                 >
                   <Settings className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => setTimerRunning(!timerRunning)}
+                  aria-label={timerRunning ? "Pause timer" : "Start timer"}
                   className="w-9 h-9 rounded-full bg-white/10 border border-white/12 text-white hover:bg-white/15 active:scale-95 transition-all flex items-center justify-center cursor-pointer"
                 >
                   {timerRunning
@@ -369,6 +380,7 @@ export const ChillDashboard = () => {
                     setMinutes(activeTab === "focus" ? focusDuration : breakDuration);
                     setSeconds(0);
                   }}
+                  aria-label="Reset timer"
                   className="hover:text-white transition-colors cursor-pointer"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
@@ -402,6 +414,7 @@ export const ChillDashboard = () => {
                           <div className="flex items-center bg-black/40 border border-white/10 rounded-lg p-0.5 overflow-hidden">
                             <button 
                               onClick={() => onChange(value - 1)}
+                              aria-label={`Decrease ${label}`}
                               className="w-5 h-5 flex items-center justify-center hover:bg-white/10 rounded text-zinc-400 hover:text-white transition-colors cursor-pointer"
                             >
                               <Minus className="w-2.5 h-2.5" />
@@ -411,6 +424,7 @@ export const ChillDashboard = () => {
                             </span>
                             <button 
                               onClick={() => onChange(value + 1)}
+                              aria-label={`Increase ${label}`}
                               className="w-5 h-5 flex items-center justify-center hover:bg-white/10 rounded text-zinc-400 hover:text-white transition-colors cursor-pointer"
                             >
                               <Plus className="w-2.5 h-2.5" />
@@ -511,6 +525,7 @@ export const ChillDashboard = () => {
                         </div>
                         <button
                           onClick={(e) => toggleTrackDisabledState(idx, e)}
+                          aria-label={isDisabled ? `Restore ${track.title}` : `Remove ${track.title} from playlist`}
                           className={`flex-shrink-0 p-1 rounded-md transition-colors ${
                             isDisabled
                               ? "text-emerald-400 hover:text-emerald-300 text-[10px] font-semibold"
@@ -545,6 +560,7 @@ export const ChillDashboard = () => {
                       type="checkbox"
                       checked={ambientEnabled}
                       onChange={() => setAmbientEnabled(!ambientEnabled)}
+                      aria-label="Ambient sounds"
                       className="sr-only peer"
                     />
                     <div className="w-8 h-4 bg-zinc-700 rounded-full peer-checked:bg-emerald-500 transition-colors relative">
@@ -558,6 +574,7 @@ export const ChillDashboard = () => {
                   <Volume2 className="w-3.5 h-3.5 text-zinc-500 flex-shrink-0" />
                   <input
                     type="range" min="0" max="1" step="0.01"
+                    aria-label="Ambient volume"
                     value={masterAmbientVol}
                     onChange={(e) => setMasterAmbientVol(parseFloat(e.target.value))}
                     disabled={!ambientEnabled}
@@ -586,11 +603,12 @@ export const ChillDashboard = () => {
 
             {/* Left Section: Track Transport Controls */}
             <div className="flex items-center gap-1.5 md:gap-2.5 text-zinc-400 flex-shrink-0">
-              <button onClick={prevTrack} className="hover:text-white transition-colors active:scale-90 cursor-pointer">
+              <button onClick={prevTrack} aria-label="Previous track" className="hover:text-white transition-colors active:scale-90 cursor-pointer">
                 <SkipBack className="w-4 h-4 fill-current" />
               </button>
               <button
                 onClick={() => setIsPlaying(!isPlaying)}
+                aria-label={isPlaying ? "Pause" : "Play"}
                 className="w-8 h-8 rounded-full bg-white text-zinc-950 flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm flex-shrink-0 cursor-pointer"
               >
                 {isPlaying
@@ -598,7 +616,7 @@ export const ChillDashboard = () => {
                   : <Play  className="w-3 h-3 fill-current ml-0.5" />
                 }
               </button>
-              <button onClick={nextTrack} className="hover:text-white transition-colors active:scale-90 cursor-pointer">
+              <button onClick={nextTrack} aria-label="Next track" className="hover:text-white transition-colors active:scale-90 cursor-pointer">
                 <SkipForward className="w-4 h-4 fill-current" />
               </button>
             </div>
@@ -670,11 +688,12 @@ export const ChillDashboard = () => {
 
               {/* Volume Scrubber Node Container (Hidden completely on mobile) */}
               <div className="hidden md:flex items-center gap-2 flex-shrink-0">
-                <button onClick={toggleMute} className="hover:text-white transition-colors cursor-pointer">
+                <button onClick={toggleMute} aria-label={volume > 0 ? "Mute music" : "Unmute music"} className="hover:text-white transition-colors cursor-pointer">
                   {renderVolumeIcon()}
                 </button>
                 <input
                   type="range" min="0" max="100" value={volume}
+                  aria-label="Music volume"
                   onChange={(e) => setVolume(parseInt(e.target.value))}
                   className="w-16 h-0.5 appearance-none rounded-full bg-white/10 accent-white cursor-pointer"
                 />

@@ -239,7 +239,7 @@ export const GameShell: React.FC<GameShellProps> = ({
         )}
       </div>
 
-      <main className="w-full flex flex-col lg:grid lg:grid-cols-12 gap-5 items-start mt-1">
+      <div className="w-full flex flex-col lg:grid lg:grid-cols-12 gap-5 items-start mt-1">
         
         {/* Left Side: Games Index (FIXED LAYER STACK FOR MOBILE) */}
         <section className="w-full lg:col-span-3 order-1 relative z-30">
@@ -421,7 +421,7 @@ export const GameShell: React.FC<GameShellProps> = ({
           {gameSlug && <LeaderboardPanel gameId={gameSlug} />}
         </section>
 
-      </main>
+      </div>
     </div>
   );
 };

@@ -14,7 +14,7 @@ leaderboardRoutes.get("/:gameId", optionalAuthMiddleware, async (c) => {
     return c.json(errorResponse("Unknown game"), 400);
   }
 
-  const limit = Math.min(Number(c.req.query("limit")) || 10, 50);
+  const limit = Math.min(Math.max(Math.trunc(Number(c.req.query("limit"))) || 10, 1), 50);
   const userId = c.get("jwtPayload")?.sub;
 
   const { entries, me } = await getLeaderboard(getDb(c.env.DB), gameId, limit, userId);

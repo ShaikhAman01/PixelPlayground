@@ -14,7 +14,7 @@ import type { AuthVariables, Env } from "../types";
 
 export const usersRoutes = new Hono<{ Bindings: Env; Variables: AuthVariables }>();
 
-usersRoutes.patch("/me", authMiddleware, async (c) => {
+usersRoutes.patch("/me", rateLimit(10), authMiddleware, async (c) => {
   const body = await c.req.json().catch(() => ({}));
   const parsed = RenameSchema.safeParse(body);
   if (!parsed.success) {

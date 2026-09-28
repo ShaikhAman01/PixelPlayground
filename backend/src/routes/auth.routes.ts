@@ -20,6 +20,6 @@ authRoutes.post("/signup", rateLimit(10), signup);
 authRoutes.post("/login", rateLimit(15), login);
 
 // Guest → registered account (keeps stats)
-authRoutes.post("/upgrade", authMiddleware, upgrade);
+authRoutes.post("/upgrade", rateLimit(10), authMiddleware, upgrade);
 
 authRoutes.get("/me", authMiddleware, me);

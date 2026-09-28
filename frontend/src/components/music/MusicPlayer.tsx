@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useAudioStore, playlist } from "@/store/audio.store";
 import { useTheme } from "../providers/ThemeProvider";
+import { PawTrail } from "../ui/CatLoader";
 
 const WAVEFORM_DURATIONS = Array.from(
   { length: 14 },
@@ -93,7 +94,10 @@ export const MusicPlayer = () => {
                 </span>
               )
             ) : (
-              <span className="text-xs font-bold text-slate-400 block animate-pulse">Loading...</span>
+              <span role="status" className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400">
+                <PawTrail size="h-2.5 w-2.5" />
+                Tuning in
+              </span>
             )}
           </div>
           <span className="text-[10px] text-slate-400 dark:text-slate-500 font-extrabold truncate uppercase tracking-widest block mt-0.5">

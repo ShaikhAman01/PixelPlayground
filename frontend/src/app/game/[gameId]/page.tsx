@@ -91,7 +91,7 @@ export default async function GamePage({ params }: Props) {
   }
 
   return (
-    <main className="relative min-h-screen lg:h-dvh lg:max-h-dvh w-full overflow-x-hidden lg:overflow-hidden flex flex-col transition-all duration-500">
+    <main id="main-content" tabIndex={-1} className="relative min-h-screen lg:h-dvh lg:max-h-dvh w-full overflow-x-hidden lg:overflow-hidden flex flex-col transition-all duration-500">
 
       {/* The painting, split into layers that move on their own */}
       <GameScene />
