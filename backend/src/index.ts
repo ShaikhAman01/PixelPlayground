@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { HTTPException } from "hono/http-exception";
 
 import { authRoutes } from "./routes/auth.routes";
 import { leaderboardRoutes } from "./routes/leaderboard.routes";
@@ -8,7 +9,6 @@ import { usersRoutes } from "./routes/users.routes";
 import type { AuthVariables, Env } from "./types";
 import { errorResponse } from "./utils/helpers";
 
-import { errorMiddleware } from "./middleware/error.middleware";
 import { loggerMiddleware } from "./middleware/logger.middleware";
 import { requestIdMiddleware } from "./middleware/request-id.middleware";
 
@@ -22,8 +22,6 @@ app.use("*", async (c, next) => {
   return handler(c, next);
 });
 
-app.use("*", errorMiddleware);
-
 app.use("*", loggerMiddleware);
 
 app.use("*", requestIdMiddleware);
@@ -35,7 +33,12 @@ app.get("/", (c) => {
   });
 });
 
+app.notFound((c) => c.json(errorResponse("Not found"), 404));
+
 app.onError((error, c) => {
+  if (error instanceof HTTPException) {
+    return c.json(errorResponse(error.message || "Request failed"), error.status);
+  }
   console.error("[GLOBAL_ERROR]", error);
   return c.json(errorResponse("Internal server error"), 500);
 });
