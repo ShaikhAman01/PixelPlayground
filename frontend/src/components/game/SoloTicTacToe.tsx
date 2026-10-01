@@ -157,6 +157,7 @@ export const SoloTicTacToe = () => {
                   whileHover={!cell && status === "PLAYING" ? { scale: 1.02 } : {}}
                   whileTap={!cell && status === "PLAYING" ? { scale: 0.98 } : {}}
                   onClick={() => makeMove(index)}
+                  aria-label={`Row ${Math.floor(index / 3) + 1}, column ${(index % 3) + 1}, ${cell ?? "empty"}`}
                   disabled={!!cell || status !== "PLAYING"}
                   className={`flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center rounded-2xl border text-3xl font-black shadow-sm transition-all duration-300 select-none ${
                     cell 

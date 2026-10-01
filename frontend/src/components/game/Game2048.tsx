@@ -11,6 +11,10 @@ type GridType = number[][];
 export const Game2048 = () => {
   const { board, score, gameOver, setState, resetGame } = useGame2048Store();
   
+  useEffect(() => {
+    if (board.every((row) => row.every((v) => v === 0))) resetGame();
+  }, [board, resetGame]);
+
   // Refs to track swipe coordinates
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 

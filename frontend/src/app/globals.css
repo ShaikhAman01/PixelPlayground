@@ -182,3 +182,20 @@ WATER SHIMMER
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
   animation: shimmer 12s linear infinite;
 }
+
+.pp-splash {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+
+@keyframes pp-splash-in {
+  from { opacity: 0; }
+}
+
+html[data-pp-splash="show"] .pp-splash {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.3s ease;
+  animation: pp-splash-in 0.3s ease-out;
+}

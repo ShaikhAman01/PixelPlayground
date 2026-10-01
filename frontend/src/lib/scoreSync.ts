@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { toast } from "sonner";
-import { api, type SubmitScorePayload } from "@/lib/api";
+import { api, ApiError, type SubmitScorePayload } from "@/lib/api";
 import { useAuthStore } from "@/store/auth.store";
 
 interface StatsSyncState {
@@ -31,17 +31,29 @@ export const submitScore = (payload: SubmitScorePayload) => {
     if (auth.status !== "ready" || !auth.token) {
       await auth.ensureSession();
     }
-    const { token } = useAuthStore.getState();
-    if (!token) return;
-
-    try {
+    const send = async () => {
+      const { token } = useAuthStore.getState();
+      if (!token) return;
       const result = await api.submitScore(token, payload);
       useStatsSync.getState().bump();
       if (result.newBest) {
         toast("New personal best!", { icon: "🏆", duration: 2500 });
       }
-    } catch {
-      // Offline or rejected — gameplay goes on, nothing to surface
+    };
+
+    const { token: usedToken, user } = useAuthStore.getState();
+    try {
+      await send();
+    } catch (err) {
+      if (!(err instanceof ApiError) || err.status !== 401) return;
+      // Another submit already recovered from this dead session.
+      if (useAuthStore.getState().token !== usedToken) return;
+      await useAuthStore.getState().logout();
+      if (user && !user.isGuest) {
+        toast("Your session ended. Sign in again to keep saving scores.", { duration: 5000 });
+        return;
+      }
+      await send().catch(() => {});
     }
   })();
 };

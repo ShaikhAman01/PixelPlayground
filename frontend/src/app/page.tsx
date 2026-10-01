@@ -20,7 +20,7 @@ export default function HomePage() {
         {isChillActive && <ChillDashboard />}
       </AnimatePresence>
 
-      <main id="main-content" tabIndex={-1}
+      <main id={isChillActive ? undefined : "main-content"} tabIndex={-1} inert={isChillActive}
         className={`relative min-h-screen w-full overflow-x-hidden flex flex-col bg-[#8f86ea] dark:bg-[#090541] transition-all duration-700 font-sans ${
           isChillActive
             ? "opacity-0 pointer-events-none"

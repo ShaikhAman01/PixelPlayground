@@ -12,6 +12,8 @@ interface Game2048State {
   resetGame: () => void;
 }
 
+const emptyBoard = (): GridType => Array.from({ length: 4 }, () => Array(4).fill(0));
+
 const generateInitialBoard = (): GridType => {
   const grid = Array.from({ length: 4 }, () => Array(4).fill(0));
   let spawned = 0;
@@ -29,7 +31,8 @@ const generateInitialBoard = (): GridType => {
 export const useGame2048Store = create<Game2048State>()(
   persist(
     (set) => ({
-      board: generateInitialBoard(),
+      // Tiles are placed on mount: random tiles here would differ between server and client.
+      board: emptyBoard(),
       score: 0,
       gameOver: false,
       bestScore: 0,
