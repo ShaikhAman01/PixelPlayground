@@ -12,6 +12,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/links";
 import { Inter, Pixelify_Sans } from "next/font/google";
 import "./globals.css";
+import { CatCard } from "@/components/ui/CatLoader";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -79,7 +80,14 @@ export default function RootLayout({
             OS preference and only this script knows which won. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');if(t==='dark')document.documentElement.classList.add('dark');var l=document.createElement('link');l.rel='preload';l.as='image';l.href='/scene/'+t+'/base.webp';document.head.appendChild(l);}catch(e){}`,
+            __html: `try{var t=localStorage.getItem('theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');if(t==='dark')document.documentElement.classList.add('dark');var l=document.createElement('link');l.rel='preload';l.as='image';l.href=(location.pathname.indexOf('/game/')===0?'/scene-game/':'/scene/')+t+'/base.webp';document.head.appendChild(l);}catch(e){}`,
+          }}
+        />
+        {/* First-load splash: shown only if loading passes 600 ms, cleared once
+            fonts, visible images and the scene painting are in, never past 8 s. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var d=document.documentElement,done=false,shownAt=0;function hide(){d.setAttribute('data-pp-splash','done')}function finish(){if(done)return;done=true;clearTimeout(s);var left=shownAt?500-(Date.now()-shownAt):0;left>0?setTimeout(hide,left):hide()}var s=setTimeout(function(){shownAt=Date.now();d.setAttribute('data-pp-splash','show')},600);setTimeout(finish,8000);function wait(src){return new Promise(function(r){var i=new Image();i.onload=i.onerror=r;i.src=src})}function check(){var w=[].slice.call(document.images).filter(function(i){return i.loading!=='lazy'&&!i.complete&&i.getClientRects().length}).map(function(i){return new Promise(function(r){i.addEventListener('load',r);i.addEventListener('error',r)})});[].slice.call(document.querySelectorAll('.scene-base,.scene-base-game')).forEach(function(el){var m=/url\\(["']?([^"')]+)/.exec(getComputedStyle(el).backgroundImage);if(m)w.push(wait(m[1]))});if(document.fonts)w.push(document.fonts.ready);Promise.all(w).then(finish,finish)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',check);else check()})()`,
           }}
         />
         {/* Entrance for the static pages, which stay server components so they
@@ -97,6 +105,13 @@ export default function RootLayout({
         >
           Skip to content
         </a>
+        <div
+          role="status"
+          aria-live="polite"
+          className="pp-splash fixed inset-0 z-[200] flex items-center justify-center bg-[var(--background)]"
+        >
+          <CatCard label="Loading" large />
+        </div>
         <ThemeProvider>
           <ModeProvider>
             <MotionProvider>

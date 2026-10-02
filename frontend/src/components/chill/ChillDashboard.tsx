@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useIsPresent } from "framer-motion";
 import {
   Play,
   Pause,
@@ -126,6 +126,7 @@ const getAmbient = (id: string): HTMLAudioElement | undefined => {
 };
 
 export const ChillDashboard = () => {
+  const isPresent = useIsPresent();
   const { trackIndex, isPlaying, volume, setVolume, nextTrack, prevTrack, setIsPlaying } = useAudioStore();
 
   // Wallpaper choice survives visits; guard against ids removed from the list
@@ -182,14 +183,12 @@ export const ChillDashboard = () => {
 
         if (shouldPlay) {
           if (audio.paused) {
-            console.log(`🔊 [Ambient Mixer] Attempting to stream: ${id} at volume ${Math.round(targetVolume * 100)}%`);
             audio.play().catch((err) => {
-              console.error(`❌ [Ambient Mixer] Browser blocked execution context for ${id}:`, err.message);
+              if (err.name !== "AbortError") console.warn(`Ambient sound "${id}" could not start:`, err.message);
             });
           }
         } else {
           if (!audio.paused) {
-            console.log(`🔇 [Ambient Mixer] Pausing stream: ${id}`);
             audio.pause();
           }
         }
@@ -291,11 +290,14 @@ export const ChillDashboard = () => {
 
   return (
     <motion.div
+      id={isPresent ? "main-content" : undefined}
+      role={isPresent ? "main" : undefined}
+      tabIndex={-1}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
-      className="fixed inset-0 w-screen h-screen overflow-hidden text-slate-200 font-sans select-none"
+      className="fixed inset-0 w-screen h-screen overflow-hidden text-slate-200 font-sans select-none outline-none"
     >
       <div
         className="absolute inset-0 bg-cover bg-center transition-all duration-1000 ease-in-out"

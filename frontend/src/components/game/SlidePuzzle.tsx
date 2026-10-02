@@ -95,6 +95,8 @@ export const SlidePuzzle = () => {
                     whileTap={tile !== 0 && !won ? { scale: 0.98 } : {}}
                     onClick={() => moveTile(index)}
                     disabled={tile === 0 || won}
+                    aria-hidden={tile === 0 || undefined}
+                    tabIndex={tile === 0 ? -1 : undefined}
                     className={`flex w-full h-24 sm:h-28 items-center justify-center rounded-2xl border text-2xl font-black shadow-sm transition-colors duration-200 select-none ${
                       tile === 0
                         ? "border-transparent bg-transparent shadow-none pointer-events-none"
